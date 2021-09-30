@@ -3,7 +3,9 @@ app = Flask(__name__)
 
 @app.route("/")
 def home():
+    print("hallo")
     return render_template("FlaskProject.html")
+    
 
 if __name__ == "__main__":
    app.run()
