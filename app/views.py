@@ -3,7 +3,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
 import requests, os
 from datetime import date
-from . forms import LoginForm, RegisterForm, CreatePostForm, CreateCommentForm
+from . forms import LoginForm, RegisterForm
 from . import db
 from .models import User
 from base64 import b64encode
