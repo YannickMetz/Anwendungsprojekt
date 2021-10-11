@@ -11,7 +11,7 @@ DB_NAME = 'main_db.db'
 
 def create_app():
     app = Flask(__name__)
-    app.config['SECRET_KEY'] = '\xa5\x1d>\x8d9\x18@\xa1\xe9:\x07^\r\x81tP'
+    app.config['SECRET_KEY'] = '\xa5\x1d>\x8d9\x18@\xa1\xe9:\x07^\r\x81tPtestp'
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
