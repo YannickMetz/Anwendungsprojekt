@@ -83,6 +83,6 @@ class Dienstleisterprofil(db.Model):
     id = db.Column(db.Integer, db.ForeignKey("Dienstleister.dienstleister_id"), primary_key=True)
     profilbild = db.Column(db.LargeBinary)
     bewertung = db.Column(db.Float, db.ForeignKey("Dienstleisterbewertung.zufriedenheit"))
-    dienstleistung = db.Column(db.String, db.ForeignKey("Dienstleistung_Profil.Dienstleistung_ID"))
+    dienstleistung = db.Column(db.String, db.ForeignKey("Dienstleistung_Profil.Dienstleistung"))
     profilbeschreibung = db.Column(db.String)
     bildergalerie = db.Column(db.LargeBinary)
