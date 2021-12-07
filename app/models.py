@@ -6,8 +6,6 @@ from . import db
      
 login_manager = LoginManager()
 
-author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-
 class User(UserMixin, db.Model):
     __tablename__ = "User"
     id = db.Column(db.Integer, primary_key=True, unique=True)
