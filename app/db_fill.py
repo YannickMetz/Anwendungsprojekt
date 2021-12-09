@@ -5,7 +5,7 @@ con = sqlite3.connect(r'G:\SynologyDrive\Uni\6. Semester\Anwendungsprojekt\Devel
 cur = con.cursor()
 
 # Insert a row of data
-for i in range(5):
+"""for i in range(5):
     pw = generate_password_hash(
                 f"start1234{i}", 
                 method='pbkdf2:sha256', 
@@ -19,7 +19,11 @@ for i in range(5):
                 method='pbkdf2:sha256', 
                 salt_length=8
             )
-    cur.execute(f"INSERT INTO User(email,password,role) VALUES ('testdienstleister{i}@testmail.com',?,'Dienstleister')",(pw,))
+    cur.execute(f"INSERT INTO User(email,password,role) VALUES ('testdienstleister{i}@testmail.com',?,'Dienstleister')",(pw,))"""
+
+#for i in range(5):
+cur.execute(f"INSERT INTO User(email,password,role) VALUES ('testdienstleister{i}@testmail.com',?,'Dienstleister')")
+
 # Save (commit) the changes
 con.commit()
 

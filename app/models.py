@@ -9,19 +9,23 @@ login_manager = LoginManager()
 class User(UserMixin, db.Model):
     __tablename__ = "User"
     id = db.Column(db.Integer, primary_key=True, unique=True)
+    kunden_id = relationship("Kunde", uselist=False, back_populates="id")
     email = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
     role = db.Column(db.String(100))
     
+    
 class Kunde(db.Model):
     __tablename__ = "Kunde"
     kunden_id = db.Column(db.Integer, db.ForeignKey("User.id"), primary_key=True)
+    user_id = relationship("User", back_populates="kunden_id")
     k_vorname = db.Column(db.String(20))
     k_nachname = db.Column(db.String(20))
     k_geburtstadum = db.Column(db.Date)
     k_straße = db.Column(db.String(20))
     k_plz = db.Column(db.String(20))
     k_ort = db.Column(db.String(20))
+    
 
 class Dienstleister(db.Model):
     __tablename__ = "Dienstleister"
