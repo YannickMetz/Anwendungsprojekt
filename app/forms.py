@@ -23,3 +23,7 @@ class ChangePasswordForm(FlaskForm):
     new_pw = PasswordField(label="Neues Passwort", validators=[DataRequired()])
     new_pw_repeated = PasswordField(label="Neues Passwort wiederholen", validators=[DataRequired()])
     submit = SubmitField("Passwortänderung übernehmen")
+
+
+class LoadTestData(FlaskForm):
+    submit = SubmitField("Lade Testdaten")

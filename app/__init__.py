@@ -18,11 +18,13 @@ def create_app():
     db.init_app(app)
     from .auth import auth
     from .views import views
+    from .test_db_data import testdata
     
 
     Bootstrap(app)
     app.register_blueprint(auth)
     app.register_blueprint(views)
+    app.register_blueprint(testdata)
 
     from .models import User, Kunde, Dienstleister, Dienstleisterbewertung, Kundenbewertung, Dienstleistung_Profil, Auftrag, Dienstleistung, Kundenprofil, Dienstleisterprofil
     create_database(app)

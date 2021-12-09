@@ -9,7 +9,7 @@ login_manager = LoginManager()
 class User(UserMixin, db.Model):
     __tablename__ = "User"
     id = db.Column(db.Integer, primary_key=True, unique=True)
-    kunden_id = relationship("Kunde", uselist=False, back_populates="id")
+    kunde = relationship("Kunde", uselist=False, back_populates="user")
     email = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
     role = db.Column(db.String(100))
@@ -18,7 +18,7 @@ class User(UserMixin, db.Model):
 class Kunde(db.Model):
     __tablename__ = "Kunde"
     kunden_id = db.Column(db.Integer, db.ForeignKey("User.id"), primary_key=True)
-    user_id = relationship("User", back_populates="kunden_id")
+    user = relationship("User", back_populates="kunde")
     k_vorname = db.Column(db.String(20))
     k_nachname = db.Column(db.String(20))
     k_geburtstadum = db.Column(db.Date)
@@ -88,3 +88,17 @@ class Dienstleisterprofil(db.Model):
     dienstleistung = db.Column(db.String, db.ForeignKey("Dienstleistung_Profil.Dienstleistung"))
     profilbeschreibung = db.Column(db.String)
     bildergalerie = db.Column(db.LargeBinary)
+
+#testdata
+"""
+class Parent(db.Model):
+    __tablename__ = 'parent'
+    id = db.Column(db.Integer, primary_key=True)
+    child = relationship("Child", uselist=False, back_populates="parent")
+
+class Child(db.Model):
+    __tablename__ = 'child'
+    id = db.Column(db.Integer, primary_key=True)
+    parent_id = db.Column(db.Integer, db.ForeignKey('parent.id'))
+    parent = relationship("Parent", back_populates="child")
+"""
