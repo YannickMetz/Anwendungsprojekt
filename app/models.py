@@ -13,8 +13,8 @@ login_manager = LoginManager()
 class User(UserMixin, db.Model):
     __tablename__ = "User"
     id = db.Column(db.Integer, primary_key=True, unique=True)
-    kunde_rel = relationship("Kunde", uselist=False, back_populates="user")
-    dienstleister_rel = relationship("Dienstleister", uselist=False, back_populates="user")
+    kunde_rel = relationship("Kunde", uselist=False, back_populates="user_rel")
+    dienstleister_rel = relationship("Dienstleister", uselist=False, back_populates="user_rel")
     email = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
     role = db.Column(db.String(100))
@@ -23,7 +23,7 @@ class User(UserMixin, db.Model):
 class Kunde(db.Model):
     __tablename__ = "Kunde"
     kunden_id = db.Column(db.Integer, db.ForeignKey("User.id"), primary_key=True)
-    user_rel = relationship("User", back_populates="kunde")
+    user_rel = relationship("User", back_populates="kunde_rel")
     k_vorname = db.Column(db.String(20))
     k_nachname = db.Column(db.String(20))
     k_geburtstadum = db.Column(db.Date)
@@ -36,7 +36,7 @@ class Kunde(db.Model):
 class Dienstleister(db.Model):
     __tablename__ = "Dienstleister"
     dienstleister_id = db.Column(db.Integer, db.ForeignKey("User.id"), primary_key=True)
-    user_rel = relationship("User", back_populates="dienstleister")
+    user_rel = relationship("User", back_populates="dienstleister_rel")
     d_vorname = db.Column(db.String(20))
     d_nachname = db.Column(db.String(20))
     firmenname = db.Column(db.String(20))
@@ -103,11 +103,11 @@ class Kundenprofil(db.Model):
 class Dienstleisterprofil(db.Model):
     __tablename__ = ("Dienstleisterprofil")
     dienstleister_rel = relationship("Dienstleister")
-    id = db.Column(db.Integer, db.ForeignKey("Dienstleister.dienstleister_id"), primary_key=True)
+    dienstleister_id = db.Column(db.Integer, db.ForeignKey("Dienstleister.dienstleister_id"), primary_key=True)
     profilbild = db.Column(db.LargeBinary)
     bewertung_rel = relationship("Dienstleisterbewertung")
     bewertung = db.Column(db.Float, db.ForeignKey("Dienstleisterbewertung.zufriedenheit"))
     dienstleistung_rel = relationship("Dienstleistung_Profil")
-    dienstleistung = db.Column(db.String, db.ForeignKey("Dienstleistung_Profil.Dienstleistung"))
+    dienstleistung_ID = db.Column(db.String, db.ForeignKey("Dienstleistung_Profil.Dienstleistung_ID"))
     profilbeschreibung = db.Column(db.String)
     bildergalerie = db.Column(db.LargeBinary)
