@@ -32,6 +32,9 @@ class Kunde(db.Model):
     k_ort = db.Column(db.String(20))
     auftrag_rel = relationship("Auftrag")
     
+Dienstleistung_Profil_association = db.Table("Dienstleistung_Profil", Base.metadata, 
+                                    db.Column("dienstleistung_id", db.ForeignKey("Dienstleistung.dienstleistung_id")), 
+                                    db.Column("dienstleister_id", db.ForeignKey(" Dienstleister.dienstleister_id")))
 
 class Dienstleister(db.Model):
     __tablename__ = "Dienstleister"
@@ -46,18 +49,27 @@ class Dienstleister(db.Model):
     d_ort = db.Column(db.String(20))
     radius = db.Column(db.Integer)
     
-
+    
 class Dienstleistung(db.Model):
     __tablename__ = "Dienstleistung"
-    id = db.Column(db.Integer, primary_key=True, unique=True)
+    dienstleistung_id = db.Column(db.Integer, primary_key=True, unique=True)
     Dienstleistung = db.Column(db.String(20))
     d_beschreibung = db.Column(db.String(100))
+    
+
+class Dienstleistung_Profil(db.Model):
+    __tablename__ = "Dienstleistung_Profil"
+    id = db.Column(db.Integer, primary_key=True, unique=True)
+    dienstleistung_profil_rel = relationship("dienstleistung_id", secondary=Dienstleistung_Profil_association, back_populates="dienstleistung_id")
+    #Dienstleister_ID = db.Column(db.String(20), db.ForeignKey("Dienstleister.dienstleister_id")) #FK aus Dienstleister
+    dienstleistung_profil_rel = relationship("dienstleister_id", secondary=Dienstleistung_Profil_association, back_populates="dienstleister_id")
+    #Dienstleistung_ID = db.Column(db.String(20), db.ForeignKey("Dienstleistung.id")) #FK aus Dienstleistung
 
 class Auftrag(db.Model):
     __tablename__ = "Auftrag"
     id = db.Column(db.Integer, primary_key=True, unique=True)
     Dienstleistung_rel = relationship("Dienstleistung")
-    Dienstleistung_ID = db.Column(db.String(20), db.ForeignKey("Dienstleistung.id")) #FK aus Dienstleistung
+    Dienstleistung_ID = db.Column(db.String(20), db.ForeignKey("Dienstleistung.dienstleistung_id")) #FK aus Dienstleistung
     Kunde_rel = relationship("Kunde")
     Kunde_ID = db.Column(db.String(20), db.ForeignKey("Kunde.kunden_id")) #FK aus Kunde
     Dienstleister_rel = relationship("Dienstleister")
@@ -66,18 +78,6 @@ class Auftrag(db.Model):
     Startzeitpunkt = db.Column(db.DateTime)
     Endzeitpunkt = db.Column(db.DateTime)
     Preis = db.Column(db.Numeric(precision=2))
-
-class Dienstleistung_Profil(db.Model):
-    __tablename__ = "Dienstleistung_Profil"
-    id = db.Column(db.Integer, primary_key=True, unique=True)
-    Dienstleister_rel = relationship("Dienstleister")
-    Dienstleister_ID = db.Column(db.String(20), db.ForeignKey("Dienstleister.dienstleister_id")) #FK aus Dienstleister
-    Dienstleistung_rel = relationship("Dienstleistung")
-    Dienstleistung_ID = db.Column(db.String(20), db.ForeignKey("Dienstleistung.id")) #FK aus Dienstleistung
-
-association_table = ("association", Base.metadata, 
-                    db.Column("Dienstleistung_Profil_ID", db.ForeignKey("Dienstleistung_Profil.id")), 
-                    db.Column("Dienstleistung", db.ForeignKey("Dienstleistung_ID")))
 
 class Kundenbewertung(db.Model):
     __tablename__ = "Kundenbewertung"
@@ -107,7 +107,7 @@ class Dienstleisterprofil(db.Model):
     profilbild = db.Column(db.LargeBinary)
     bewertung_rel = relationship("Dienstleisterbewertung")
     bewertung = db.Column(db.Float, db.ForeignKey("Dienstleisterbewertung.zufriedenheit"))
-    dienstleistung_rel = relationship("Dienstleistung_Profil")
-    dienstleistung_ID = db.Column(db.String, db.ForeignKey("Dienstleistung_Profil.Dienstleistung_ID"))
+#    dienstleistung_rel = relationship("Dienstleistung_Profil")
+#    dienstleistung_ID = db.Column(db.String, db.ForeignKey("Dienstleistung_Profil.Dienstleistung_ID"))
     profilbeschreibung = db.Column(db.String)
     bildergalerie = db.Column(db.LargeBinary)

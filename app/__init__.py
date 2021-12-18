@@ -26,7 +26,7 @@ def create_app():
     app.register_blueprint(views)
     app.register_blueprint(testdata)
 
-    from .models import User, Kunde, Dienstleister, Dienstleisterbewertung, Kundenbewertung, Dienstleistung_Profil, Auftrag, Dienstleistung, Kundenprofil, Dienstleisterprofil
+    from .models import User, Kunde, Dienstleister, Dienstleisterbewertung, Kundenbewertung, Dienstleistung_Profil_association, Auftrag, Dienstleistung, Kundenprofil, Dienstleisterprofil
     create_database(app)
     #db.create_all(app=app)
 
