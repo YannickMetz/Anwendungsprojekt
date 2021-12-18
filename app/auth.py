@@ -2,9 +2,9 @@ from flask import Flask, render_template, redirect, url_for, request, Blueprint,
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
 import requests, os
-from . forms import LoginForm, RegisterForm, ChangePasswordForm
+from . forms import LoginForm, RegisterForm, RegisterCustomerForm, ChangePasswordForm, RegisterBusinessForm
 from . import db
-from .models import User
+from .models import Kunde, User, Dienstleister
 
 auth = Blueprint('auth', __name__,template_folder='templates', static_folder='static')
 
@@ -32,34 +32,111 @@ def login():
     return render_template("login.html", form=login_form)
 
 
+
 @auth.route('/register', methods=['POST', 'GET'])
 def register():
     register_form = RegisterForm()
     if register_form.validate_on_submit():
+        if register_form.role.data == "Kunde":
+            return redirect(url_for('auth.register_customer'))
+        elif register_form.role.data == "Dienstleister":
+            return redirect(url_for('auth.register_business'))
+
+    return render_template("register.html", form=register_form)
+
+
+
+@auth.route('/register_customer', methods=['POST', 'GET'])
+def register_customer():
+    register_customer_form = RegisterCustomerForm()
+    if register_customer_form.validate_on_submit():
         if User.query.filter_by(email=request.form.get('email')).first():
             #Benutzer existiert bereits
             flash("Es liegt bereits eine Registrierung mit dieser Email vor. Bitte Login probieren.")
             return redirect(url_for('auth.login'))
-        
-        elif register_form.password.data != register_form.password_repeated.data:
+            
+        if register_customer_form.password.data != register_customer_form.password_repeated.data:
             flash('Neue Passwörter stimmen nicht überein!')
-            return redirect(url_for('auth.register'))
-        
+            return redirect(url_for('auth.register_customer'))
+            
         new_user=User(
-            email = register_form.email.data,
+            email = register_customer_form.email.data,
             password=generate_password_hash(
-                register_form.password.data, 
+                register_customer_form.password.data, 
                 method='pbkdf2:sha256', 
                 salt_length=8
             ),
-            role = register_form.role.data
+            role = "Kunde"
         )
         db.session.add(new_user)
         db.session.commit()
+
+        new_kunde = Kunde(
+            kunden_id=new_user.id,
+            k_vorname = register_customer_form.k_vorname.data,
+            k_nachname = register_customer_form.k_nachname.data,
+            k_geburtstatum = register_customer_form.k_geburtstatum.data,
+            k_straße = register_customer_form.k_straße.data,
+            k_plz = register_customer_form.k_plz.data,
+            k_ort = register_customer_form.k_ort.data
+        )
+        db.session.add(new_kunde)
+        db.session.commit()
+
         login_user(new_user)
         return redirect(url_for('views.home'))
 
-    return render_template("register.html", form=register_form)
+    return render_template("register.html", form=register_customer_form)
+
+
+@auth.route('/register_business', methods=['POST', 'GET'])
+def register_business():
+    register_business_form = RegisterBusinessForm()
+    if register_business_form.validate_on_submit():
+        if User.query.filter_by(email=request.form.get('email')).first():
+            #Benutzer existiert bereits
+            flash("Es liegt bereits eine Registrierung mit dieser Email vor. Bitte Login probieren.")
+            return redirect(url_for('auth.login'))
+    
+        if register_business_form.password.data != register_business_form.password_repeated.data:
+            flash('Neue Passwörter stimmen nicht überein!')
+            return redirect(url_for('auth.register_business'))
+        
+        if Dienstleister.query.filter_by(firmenname=register_business_form.firmenname.data).first():
+            flash('Firmenname wurde bereits registriert!')
+            return redirect(url_for('auth.register_business'))
+
+            
+        new_user=User(
+            email = register_business_form.email.data,
+            password=generate_password_hash(
+                register_business_form.password.data, 
+                method='pbkdf2:sha256', 
+                salt_length=8
+            ),
+            role = "Dienstleister"
+        )
+        db.session.add(new_user)
+        db.session.commit()
+
+        new_dienstleister = Dienstleister(
+            dienstleister_id=new_user.id,
+            d_vorname = register_business_form.d_vorname.data,
+            d_nachname = register_business_form.d_nachname.data,
+            firmenname = register_business_form.firmenname.data,
+            d_geburtstatum = register_business_form.d_geburtstatum.data,
+            d_straße = register_business_form.d_straße.data,
+            d_plz = register_business_form.d_plz.data,
+            d_ort = register_business_form.d_ort.data,
+            radius = register_business_form.radius.data
+        )
+        db.session.add(new_dienstleister)
+        db.session.commit()
+
+        login_user(new_user)
+        return redirect(url_for('views.home'))
+
+    return render_template("register.html", form=register_business_form)
 
 
 @auth.route('/changepw', methods=['POST', 'GET'])
