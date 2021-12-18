@@ -102,7 +102,7 @@ def register_business():
             flash('Neue Passwörter stimmen nicht überein!')
             return redirect(url_for('auth.register_business'))
         
-        if Dienstleister.query.filter_by(firmenname=register_business_form.firmenname.data):
+        if Dienstleister.query.filter_by(firmenname=register_business_form.firmenname.data).first():
             flash('Firmenname wurde bereits registriert!')
             return redirect(url_for('auth.register_business'))
 
