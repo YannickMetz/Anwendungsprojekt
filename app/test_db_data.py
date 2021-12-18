@@ -56,5 +56,9 @@ def load_testdata():
         db.session.commit()
         
 
+        #test dienstleisterprofil
+
+        #test kundenprofil
+
     return render_template("load_testdata.html", form=testdata_form)
 
