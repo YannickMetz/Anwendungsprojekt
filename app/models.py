@@ -4,10 +4,7 @@ from flask_login import UserMixin, LoginManager
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.relationships import foreign
 from . import db
-from sqlalchemy.ext.declarative import declarative_base
 
-#Base = declarative_base()
-     
 login_manager = LoginManager()
 
 class User(UserMixin, db.Model):
@@ -18,7 +15,6 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
     role = db.Column(db.String(100))
-    
     
 class Kunde(db.Model):
     __tablename__ = "Kunde"
@@ -32,16 +28,14 @@ class Kunde(db.Model):
     k_ort = db.Column(db.String(20))
     auftrag_rel = relationship("Auftrag")
     
-Dienstleistung_Profil_association = db.Table("Dienstleistungen", 
+Dienstleistung_Profil_association = db.Table("Dienstleistung_Profil", 
                                     db.Column("dienstleister_id", db.Integer, db.ForeignKey("Dienstleister.dienstleister_id")),
                                     db.Column("dienstleistung_id", db.Integer, db.ForeignKey("Dienstleistung.dienstleistung_id")))
                                     
-
 class Dienstleister(db.Model):
     __tablename__ = "Dienstleister"
     dienstleister_id = db.Column(db.Integer, db.ForeignKey("User.id"), primary_key=True)
     user_rel = relationship("User", back_populates="dienstleister_rel")
-    #dienstleistung_profil_rel = db.relationship("Dienstleistung", secondary=Dienstleistung_Profil_association, backref=db.backref("Dienstleistungen", lazy="dynamic"))
     d_vorname = db.Column(db.String(20))
     d_nachname = db.Column(db.String(20))
     firmenname = db.Column(db.String(20))
@@ -50,8 +44,7 @@ class Dienstleister(db.Model):
     d_plz = db.Column(db.String(20))
     d_ort = db.Column(db.String(20))
     radius = db.Column(db.Integer)
-    
-    
+     
 class Dienstleistung(db.Model):
     __tablename__ = "Dienstleistung"
     dienstleistung_id = db.Column(db.Integer, primary_key=True, unique=True)
@@ -59,14 +52,6 @@ class Dienstleistung(db.Model):
     Dienstleistung = db.Column(db.String(20))
     d_beschreibung = db.Column(db.String(100))
     
-
-"""class Dienstleistung_Profil(db.Model):
-    __tablename__ = "Dienstleistung_Profil"
-    id = db.Column(db.Integer, primary_key=True, unique=True)
-    #Dienstleister_ID = db.Column(db.String(20), db.ForeignKey("Dienstleister.dienstleister_id")) #FK aus Dienstleister
-    dienstleistung_profil_rel = relationship("dienstleister_id", secondary=Dienstleistung_Profil_association, back_populates="dienstleister_id")
-    #Dienstleistung_ID = db.Column(db.String(20), db.ForeignKey("Dienstleistung.id")) #FK aus Dienstleistung"""
-
 class Auftrag(db.Model):
     __tablename__ = "Auftrag"
     id = db.Column(db.Integer, primary_key=True, unique=True)

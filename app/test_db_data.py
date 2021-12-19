@@ -5,7 +5,6 @@ import requests, os
 from . forms import LoginForm, RegisterForm, ChangePasswordForm,LoadTestData
 from . import db
 from .models import Dienstleister, Dienstleisterprofil, Dienstleistung, Kundenprofil, User, Kunde
-from random_word import RandomWords
 
 testdata = Blueprint('testdata', __name__,template_folder='templates', static_folder='static')
 
@@ -91,7 +90,6 @@ def load_testdata():
                 test_dienstleister.relation.append(test_diensleistung)
                 db.session.add(test_diensleistung)
                 db.session.commit()
-
 
     return render_template("load_testdata.html", form=testdata_form)
 
