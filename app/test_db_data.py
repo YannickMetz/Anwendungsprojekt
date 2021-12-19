@@ -14,8 +14,8 @@ testdata = Blueprint('testdata', __name__,template_folder='templates', static_fo
 def load_testdata():
     testdata_form=LoadTestData()
     if testdata_form.validate_on_submit():
-        #testuser -> kunde
         for i in range(5):
+        #testuser -> kunde    
                 test_user=User(
                     email=f"testkunde{i}@test.com",
                     password=generate_password_hash(
@@ -26,7 +26,8 @@ def load_testdata():
                 )
                 db.session.add(test_user)
                 db.session.commit()
-                #testkunde
+
+        #testkunde
                 test_kunde=Kunde(
                     kunden_id=test_user.id,
                     k_vorname=f"testvorname{i}",
@@ -38,7 +39,7 @@ def load_testdata():
                 db.session.add(test_kunde)
                 db.session.commit()
 
-                #test kundenprofil
+        #test kundenprofil
                 test_profil=Kundenprofil(
                     kunden_id=test_user.id
                 )
@@ -57,7 +58,8 @@ def load_testdata():
                 )
                 db.session.add(test_user2)
                 db.session.commit()
-                #testdienstleister
+
+        #testdienstleister
                 test_dienstleister=Dienstleister(
                     dienstleister_id=test_user2.id,
                     d_vorname=f"testvorname{i}",
@@ -71,7 +73,7 @@ def load_testdata():
                 db.session.add(test_dienstleister)
                 db.session.commit()
 
-                #test dienstleisterprofil
+        #test dienstleisterprofil
                 test_profil2=Dienstleisterprofil(
                     dienstleister_id=test_user2.id,
                     profilbeschreibung="ich kann alles machen"
@@ -85,7 +87,7 @@ def load_testdata():
                     d_beschreibung = "sachen machen"
                 )
 
-            #dienstleistung und dienstleister in association table verknüpfen
+        #dienstleistung und dienstleister in association table verknüpfen
                 test_dienstleister.relation.append(test_diensleistung)
                 db.session.add(test_diensleistung)
                 db.session.commit()
