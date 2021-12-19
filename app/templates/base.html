@@ -29,6 +29,9 @@
                         aria-expanded="false">{{ current_user.email}} <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li><a href="{{url_for('auth.changepw')}}">Passwort ändern</a></li>
+                        {% if current_user.role == 'Dienstleister' %}
+                        <li><a href="{{url_for('views.change_business_profile')}}">Profil bearbeiten</a></li>
+                        {% endif %}
                         <li role="separator" class="divider"></li>
                         <li><a href="{{url_for('auth.logout')}}">Ausloggen</a></li>
                     </ul>

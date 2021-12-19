@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+
+{% block content %}
+
+
+<div class="container container-standard">
+    <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto content">
+            <img src="data:;base64,{{ profile_image }}">
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto content">
+            {{ wtf.quick_form(profile_image_form, novalidate=True, button_map={"submit": "custom"}) }}
+        </div>
+    </div>
+</div>
+
+<div class="container container-standard">
+    <div class="row">
+
+        <div class="col-lg-8 col-md-10 mx-auto content">
+            {{ ckeditor.load() }}
+            {{ wtf.quick_form(profile_body_form, novalidate=True, button_map={"submit": "custom"}) }}
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}
