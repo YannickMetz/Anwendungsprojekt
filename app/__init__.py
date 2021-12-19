@@ -2,6 +2,7 @@ from flask import Flask
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+from flask_ckeditor import CKEditor
 from os import path
 import os
 
@@ -20,13 +21,15 @@ def create_app():
     from .views import views
     from .test_db_data import testdata
     
-
+    ckeditor = CKEditor(app)
     Bootstrap(app)
     app.register_blueprint(auth)
     app.register_blueprint(views)
     app.register_blueprint(testdata)
 
-    from .models import User, Kunde, Dienstleister, Dienstleisterbewertung, Kundenbewertung, Dienstleistung_Profil_association, Auftrag, Dienstleistung, Kundenprofil, Dienstleisterprofil
+
+    from .models import User, Kunde, Dienstleister, Dienstleisterbewertung, Kundenbewertung, Auftrag, Dienstleistung, Kundenprofil, Dienstleisterprofil, DiensleisterProfilGalerie
+
     create_database(app)
     #db.create_all(app=app)
 

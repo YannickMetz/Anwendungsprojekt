@@ -1,7 +1,10 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, PasswordField, TextAreaField, SelectField
+from wtforms import StringField, SubmitField, PasswordField, TextAreaField, SelectField, FileField
 from wtforms.fields.core import DateField, IntegerField
 from wtforms.validators import DataRequired, URL, Optional
+from flask_wtf.file import FileAllowed
+from flask_ckeditor import CKEditorField
+
 
 
 
@@ -50,6 +53,13 @@ class ChangePasswordForm(FlaskForm):
     new_pw_repeated = PasswordField(label="Neues Passwort wiederholen", validators=[DataRequired()])
     submit = SubmitField("Passwortänderung übernehmen")
 
+class AddImageForm(FlaskForm):
+    img = FileField("Bild auswählen", validators=[DataRequired(),FileAllowed(['jpg', 'jpeg'],'Only "jpg" and "jpeg" files are supported!')])
+    submit = SubmitField("Bild hochladen")
+
+class ChangeProfileBodyForm(FlaskForm):
+    profilbeschreibung = CKEditorField("Profilbeschreibung",validators=[DataRequired()])
+    submit = SubmitField("Profilbeschreibung ändern")
 
 class LoadTestData(FlaskForm):
     submit = SubmitField("Lade Testdaten")

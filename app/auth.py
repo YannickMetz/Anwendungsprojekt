@@ -4,7 +4,7 @@ from flask_login import login_user, login_required, logout_user, current_user
 import requests, os
 from . forms import LoginForm, RegisterForm, RegisterCustomerForm, ChangePasswordForm, RegisterBusinessForm
 from . import db
-from .models import Kunde, User, Dienstleister
+from .models import Kunde, User, Dienstleister, Dienstleisterprofil
 
 auth = Blueprint('auth', __name__,template_folder='templates', static_folder='static')
 
@@ -131,6 +131,10 @@ def register_business():
             radius = register_business_form.radius.data
         )
         db.session.add(new_dienstleister)
+        db.session.commit()
+
+        new_dienstleister_profil = Dienstleisterprofil(dienstleister_id=new_user.id)
+        db.session.add(new_dienstleister_profil)
         db.session.commit()
 
         login_user(new_user)

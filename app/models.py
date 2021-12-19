@@ -95,4 +95,11 @@ class Dienstleisterprofil(db.Model):
     bewertung_rel = relationship("Dienstleisterbewertung")
     bewertung = db.Column(db.Float, db.ForeignKey("Dienstleisterbewertung.zufriedenheit"))
     profilbeschreibung = db.Column(db.String)
-    bildergalerie = db.Column(db.LargeBinary)
+    bildergalerie_rel = relationship("DiensleisterProfilGalerie", back_populates="d_profil_rel")
+
+class DiensleisterProfilGalerie(db.Model):
+    __tablename__ = ("DiensleisterProfilGalerie")
+    dienstleister_id = db.Column(db.Integer, db.ForeignKey("Dienstleisterprofil.dienstleister_id"), primary_key=True)
+    d_profil_rel = relationship("Dienstleisterprofil", back_populates="bildergalerie_rel")
+    galerie_bild = db.Column(db.LargeBinary)
+
