@@ -19,7 +19,10 @@ def home():
 @login_required
 def change_business_profile():
     current_profile = Dienstleisterprofil.query.filter_by(dienstleister_id=current_user.id).first()
-    profile_image = b64encode(current_profile.profilbild).decode("utf-8") 
+    profile_image = b64encode(current_profile.profilbild).decode("utf-8")
+    #if profile_image is None:
+    #    profile_image
+
 
     profile_image_form = AddImageForm()
     if profile_image_form.validate_on_submit():
