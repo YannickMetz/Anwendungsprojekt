@@ -34,6 +34,16 @@
     <div class="row">
 
         <div class="col-lg-8 col-md-10 mx-auto content">
+            {{ wtf.quick_form(service_form, novalidate=True, button_map={"submit_service": "custom"}) }}
+        </div>
+
+    </div>
+</div>
+
+<div class="container container-standard">
+    <div class="row">
+
+        <div class="col-lg-8 col-md-10 mx-auto content">
             {{ wtf.quick_form(image_gallery_form, novalidate=True, button_map={"submit_img": "custom"}) }}
         </div>
 

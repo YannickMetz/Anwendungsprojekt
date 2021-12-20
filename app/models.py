@@ -1,6 +1,7 @@
 from enum import unique
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, LoginManager
+from sqlalchemy import UniqueConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.relationships import foreign
 from . import db
@@ -30,7 +31,9 @@ class Kunde(db.Model):
     
 Dienstleistung_Profil_association = db.Table("Dienstleistung_Profil", 
                                     db.Column("dienstleister_id", db.Integer, db.ForeignKey("Dienstleister.dienstleister_id")),
-                                    db.Column("dienstleistung_id", db.Integer, db.ForeignKey("Dienstleistung.dienstleistung_id")))
+                                    db.Column("dienstleistung_id", db.Integer, db.ForeignKey("Dienstleistung.dienstleistung_id")),
+                                    db.UniqueConstraint("dienstleister_id","dienstleistung_id")
+                                    )
                                     
 class Dienstleister(db.Model):
     __tablename__ = "Dienstleister"
