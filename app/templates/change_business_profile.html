@@ -14,7 +14,7 @@
 
     <div class="row">
         <div class="col-lg-8 col-md-10 mx-auto content">
-            {{ wtf.quick_form(profile_image_form, novalidate=True, button_map={"submit": "custom"}) }}
+            {{ wtf.quick_form(profile_image_form, novalidate=True, button_map={"submit_profile_img": "custom"}) }}
         </div>
     </div>
 </div>
@@ -24,10 +24,33 @@
 
         <div class="col-lg-8 col-md-10 mx-auto content">
             {{ ckeditor.load() }}
-            {{ wtf.quick_form(profile_body_form, novalidate=True, button_map={"submit": "custom"}) }}
+            {{ wtf.quick_form(profile_body_form, novalidate=True, button_map={"submit_body": "custom"}) }}
         </div>
 
     </div>
 </div>
+
+<div class="container container-standard">
+    <div class="row">
+
+        <div class="col-lg-8 col-md-10 mx-auto content">
+            {{ wtf.quick_form(image_gallery_form, novalidate=True, button_map={"submit_img": "custom"}) }}
+        </div>
+
+    </div>
+</div>
+<div class="timeline">
+    <div class="row">
+        {% for post in all_posts %}
+        <div class="col-xl-3 col-lg-4 col-md-6">
+            <div class="thumbnail thumbnail-post">
+                <img src="data:;base64,{{ images[post.id] }}">
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+
 
 {% endblock %}

@@ -53,13 +53,17 @@ class ChangePasswordForm(FlaskForm):
     new_pw_repeated = PasswordField(label="Neues Passwort wiederholen", validators=[DataRequired()])
     submit = SubmitField("Passwortänderung übernehmen")
 
+class AddProfileImageForm(FlaskForm):
+    profile_img = FileField("Bild auswählen", validators=[DataRequired(),FileAllowed(['jpg', 'jpeg'],'Only "jpg" and "jpeg" files are supported!')])
+    submit_profile_img = SubmitField("Bild hochladen")
+
 class AddImageForm(FlaskForm):
     img = FileField("Bild auswählen", validators=[DataRequired(),FileAllowed(['jpg', 'jpeg'],'Only "jpg" and "jpeg" files are supported!')])
-    submit = SubmitField("Bild hochladen")
+    submit_img = SubmitField("Bild hochladen")
 
 class ChangeProfileBodyForm(FlaskForm):
     profilbeschreibung = CKEditorField("Profilbeschreibung",validators=[DataRequired()])
-    submit = SubmitField("Profilbeschreibung ändern")
+    submit_body = SubmitField("Profilbeschreibung ändern")
 
 class LoadTestData(FlaskForm):
     submit = SubmitField("Lade Testdaten")
