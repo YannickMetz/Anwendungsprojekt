@@ -98,3 +98,22 @@ img {
     background-position: center;
     color: var(--color1);
 }
+
+
+.gallery {
+    padding: 10px;
+}
+.thumbnail-gallery {
+    background-color: var(--color2);
+    border: none;   
+}
+
+/* Erweitert Bootstrap 3 Columns mit Flexbox */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+  }
+.row > [class*='col-'] {
+    display: flex;
+    flex-direction: column;
+ }

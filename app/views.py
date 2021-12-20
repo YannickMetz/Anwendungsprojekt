@@ -19,10 +19,13 @@ def home():
 @login_required
 def change_business_profile():
     current_profile = Dienstleisterprofil.query.filter_by(dienstleister_id=current_user.id).first()
-    #images = 
     profile_image_form = AddProfileImageForm()
     profile_body_form = ChangeProfileBodyForm(profilbeschreibung=current_profile.profilbeschreibung)
     image_gallery_form = AddImageForm()
+    gallery_table = DienstleisterProfilGalerie.query.filter_by(dienstleister_id=current_user.id).all()
+    gallery_images = []
+    for i in range(0,len(gallery_table)):
+        gallery_images.append(b64encode(gallery_table[i].galerie_bild).decode("utf-8"))
 
     if current_profile.profilbild != None:
         profile_image = b64encode(current_profile.profilbild).decode('utf-8')
@@ -58,5 +61,6 @@ def change_business_profile():
         profile_image_form=profile_image_form,
         profile_body_form=profile_body_form,
         profile_image=profile_image,
-        image_gallery_form=image_gallery_form
+        image_gallery_form=image_gallery_form,
+        gallery_images=gallery_images
         )
