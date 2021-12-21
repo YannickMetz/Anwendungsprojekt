@@ -40,6 +40,32 @@
     </div>
 </div>
 
+
+<div class="container container-standard">
+    <div class="gallery">
+        <div class="row">
+            {% for service in profile_services_dict %}
+            <div class="panel panel-default service">
+                <div class="panel-body ">
+                    {{profile_services_dict[service]}}
+                    <a href="{{ url_for('views.remove_service', service_id=service) }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="remove-icon" width="24" height="24"
+                            viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="15" y1="9" x2="9" y2="15"></line>
+                            <line x1="9" y1="9" x2="15" y2="15"></line>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
+</div>
+
+
 <div class="container container-standard">
     <div class="row">
 
@@ -49,19 +75,30 @@
 
     </div>
 </div>
+
 <div class="container container-standard">
     <div class="gallery">
         <div class="row">
             {% for image in gallery_images %}
             <div class="col-xl-3 col-lg-4 col-md-6">
                 <div class="thumbnail thumbnail-gallery">
-                    <img src="data:;base64,{{ image }}">
+                    <a href="{{ url_for('views.remove_gallery_image', image_id=image) }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="remove-icon" width="24" height="24"
+                            viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="15" y1="9" x2="9" y2="15"></line>
+                            <line x1="9" y1="9" x2="15" y2="15"></line>
+                        </svg>
+                    </a>
+                    <img src="data:;base64,{{ gallery_images[image] }}">
                 </div>
             </div>
             {% endfor %}
         </div>
     </div>
 </div>
+
 
 
 
