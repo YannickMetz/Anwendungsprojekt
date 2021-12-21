@@ -99,6 +99,20 @@ img {
     color: var(--color1);
 }
 
+.service {
+    background-color: var(--color3);
+    color: var(--color1);
+    font-weight: bold;
+    margin-right: 15px;
+}
+
+.remove-icon {
+    margin-left: 10px;
+    position: relative;
+    left: 10px;
+    bottom: 10px;
+    stroke: var(--color4);
+}
 
 .gallery {
     padding: 10px;
