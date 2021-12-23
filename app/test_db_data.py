@@ -13,6 +13,9 @@ testdata = Blueprint('testdata', __name__,template_folder='templates', static_fo
 def load_testdata():
     testdata_form=LoadTestData()
     if testdata_form.validate_on_submit():
+        dienstleisterliste= []
+        dienstleistungsliste= []
+
         for i in range(5):
         #testuser -> kunde    
                 test_user=User(
@@ -37,7 +40,7 @@ def load_testdata():
                 )
                 db.session.add(test_kunde)
                 db.session.commit()
-
+ 
         #test kundenprofil
                 test_profil=Kundenprofil(
                     kunden_id=test_user.id
@@ -71,6 +74,7 @@ def load_testdata():
                     )
                 db.session.add(test_dienstleister)
                 db.session.commit()
+                dienstleisterliste.append(test_dienstleister)
 
         #test dienstleisterprofil
                 test_profil2=Dienstleisterprofil(
@@ -81,15 +85,56 @@ def load_testdata():
                 db.session.commit()
 
         #test dienstleistung
-                test_diensleistung=Dienstleistung(
-                    Dienstleistung = f"diensleistung{i}",
-                    d_beschreibung = "sachen machen"
-                )
+        test_diensleistung1=Dienstleistung(
+            kategorieebene1= "Körper",
+            kategorieebene2= "Haare",
+            Dienstleistung = "Friseur",
+            d_beschreibung = "Haare schneiden"
+        )
+        test_diensleistung2=Dienstleistung(
+            kategorieebene1= "Innen",
+            kategorieebene2= "Boden",        
+            Dienstleistung = "Fliesenleger",
+            d_beschreibung = "Fliesen legen"
+        )        
+        test_diensleistung3=Dienstleistung(
+            kategorieebene1= "Innen",
+            kategorieebene2= "Wand",            
+            Dienstleistung = "Tapezierer",
+            d_beschreibung = "Wände tapezieren"
+        )
+        test_diensleistung4=Dienstleistung(
+            kategorieebene1= "Außen",
+            kategorieebene2= "Garten",            
+            Dienstleistung = "Gärtner",
+            d_beschreibung = "Garten erneuern"
+        )
+        test_diensleistung5=Dienstleistung(
+            kategorieebene1= "Innen",
+            kategorieebene2= "Elektronik",            
+            Dienstleistung = "Elektriker",
+            d_beschreibung = "Glühbirnen anbringen"
+        )        
+        db.session.add(test_diensleistung1)
+        db.session.add(test_diensleistung2)
+        db.session.add(test_diensleistung3)
+        db.session.add(test_diensleistung4)
+        db.session.add(test_diensleistung5)
+        db.session.commit()
+        dienstleistungsliste.append(test_diensleistung1)
+        dienstleistungsliste.append(test_diensleistung2)
+        dienstleistungsliste.append(test_diensleistung3)
+        dienstleistungsliste.append(test_diensleistung4)
+        dienstleistungsliste.append(test_diensleistung5)
+
 
         #dienstleistung und dienstleister in association table verknüpfen
-                test_dienstleister.relation.append(test_diensleistung)
-                db.session.add(test_diensleistung)
-                db.session.commit()
+        dienstleisterliste[0].relation.append(dienstleistungsliste[2])
+        dienstleisterliste[0].relation.append(dienstleistungsliste[3])
+        dienstleisterliste[0].relation.append(dienstleistungsliste[4])
+        dienstleisterliste[2].relation.append(dienstleistungsliste[0])
+        dienstleisterliste[2].relation.append(dienstleistungsliste[1])
+        db.session.commit()
 
     return render_template("load_testdata.html", form=testdata_form)
 

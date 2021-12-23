@@ -1,3 +1,4 @@
+from posixpath import join
 from flask import Flask, render_template, redirect, url_for, request, Blueprint, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
@@ -5,7 +6,7 @@ import requests, os
 from datetime import date
 from . forms import AddProfileImageForm, ChangeProfileBodyForm, AddImageForm
 from . import db
-from .models import User, Dienstleisterprofil, DienstleisterProfilGalerie
+from .models import Dienstleistung_Profil_association, User, Dienstleisterprofil, DienstleisterProfilGalerie, Dienstleister, Dienstleistung
 from base64 import b64encode
 
 
@@ -60,3 +61,18 @@ def change_business_profile():
         profile_image=profile_image,
         image_gallery_form=image_gallery_form
         )
+
+@views.route('/profile/service_provider/<id>',methods=['GET'])
+@login_required
+def view_service_provider_profile(id):
+    service_provider_id = Dienstleister.query.where(Dienstleister.dienstleister_id == id).first()
+    service = Dienstleistung.query \
+                        .join(Dienstleistung_Profil_association) \
+                        .join(Dienstleister) \
+                        .filter(Dienstleister.dienstleister_id == Dienstleistung_Profil_association.c.dienstleister_id) \
+                        .where(Dienstleister.dienstleister_id == id) 
+
+    print(service_provider_id.d_vorname)
+    for row in service:
+        print(row.Dienstleistung, row.d_beschreibung)
+    return id

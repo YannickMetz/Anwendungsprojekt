@@ -49,8 +49,12 @@ class Dienstleistung(db.Model):
     __tablename__ = "Dienstleistung"
     dienstleistung_id = db.Column(db.Integer, primary_key=True, unique=True)
     dienstleistung_profil_rel = db.relationship("Dienstleister", secondary=Dienstleistung_Profil_association, backref=db.backref("relation", lazy="dynamic"))
+    kategorieebene1 = db.Column(db.String(20))
+    kategorieebene2 = db.Column(db.String(20))
     Dienstleistung = db.Column(db.String(20))
     d_beschreibung = db.Column(db.String(100))
+
+
     
 class Auftrag(db.Model):
     __tablename__ = "Auftrag"
