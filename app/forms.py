@@ -60,3 +60,7 @@ class ChangeProfileBodyForm(FlaskForm):
 
 class LoadTestData(FlaskForm):
     submit = SubmitField("Lade Testdaten")
+
+class SelectServiceForm(FlaskForm):
+    service = SelectField(label="Selektiere Dienstleistung", coerce=str, validators=[DataRequired()])
+    submit_service = SubmitField("Dienstleistung hinzufügen")
