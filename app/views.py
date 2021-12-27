@@ -62,29 +62,31 @@ def change_business_profile():
         image_gallery_form=image_gallery_form
         )
 
-@views.route('/profile/service_provider/<id>',methods=['GET'])
+@views.route('/profile/service_provider/<id>',methods=['POST', 'GET'])
 @login_required
 def view_service_provider_profile(id):
     service_provider = Dienstleister.query.where(Dienstleister.dienstleister_id == id).first()
     service_provider_firstname = service_provider.d_vorname
     service_provider_lastname = service_provider.d_nachname
     service_provider_businessname = service_provider.firmenname
-    service = Dienstleistung.query \
+    services = Dienstleistung.query \
                         .join(Dienstleistung_Profil_association) \
                         .join(Dienstleister) \
                         .filter(Dienstleister.dienstleister_id == Dienstleistung_Profil_association.c.dienstleister_id) \
                         .where(Dienstleister.dienstleister_id == id) 
     service_provider_profile = Dienstleisterprofil.query.where(Dienstleister.dienstleister_id == id).first()
-    service_provider_profile_picture = service_provider_profile.profilbild
+    service_provider_profile_image = service_provider_profile.profilbild
 
-    print(service_provider_profile_picture)
-    for row in service:
+    print(service_provider_profile_image)
+    for row in services:
         print(row.Dienstleistung, row.d_beschreibung)
+
+
     return render_template(
         "view_business_profile.html",
         service_provider_firstname = service_provider_firstname,
-        service_provider_lastfirstname = service_provider_lastname,
+        service_provider_lastname = service_provider_lastname,
         service_provider_businessname = service_provider_businessname,
-        service_provider_profile_picture = service_provider_profile_picture,
-        service = service,
+        service_provider_profile_image = service_provider_profile_image,
+        services = services,
         )
