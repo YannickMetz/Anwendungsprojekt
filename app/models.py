@@ -54,8 +54,6 @@ class Dienstleistung(db.Model):
     Dienstleistung = db.Column(db.String(20))
     d_beschreibung = db.Column(db.String(100))
 
-
-    
 class Auftrag(db.Model):
     __tablename__ = "Auftrag"
     id = db.Column(db.Integer, primary_key=True, unique=True)
