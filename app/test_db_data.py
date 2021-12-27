@@ -88,32 +88,27 @@ def load_testdata():
         test_diensleistung1=Dienstleistung(
             kategorieebene1= "Körper",
             kategorieebene2= "Haare",
-            Dienstleistung = "Friseur",
-            d_beschreibung = "Haare schneiden"
+            Dienstleistung = "Haare schneiden"
         )
         test_diensleistung2=Dienstleistung(
             kategorieebene1= "Innen",
             kategorieebene2= "Boden",        
-            Dienstleistung = "Fliesenleger",
-            d_beschreibung = "Fliesen legen"
+            Dienstleistung = "Fliesen legen"
         )        
         test_diensleistung3=Dienstleistung(
             kategorieebene1= "Innen",
             kategorieebene2= "Wand",            
-            Dienstleistung = "Tapezierer",
-            d_beschreibung = "Wände tapezieren"
+            Dienstleistung = "Wände tapezieren"
         )
         test_diensleistung4=Dienstleistung(
             kategorieebene1= "Außen",
             kategorieebene2= "Garten",            
-            Dienstleistung = "Gärtner",
-            d_beschreibung = "Garten erneuern"
+            Dienstleistung = "Garten erneuern"
         )
         test_diensleistung5=Dienstleistung(
             kategorieebene1= "Innen",
-            kategorieebene2= "Elektronik",            
-            Dienstleistung = "Elektriker",
-            d_beschreibung = "Glühbirnen anbringen"
+            kategorieebene2= "Elektronik",           
+            Dienstleistung = "Glühbirnen anbringen"
         )        
         db.session.add(test_diensleistung1)
         db.session.add(test_diensleistung2)

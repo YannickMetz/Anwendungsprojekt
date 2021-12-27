@@ -110,22 +110,37 @@ def change_business_profile():
 @views.route('/profile/service_provider/<id>',methods=['POST', 'GET'])
 @login_required
 def view_service_provider_profile(id):
+
+#dienstleister definieren
     service_provider = Dienstleister.query.where(Dienstleister.dienstleister_id == id).first()
+
+#vor, nachname und firmenname definieren
     service_provider_firstname = service_provider.d_vorname
     service_provider_lastname = service_provider.d_nachname
     service_provider_businessname = service_provider.firmenname
+
+#dienstleistungen definieren
     services = Dienstleistung.query \
                         .join(Dienstleistung_Profil_association) \
                         .join(Dienstleister) \
                         .filter(Dienstleister.dienstleister_id == Dienstleistung_Profil_association.c.dienstleister_id) \
                         .where(Dienstleister.dienstleister_id == id) 
     service_provider_profile = Dienstleisterprofil.query.where(Dienstleister.dienstleister_id == id).first()
-    service_provider_profile_image = service_provider_profile.profilbild
 
-    print(service_provider_profile_image)
-    for row in services:
-        print(row.Dienstleistung, row.d_beschreibung)
+#Bildergalerie
+    gallery_table = DienstleisterProfilGalerie.query.filter_by(dienstleister_id=id).all()
+    gallery_images = []
+    for i in range(0,len(gallery_table)):
+        gallery_images.append(b64encode(gallery_table[i].galerie_bild).decode("utf-8"))
 
+#Profilbild
+    if service_provider_profile.profilbild != None:
+       service_provider_profile_image = b64encode(service_provider_profile.profilbild).decode('utf-8')
+    else:
+        here = os.path.dirname(os.path.abspath(__file__))
+        filename = os.path.join(here, 'static/img/placeholder_flat.jpg')
+        with open(filename, 'rb') as imagefile:
+           service_provider_profile_image = b64encode(imagefile.read()).decode('utf-8')  
 
     return render_template(
         "view_business_profile.html",
@@ -134,6 +149,7 @@ def view_service_provider_profile(id):
         service_provider_businessname = service_provider_businessname,
         service_provider_profile_image = service_provider_profile_image,
         services = services,
+        gallery_images = gallery_images
         )
 
 
