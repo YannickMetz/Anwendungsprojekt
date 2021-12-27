@@ -7,7 +7,7 @@
 <div class="container container-standard">
     <div class="row">
         <div class="col-lg-8 col-md-10 mx-auto content">
-            <img src="data:;base64,{{ service_provider_profile_image }}">
+            <img src="data:;base64,{{ service_provider_profile_image}}">
         </div>
     </div>
 </div>
@@ -26,7 +26,6 @@
         <div class="col-lg-8 col-md-10 mx-auto content">
             {% for service in services %}
                 {{service.Dienstleistung}}
-                {{service.d_beschreibung}}
                 <br>
             {% endfor %}
         </div>
@@ -42,6 +41,20 @@
             </div>
         </div>
         {% endfor %}
+    </div>
+</div>
+
+<div class="container container-standard">
+    <div class="gallery">
+        <div class="row">
+            {% for image in gallery_images %}
+            <div class="col-xl-3 col-lg-4 col-md-6">
+                <div class="thumbnail thumbnail-gallery">
+                    <img src="data:;base64,{{ image }}">
+                </div>
+            </div>
+            {% endfor %}
+        </div>
     </div>
 </div>
 
