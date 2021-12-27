@@ -1,3 +1,4 @@
+from posixpath import join
 from flask import Flask, render_template, redirect, url_for, request, Blueprint, flash
 from sqlalchemy import dialects
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -106,6 +107,36 @@ def change_business_profile():
         )
 
 
+@views.route('/profile/service_provider/<id>',methods=['POST', 'GET'])
+@login_required
+def view_service_provider_profile(id):
+    service_provider = Dienstleister.query.where(Dienstleister.dienstleister_id == id).first()
+    service_provider_firstname = service_provider.d_vorname
+    service_provider_lastname = service_provider.d_nachname
+    service_provider_businessname = service_provider.firmenname
+    services = Dienstleistung.query \
+                        .join(Dienstleistung_Profil_association) \
+                        .join(Dienstleister) \
+                        .filter(Dienstleister.dienstleister_id == Dienstleistung_Profil_association.c.dienstleister_id) \
+                        .where(Dienstleister.dienstleister_id == id) 
+    service_provider_profile = Dienstleisterprofil.query.where(Dienstleister.dienstleister_id == id).first()
+    service_provider_profile_image = service_provider_profile.profilbild
+
+    print(service_provider_profile_image)
+    for row in services:
+        print(row.Dienstleistung, row.d_beschreibung)
+
+
+    return render_template(
+        "view_business_profile.html",
+        service_provider_firstname = service_provider_firstname,
+        service_provider_lastname = service_provider_lastname,
+        service_provider_businessname = service_provider_businessname,
+        service_provider_profile_image = service_provider_profile_image,
+        services = services,
+        )
+
+
 @views.route('/remove_service/<int:service_id>',methods=['POST', 'GET'])
 @login_required
 def remove_service(service_id):
@@ -123,3 +154,4 @@ def remove_gallery_image(image_id):
     db.session.commit()
 
     return redirect(url_for('views.change_business_profile'))
+

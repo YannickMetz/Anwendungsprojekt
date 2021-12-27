@@ -1,24 +1,18 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField, TextAreaField, SelectField, FileField
-from wtforms.fields.core import DateField, IntegerField
+from wtforms import DateField, IntegerField
 from wtforms.validators import DataRequired, URL, Optional
 from flask_wtf.file import FileAllowed
 from flask_ckeditor import CKEditorField
-
-
-
-
 
 class LoginForm(FlaskForm):
     email = StringField(label="Email", validators=[DataRequired()])
     password = PasswordField(label="Password", validators=[DataRequired()])
     submit = SubmitField("Login")
 
-
 class RegisterForm(FlaskForm):
     role = SelectField(label="Kunde oder Dienstleister?", validators=[DataRequired()], choices=["Kunde", "Dienstleister"])
     submit = SubmitField("Registrierung fortsetzen")
-
 
 class RegisterCustomerForm(FlaskForm):
     k_vorname = StringField(label="Vorname", validators=[DataRequired()])
@@ -31,7 +25,6 @@ class RegisterCustomerForm(FlaskForm):
     password = PasswordField(label="Passwort", validators=[DataRequired()])
     password_repeated = PasswordField(label="Passwort wiederholen", validators=[DataRequired()])
     submit = SubmitField("Registrierung abschließen")
-
 
 class RegisterBusinessForm(FlaskForm):
     d_vorname = StringField(label="Vorname", validators=[DataRequired()])
