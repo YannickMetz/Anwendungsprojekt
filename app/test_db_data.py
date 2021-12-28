@@ -131,5 +131,6 @@ def load_testdata():
         dienstleisterliste[2].relation.append(dienstleistungsliste[1])
         db.session.commit()
 
+        
     return render_template("load_testdata.html", form=testdata_form)
 

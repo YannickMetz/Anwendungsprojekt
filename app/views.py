@@ -7,7 +7,7 @@ import requests, os
 from datetime import date
 from . forms import AddProfileImageForm, ChangeProfileBodyForm, AddImageForm, SelectServiceForm
 from . import db
-from .models import User, Dienstleisterprofil, DienstleisterProfilGalerie, Dienstleistung, Dienstleister, Dienstleistung_Profil_association
+from .models import User, Dienstleisterprofil, Auftrag, DienstleisterProfilGalerie, Dienstleistung, Dienstleister, Dienstleistung_Profil_association
 from base64 import b64encode
 
 
