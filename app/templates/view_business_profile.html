@@ -10,16 +10,23 @@ content %}
 </div>
 
 <div class="container container-standard">
-  <div class="row">
-    <div class="col-lg-8 col-md-10 mx-auto content">
-      {{ service_provider_firstname }} {{ service_provider_lastname }}<br />
-      {{ service_provider_businessname }}
+  <div class="gallery">
+    <div class="row">
+      <div class="panel panel-default service">
+        <div class="panel-body">
+          Wilkommen bei {{ service_provider_businessname }}<br />
+          Mein Name lautet: {{ service_provider_firstname }} {{
+          service_provider_lastname }}
+          <br />
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
 <div class="container container-standard">
   <div class="gallery">
+    <b class="row container-standard">Was wir können:</b>
     <div class="row">
       {% for service in services %}
       <div class="panel panel-default service">
@@ -29,6 +36,20 @@ content %}
         </div>
       </div>
       {% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="container container-standard">
+  <div class="gallery">
+    <b class="row container-standard">Unser Profil:</b>
+    <div class="row">
+      <div class="panel panel-default service">
+        <div class="panel-body">
+          {{service_provider_profile.profilbeschreibung}}
+          <br />
+        </div>
+      </div>
     </div>
   </div>
 </div>

@@ -111,20 +111,22 @@ def change_business_profile():
 @login_required
 def view_service_provider_profile(id):
 
-#dienstleister definieren
+#dienstleister nach aufgerufener id
     service_provider = Dienstleister.query.where(Dienstleister.dienstleister_id == id).first()
 
-#vor, nachname und firmenname definieren
+#vor, nachname und firmenname 
     service_provider_firstname = service_provider.d_vorname
     service_provider_lastname = service_provider.d_nachname
     service_provider_businessname = service_provider.firmenname
 
-#dienstleistungen definieren
+#dienstleistungen 
     services = Dienstleistung.query \
                         .join(Dienstleistung_Profil_association) \
                         .join(Dienstleister) \
                         .filter(Dienstleister.dienstleister_id == Dienstleistung_Profil_association.c.dienstleister_id) \
                         .where(Dienstleister.dienstleister_id == id) 
+
+#dienstleisterprofil
     service_provider_profile = Dienstleisterprofil.query.where(Dienstleister.dienstleister_id == id).first()
 
 #Bildergalerie
@@ -142,6 +144,7 @@ def view_service_provider_profile(id):
         with open(filename, 'rb') as imagefile:
            service_provider_profile_image = b64encode(imagefile.read()).decode('utf-8')  
 
+#übergabe in html code
     return render_template(
         "view_business_profile.html",
         service_provider_firstname = service_provider_firstname,
@@ -149,7 +152,8 @@ def view_service_provider_profile(id):
         service_provider_businessname = service_provider_businessname,
         service_provider_profile_image = service_provider_profile_image,
         services = services,
-        gallery_images = gallery_images
+        gallery_images = gallery_images,
+        service_provider_profile = service_provider_profile
         )
 
 
