@@ -127,7 +127,7 @@ def view_service_provider_profile(id):
                         .where(Dienstleister.dienstleister_id == id) 
 
 #dienstleisterprofil
-    service_provider_profile = Dienstleisterprofil.query.where(Dienstleister.dienstleister_id == id).first()
+    service_provider_profile = Dienstleisterprofil.query.where(Dienstleisterprofil.dienstleister_id == id).first()
 
 #Bildergalerie
     gallery_table = DienstleisterProfilGalerie.query.filter_by(dienstleister_id=id).all()
