@@ -175,6 +175,8 @@ def remove_gallery_image(image_id):
 @views.route('/search/<int:service_id>', methods=['GET'])
 @login_required
 def search_service(service_id):
-    
+    service_providers_filtered = Dienstleister.query \
+        .join(Dienstleistung_Profil_association) \
+        .join(Dienstleister) \
 
     return render_template('search.html')
