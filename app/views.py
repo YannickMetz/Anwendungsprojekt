@@ -128,6 +128,7 @@ def view_service_provider_profile(id):
 
 #dienstleisterprofil
     service_provider_profile = Dienstleisterprofil.query.where(Dienstleisterprofil.dienstleister_id == id).first()
+    service_provider_profile_body = service_provider_profile.profilbeschreibung
 
 #Bildergalerie
     gallery_table = DienstleisterProfilGalerie.query.filter_by(dienstleister_id=id).all()
@@ -153,7 +154,7 @@ def view_service_provider_profile(id):
         service_provider_profile_image = service_provider_profile_image,
         services = services,
         gallery_images = gallery_images,
-        service_provider_profile = service_provider_profile
+        service_provider_profile_body = service_provider_profile_body
         )
 
 
