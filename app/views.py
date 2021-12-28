@@ -171,3 +171,10 @@ def remove_gallery_image(image_id):
 
     return redirect(url_for('views.change_service_provider_profile'))
 
+
+@views.route('/search/<int:service_id>', methods=['GET'])
+@login_required
+def search_service(service_id):
+    
+
+    return render_template('search.html')
