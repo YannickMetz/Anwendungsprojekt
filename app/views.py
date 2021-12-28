@@ -17,9 +17,9 @@ views = Blueprint('views', __name__,template_folder='templates', static_folder='
 def home():
     return render_template("index.html")
 
-@views.route('/change_business_profile',methods=['POST', 'GET'])
+@views.route('/change_service_provider_profile',methods=['POST', 'GET'])
 @login_required
-def change_business_profile():
+def change_service_provider_profile():
     current_profile = Dienstleisterprofil.query.filter_by(dienstleister_id=current_user.id).first()
     curren_service_provider = Dienstleister.query.filter_by(dienstleister_id=current_user.id).first()
 
@@ -69,7 +69,7 @@ def change_business_profile():
     if profile_image_form.validate_on_submit():
         current_profile.profilbild = profile_image_form.profile_img.data.read()
         db.session.commit()
-        return redirect(url_for('views.change_business_profile'))
+        return redirect(url_for('views.change_service_provider_profile'))
 
     if image_gallery_form.validate_on_submit():
         new_gallery_image = image_gallery_form.img.data.read()
@@ -79,7 +79,7 @@ def change_business_profile():
         )
         db.session.add(new_gallery_item)
         db.session.commit()
-        return redirect(url_for('views.change_business_profile'))
+        return redirect(url_for('views.change_service_provider_profile'))
 
     if service_form.validate_on_submit():
         try:
@@ -88,12 +88,12 @@ def change_business_profile():
         except:
             pass
         finally:
-            return redirect(url_for('views.change_business_profile'))
+            return redirect(url_for('views.change_service_provider_profile'))
 
     if profile_body_form.validate_on_submit():
         current_profile.profilbeschreibung = profile_body_form.profilbeschreibung.data
         db.session.commit()
-        return redirect(url_for('views.change_business_profile'))
+        return redirect(url_for('views.change_service_provider_profile'))
 
     return render_template(
         "change_business_profile.html",
@@ -160,7 +160,7 @@ def remove_service(service_id):
     curren_service_provider = Dienstleister.query.filter_by(dienstleister_id=current_user.id).first()
     curren_service_provider.relation.remove(Dienstleistung.query.filter_by(dienstleistung_id=service_id).first())
     db.session.commit()
-    return redirect(url_for('views.change_business_profile'))
+    return redirect(url_for('views.change_service_provider_profile'))
 
 
 @views.route('/remove_gallery_image/<int:image_id>',methods=['POST', 'GET'])
@@ -169,5 +169,5 @@ def remove_gallery_image(image_id):
     db.session.delete(DienstleisterProfilGalerie.query.filter_by(id=image_id).first())
     db.session.commit()
 
-    return redirect(url_for('views.change_business_profile'))
+    return redirect(url_for('views.change_service_provider_profile'))
 
