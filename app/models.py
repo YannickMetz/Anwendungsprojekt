@@ -27,7 +27,7 @@ class Kunde(db.Model):
     k_straße = db.Column(db.String(20))
     k_plz = db.Column(db.String(20))
     k_ort = db.Column(db.String(20))
-    auftrag_rel = relationship("Auftrag")
+    auftrag_rel = relationship("Auftrag", back_populates="Kunde_rel")
     
 Dienstleistung_Profil_association = db.Table("Dienstleistung_Profil", 
                                     db.Column("dienstleister_id", db.Integer, db.ForeignKey("Dienstleister.dienstleister_id")),
@@ -62,8 +62,8 @@ class Auftrag(db.Model):
     id = db.Column(db.Integer, primary_key=True, unique=True)
     Dienstleistung_rel = relationship("Dienstleistung")
     Dienstleistung_ID = db.Column(db.String(20), db.ForeignKey("Dienstleistung.dienstleistung_id")) #FK aus Dienstleistung
-    Kunde_rel = relationship("Kunde")
-    Kunde_ID = db.Column(db.String(20), db.ForeignKey("Kunde.kunden_id")) #FK aus Kunde
+    Kunde_rel = relationship("Kunde", back_populates="auftrag_rel")
+    Kunde_ID = db.Column(db.Integer, db.ForeignKey("Kunde.kunden_id")) #FK aus Kunde
     Dienstleister_rel = relationship("Dienstleister")
     Dienstleister_ID = db.Column(db.String(20), db.ForeignKey("Dienstleister.dienstleister_id")) #FK aus dienstleister
     Status = db.Column(db.String(20)) #Liste möglicher status festlegen

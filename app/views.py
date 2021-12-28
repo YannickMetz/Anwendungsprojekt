@@ -161,8 +161,8 @@ def view_service_provider_profile(id):
 @login_required
 def remove_service(service_id):
     print(service_id)
-    curren_service_provider = Dienstleister.query.filter_by(dienstleister_id=current_user.id).first()
-    curren_service_provider.relation.remove(Dienstleistung.query.filter_by(dienstleistung_id=service_id).first())
+    current_service_provider = Dienstleister.query.filter_by(dienstleister_id=current_user.id).first()
+    current_service_provider.relation.remove(Dienstleistung.query.filter_by(dienstleistung_id=service_id).first())
     db.session.commit()
     return redirect(url_for('views.change_business_profile'))
 
@@ -175,3 +175,15 @@ def remove_gallery_image(image_id):
 
     return redirect(url_for('views.change_business_profile'))
 
+@views.route('/order/<id>', methods=['POST', 'GET'])
+@login_required
+def view_order(id):
+    current_order = Auftrag.query.where(Auftrag.id == id).first()
+    service = current_order.Dienstleistung_ID
+    customer = current_order.Kunde_ID
+    service_provider = current_order.Dienstleister_ID
+    status = current_order.Status
+    starttime = current_order.Startzeitpunkt
+    endtime = current_order.Endzeitpunkt
+
+    print(service, customer, service_provider, status, starttime, endtime)
