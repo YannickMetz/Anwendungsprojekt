@@ -114,6 +114,31 @@ img {
     stroke: var(--color4);
 }
 
+.search-result {
+    width: 100%;
+}
+
+.panel-body {
+
+    display: inline-block;
+
+}
+
+.panel-body-left {
+    width: 68%;
+    padding-left: 25px;
+    margin-top: 10px;
+    display: inline-block;
+
+}
+
+.panel-body-right {
+    width: 30%;
+    display: inline-block;
+    position: relative;
+    bottom: 25px;
+}
+
 .gallery {
     padding: 10px;
 }

@@ -17,9 +17,9 @@ views = Blueprint('views', __name__,template_folder='templates', static_folder='
 def home():
     return render_template("index.html")
 
-@views.route('/change_business_profile',methods=['POST', 'GET'])
+@views.route('/change_service_provider_profile',methods=['POST', 'GET'])
 @login_required
-def change_business_profile():
+def change_service_provider_profile():
     current_profile = Dienstleisterprofil.query.filter_by(dienstleister_id=current_user.id).first()
     curren_service_provider = Dienstleister.query.filter_by(dienstleister_id=current_user.id).first()
 
@@ -69,7 +69,7 @@ def change_business_profile():
     if profile_image_form.validate_on_submit():
         current_profile.profilbild = profile_image_form.profile_img.data.read()
         db.session.commit()
-        return redirect(url_for('views.change_business_profile'))
+        return redirect(url_for('views.change_service_provider_profile'))
 
     if image_gallery_form.validate_on_submit():
         new_gallery_image = image_gallery_form.img.data.read()
@@ -79,7 +79,7 @@ def change_business_profile():
         )
         db.session.add(new_gallery_item)
         db.session.commit()
-        return redirect(url_for('views.change_business_profile'))
+        return redirect(url_for('views.change_service_provider_profile'))
 
     if service_form.validate_on_submit():
         try:
@@ -88,12 +88,12 @@ def change_business_profile():
         except:
             pass
         finally:
-            return redirect(url_for('views.change_business_profile'))
+            return redirect(url_for('views.change_service_provider_profile'))
 
     if profile_body_form.validate_on_submit():
         current_profile.profilbeschreibung = profile_body_form.profilbeschreibung.data
         db.session.commit()
-        return redirect(url_for('views.change_business_profile'))
+        return redirect(url_for('views.change_service_provider_profile'))
 
     return render_template(
         "change_business_profile.html",
@@ -165,7 +165,7 @@ def remove_service(service_id):
     current_service_provider = Dienstleister.query.filter_by(dienstleister_id=current_user.id).first()
     current_service_provider.relation.remove(Dienstleistung.query.filter_by(dienstleistung_id=service_id).first())
     db.session.commit()
-    return redirect(url_for('views.change_business_profile'))
+    return redirect(url_for('views.change_service_provider_profile'))
 
 
 @views.route('/remove_gallery_image/<int:image_id>',methods=['POST', 'GET'])
@@ -174,7 +174,8 @@ def remove_gallery_image(image_id):
     db.session.delete(DienstleisterProfilGalerie.query.filter_by(id=image_id).first())
     db.session.commit()
 
-    return redirect(url_for('views.change_business_profile'))
+    return redirect(url_for('views.change_service_provider_profile'))
+
 
 @views.route('/order/<id>', methods=['POST', 'GET'])
 @login_required
@@ -188,3 +189,29 @@ def view_order(id):
     endtime = current_order.Endzeitpunkt
 
     print(service, customer, service_provider, status, starttime, endtime)
+
+
+@views.route('/search/<int:service_id>', methods=['GET'])
+@login_required
+def search_service(service_id):
+    service_providers_filtered = Dienstleister.query \
+        .join(Dienstleistung_Profil_association) \
+        .join(Dienstleistung) \
+        .filter(Dienstleistung.dienstleistung_id == Dienstleistung_Profil_association.c.dienstleistung_id) \
+        .where(Dienstleistung.dienstleistung_id == service_id)
+
+    service_providers_dict = {}
+    for provider in service_providers_filtered:
+        profile = Dienstleisterprofil.query.filter_by(dienstleister_id=provider.dienstleister_id).first()
+        if profile.profilbild != None:
+            service_providers_dict.update({provider: b64encode(profile.profilbild).decode("utf-8")})
+        else:
+            here = os.path.dirname(os.path.abspath(__file__))
+            filename = os.path.join(here, 'static/img/placeholder_flat.jpg')
+            with open(filename, 'rb') as imagefile:
+                service_providers_dict.update({provider: b64encode(imagefile.read()).decode('utf-8')})
+
+    print(service_providers_dict)
+
+    return render_template('search.html', service_providers = service_providers_dict)
+
