@@ -1,6 +1,5 @@
-{% extends 'base.html' %} 
-{% import "bootstrap/wtf.html" as wtf %} 
-{% block content %}
+{% extends 'base.html' %} {% import "bootstrap/wtf.html" as wtf %} {% block
+content %}
 
 <div class="container container-standard">
   <div class="row">
@@ -13,12 +12,14 @@
 <div class="container container-standard">
   <div class="gallery">
     <div class="row">
-      <div class="panel panel-default service">
-        <div class="panel-body">
-          Wilkommen bei {{ service_provider_businessname }}<br />
-          Mein Name lautet: {{ service_provider_firstname }} {{
-          service_provider_lastname }}
-          <br />
+      <div class="col-lg-8 col-md-10 mx-auto content">
+        <div class="panel panel-default service">
+          <div class="panel-body">
+            Wilkommen bei {{ service_provider_businessname }}<br />
+            Mein Name lautet: {{ service_provider_firstname }} {{
+            service_provider_lastname }}
+            <br />
+          </div>
         </div>
       </div>
     </div>
@@ -42,13 +43,15 @@
 </div>
 
 <div class="container container-standard">
-  <div class="gallery">
-    <b class="row container-standard">Unser Profil:</b>
-    <div class="row">
-      <div class="panel panel-default service">
-        <div class="panel-body">
-          {{service_provider_profile_body|safe}}
-          <br />
+  <div class="col-lg-8 col-md-10 mx-auto content">
+    <div class="gallery">
+      <b class="row container-standard">Unser Profil:</b>
+      <div class="row">
+        <div class="panel panel-default service">
+          <div class="panel-body">
+            {{service_provider_profile_body|safe}}
+            <br />
+          </div>
         </div>
       </div>
     </div>
