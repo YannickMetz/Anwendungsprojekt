@@ -177,6 +177,21 @@ def remove_gallery_image(image_id):
 def search_service(service_id):
     service_providers_filtered = Dienstleister.query \
         .join(Dienstleistung_Profil_association) \
-        .join(Dienstleister) \
+        .join(Dienstleistung) \
+        .filter(Dienstleistung.dienstleistung_id == Dienstleistung_Profil_association.c.dienstleistung_id) \
+        .where(Dienstleistung.dienstleistung_id == service_id)
 
-    return render_template('search.html')
+    service_providers_dict = {}
+    for provider in service_providers_filtered:
+        profile = Dienstleisterprofil.query.filter_by(dienstleister_id=provider.dienstleister_id).first()
+        if profile.profilbild != None:
+            service_providers_dict.update({provider: b64encode(profile.profilbild).decode("utf-8")})
+        else:
+            here = os.path.dirname(os.path.abspath(__file__))
+            filename = os.path.join(here, 'static/img/placeholder_flat.jpg')
+            with open(filename, 'rb') as imagefile:
+                service_providers_dict.update({provider: b64encode(imagefile.read()).decode('utf-8')})
+
+    print(service_providers_dict)
+
+    return render_template('search.html', service_providers = service_providers_dict)
