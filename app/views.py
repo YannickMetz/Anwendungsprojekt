@@ -7,7 +7,7 @@ import requests, os
 from datetime import date
 from . forms import AddProfileImageForm, ChangeProfileBodyForm, AddImageForm, SelectServiceForm
 from . import db
-from .models import User, Dienstleisterprofil, DienstleisterProfilGalerie, Dienstleistung, Dienstleister, Dienstleistung_Profil_association
+from .models import User, Dienstleisterprofil, Auftrag, DienstleisterProfilGalerie, Dienstleistung, Dienstleister, Dienstleistung_Profil_association
 from base64 import b64encode
 
 
@@ -111,21 +111,24 @@ def change_service_provider_profile():
 @login_required
 def view_service_provider_profile(id):
 
-#dienstleister definieren
+#dienstleister nach aufgerufener id
     service_provider = Dienstleister.query.where(Dienstleister.dienstleister_id == id).first()
 
-#vor, nachname und firmenname definieren
+#vor, nachname und firmenname 
     service_provider_firstname = service_provider.d_vorname
     service_provider_lastname = service_provider.d_nachname
     service_provider_businessname = service_provider.firmenname
 
-#dienstleistungen definieren
+#dienstleistungen 
     services = Dienstleistung.query \
                         .join(Dienstleistung_Profil_association) \
                         .join(Dienstleister) \
                         .filter(Dienstleister.dienstleister_id == Dienstleistung_Profil_association.c.dienstleister_id) \
                         .where(Dienstleister.dienstleister_id == id) 
-    service_provider_profile = Dienstleisterprofil.query.where(Dienstleister.dienstleister_id == id).first()
+
+#dienstleisterprofil
+    service_provider_profile = Dienstleisterprofil.query.where(Dienstleisterprofil.dienstleister_id == id).first()
+    service_provider_profile_body = service_provider_profile.profilbeschreibung
 
 #Bildergalerie
     gallery_table = DienstleisterProfilGalerie.query.filter_by(dienstleister_id=id).all()
@@ -142,6 +145,7 @@ def view_service_provider_profile(id):
         with open(filename, 'rb') as imagefile:
            service_provider_profile_image = b64encode(imagefile.read()).decode('utf-8')  
 
+#übergabe in html code
     return render_template(
         "view_business_profile.html",
         service_provider_firstname = service_provider_firstname,
@@ -149,7 +153,8 @@ def view_service_provider_profile(id):
         service_provider_businessname = service_provider_businessname,
         service_provider_profile_image = service_provider_profile_image,
         services = services,
-        gallery_images = gallery_images
+        gallery_images = gallery_images,
+        service_provider_profile_body = service_provider_profile_body
         )
 
 
@@ -157,8 +162,8 @@ def view_service_provider_profile(id):
 @login_required
 def remove_service(service_id):
     print(service_id)
-    curren_service_provider = Dienstleister.query.filter_by(dienstleister_id=current_user.id).first()
-    curren_service_provider.relation.remove(Dienstleistung.query.filter_by(dienstleistung_id=service_id).first())
+    current_service_provider = Dienstleister.query.filter_by(dienstleister_id=current_user.id).first()
+    current_service_provider.relation.remove(Dienstleistung.query.filter_by(dienstleistung_id=service_id).first())
     db.session.commit()
     return redirect(url_for('views.change_service_provider_profile'))
 
@@ -170,6 +175,20 @@ def remove_gallery_image(image_id):
     db.session.commit()
 
     return redirect(url_for('views.change_service_provider_profile'))
+
+
+@views.route('/order/<id>', methods=['POST', 'GET'])
+@login_required
+def view_order(id):
+    current_order = Auftrag.query.where(Auftrag.id == id).first()
+    service = current_order.Dienstleistung_ID
+    customer = current_order.Kunde_ID
+    service_provider = current_order.Dienstleister_ID
+    status = current_order.Status
+    starttime = current_order.Startzeitpunkt
+    endtime = current_order.Endzeitpunkt
+
+    print(service, customer, service_provider, status, starttime, endtime)
 
 
 @views.route('/search/<int:service_id>', methods=['GET'])
@@ -195,3 +214,4 @@ def search_service(service_id):
     print(service_providers_dict)
 
     return render_template('search.html', service_providers = service_providers_dict)
+

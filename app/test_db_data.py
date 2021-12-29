@@ -4,7 +4,8 @@ from flask_login import login_user, login_required, logout_user, current_user
 import requests, os
 from . forms import LoginForm, RegisterForm, ChangePasswordForm,LoadTestData
 from . import db
-from .models import Dienstleister, Dienstleisterprofil, Dienstleistung, Kundenprofil, User, Kunde
+from datetime import datetime
+from .models import Dienstleister, Dienstleisterprofil, Dienstleistung, Kundenprofil, User, Kunde, Auftrag
 
 testdata = Blueprint('testdata', __name__,template_folder='templates', static_folder='static')
 
@@ -131,5 +132,13 @@ def load_testdata():
         dienstleisterliste[2].relation.append(dienstleistungsliste[1])
         db.session.commit()
 
+        new_order = Auftrag(
+          Status = "in Bearbeitung",
+          Startzeitpunkt = datetime(2022, 11, 11, 10, 10, 00),
+          Endzeitpunkt = datetime(2022, 11, 14, 10, 10, 10),
+          Preis = 200
+        )
+        db.session.add(new_order)
+        db.session.commit()
     return render_template("load_testdata.html", form=testdata_form)
 
