@@ -15,7 +15,9 @@ views = Blueprint('views', __name__,template_folder='templates', static_folder='
 
 @views.route('/')
 def home():
-    return render_template("index.html")
+    categories_query = db.session.query(Dienstleistung.kategorieebene1).all()
+    unique_categories = [i[0] for i in sorted(set(categories_query))]
+    return render_template("index.html", categories=unique_categories)
 
 @views.route('/change_service_provider_profile',methods=['POST', 'GET'])
 @login_required
@@ -215,3 +217,12 @@ def search_service(service_id):
 
     return render_template('search.html', service_providers = service_providers_dict)
 
+
+@views.route('/search/<category1>', methods=['GET'])
+@login_required
+def select_service(category1):
+    services = Dienstleistung.query.filter_by(kategorieebene1=category1).all()
+    services_dict = {}
+    for service in services:
+        services_dict.update({service.dienstleistung_id: service.Dienstleistung})
+    return render_template('services.html', services_dict=services_dict)
