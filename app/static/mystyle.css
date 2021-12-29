@@ -139,6 +139,34 @@ img {
     bottom: 25px;
 }
 
+.service-category {
+    width: 200px;
+    height: 100px;
+    background-color: var(--color3);
+    color: var(--color1);
+    font-weight: bold;
+    margin: 15px;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 100px;
+    font-size: 18px;
+}
+
+@media screen and (max-width: 610px){
+    .service-category {
+        width: 150px;
+        height: 70px;
+        background-color: var(--color3);
+        color: var(--color1);
+        font-weight: bold;
+        margin: 10px;
+        text-align: center;
+        vertical-align: middle;
+        line-height: 70px;
+        font-size: 13px;
+    }
+}
+
 .gallery {
     padding: 10px;
 }
@@ -156,3 +184,12 @@ img {
     display: flex;
     flex-direction: column;
  }
+
+ .link {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1;
+  }
