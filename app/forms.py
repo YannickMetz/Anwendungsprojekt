@@ -3,6 +3,7 @@ from wtforms import StringField, SubmitField, PasswordField, TextAreaField, Sele
 from wtforms import DateField, IntegerField
 from wtforms.validators import DataRequired, URL, Optional
 from flask_wtf.file import FileAllowed
+from wtforms.fields.html5 import DateField
 from flask_ckeditor import CKEditorField
 
 class LoginForm(FlaskForm):
@@ -64,3 +65,9 @@ class LoadTestData(FlaskForm):
 class SelectServiceForm(FlaskForm):
     service = SelectField(label="Selektiere Dienstleistung", coerce=str, validators=[DataRequired()])
     submit_service = SubmitField("Dienstleistung hinzufügen")
+
+class RequestQuotationForm(FlaskForm):
+    service = SelectField(label="Dienstleistung auswählen", coerce=str, validators=[DataRequired()])
+    request = CKEditorField("Beschreiben sie ihre Anforderungen an den Dienstleister",validators=[DataRequired()])
+    service_start = DateField(label="Wann soll die Dienstleistung beginnen?", format='%Y-%m-%d')
+    submit = SubmitField("Angebotsanfrage versenden")
