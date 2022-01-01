@@ -3,13 +3,14 @@ from flask import Flask, render_template, redirect, url_for, request, Blueprint,
 from sqlalchemy import dialects
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
-import requests, os
+import requests, os, sys
 from datetime import date
 from . forms import AddProfileImageForm, ChangeProfileBodyForm, AddImageForm, SelectServiceForm, RequestQuotationForm
 from . import db
 from .models import User, Dienstleisterprofil, Auftrag, DienstleisterProfilGalerie, Dienstleistung, Dienstleister, Dienstleistung_Profil_association
 from base64 import b64encode
 from enum import Enum
+
 
 
 views = Blueprint('views', __name__,template_folder='templates', static_folder='static')
@@ -262,15 +263,23 @@ def request_quotation(id):
     quotation_form.service.choices = services_list
 
     if quotation_form.validate_on_submit():
+
+        # stellt sicher, dass der Eintrag in der Datenbank auf 'NULL' gesetzt wird, falls kein Bild ausgewählt wurde 
+        quotation_image = None 
+        if quotation_form.img.data.headers['Content-Type'] != 'application/octet-stream':
+            quotation_image = quotation_form.img.data.read()
+
         new_service_order = Auftrag(
             Dienstleistung_ID = quotation_form.service.data,
             Dienstleister_ID = id,
             anfrage_freitext = quotation_form.request.data,
             Startzeitpunkt = quotation_form.service_start.data,
+            anfrage_bild = quotation_image,
             Status = ServiceOrderStatus.requested.value
         )
         db.session.add(new_service_order)
         db.session.commit()
+        
         flash("Angebotsanfrage erfolgreich übermittelt.")
         return redirect(url_for('views.home'))
 

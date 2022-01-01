@@ -70,4 +70,5 @@ class RequestQuotationForm(FlaskForm):
     service = SelectField(label="Dienstleistung auswählen", coerce=str, validators=[DataRequired()])
     request = CKEditorField("Beschreiben sie ihre Anforderungen an den Dienstleister",validators=[DataRequired()])
     service_start = DateField(label="Wann soll die Dienstleistung beginnen?", format='%Y-%m-%d')
+    img = FileField("Bild auswählen (Optional)", validators=[FileAllowed(['jpg', 'jpeg'],'Only "jpg" and "jpeg" files are supported!')])
     submit = SubmitField("Angebotsanfrage versenden")
