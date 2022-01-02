@@ -7,7 +7,7 @@ import requests, os, sys
 from datetime import date
 from . forms import AddProfileImageForm, ChangeProfileBodyForm, AddImageForm, SelectServiceForm, RequestQuotationForm
 from . import db
-from .models import User, Dienstleisterprofil, Auftrag, DienstleisterProfilGalerie, Dienstleistung, Dienstleister, Dienstleistung_Profil_association
+from .models import User, Dienstleisterprofil, Auftrag, DienstleisterProfilGalerie, Dienstleistung, Dienstleister, Kunde, Dienstleistung_Profil_association
 from base64 import b64encode
 from enum import Enum
 
@@ -279,9 +279,26 @@ def request_quotation(id):
         )
         db.session.add(new_service_order)
         db.session.commit()
-        
+
         flash("Angebotsanfrage erfolgreich übermittelt.")
         return redirect(url_for('views.home'))
 
 
-    return render_template('request-quotation.html', quotation_form=quotation_form, service_provider_id = id, services_list=services_list) 
+    return render_template(
+        'request-quotation.html',
+        quotation_form=quotation_form,
+        service_provider_id = id,
+        services_list=services_list
+        )
+
+
+@views.route('/order-details/<id>', methods=['POST', 'GET'])
+@login_required
+def view_order_details(id):
+    current_order = Auftrag.query.where(Auftrag.id == id).first()
+    service = current_order.Dienstleistung_ID
+    customer = Kunde.query.where(Kunde.kunden_id==current_order.Kunde_ID).first()
+    service_provider = current_order.Dienstleister_ID
+    status = current_order.Status
+    starttime = current_order.Startzeitpunkt
+    endtime = current_order.Endzeitpunkt
