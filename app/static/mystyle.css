@@ -18,6 +18,10 @@ img {
     width: 100%;
 }
 
+.flashed-msg {
+    margin: 70px;
+}
+
 /* Formular textfeld Farbe */
 .form-control {
     background-color: var(--color2);
