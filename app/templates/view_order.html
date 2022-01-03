@@ -1,14 +1,16 @@
 {% extends 'base.html' %} 
 {% import "bootstrap/wtf.html" as wtf %} 
+{% block content %}
 
 <div class="container container-standard">
+  <h1>Ihre Aufträge:</h1>
     <div class="gallery">
-      <div class="row">
-        <h1>Ihre Aufträge:</h1>
-        {% for order in current_order %}
+      <div class="row">   
+        {% for service in services %}
         <div class="panel panel-default service">
           <div class="panel-body">
-            {{ order|safe }}
+            {{ services[loop.index0]| safe }} {{service_description[loop.index0] | safe }}
+            {{order_member[loop.index0] | safe }}
             <br />
           </div>
         </div>
@@ -16,3 +18,5 @@
       </div>
     </div>
   </div>
+
+  {% endblock %}

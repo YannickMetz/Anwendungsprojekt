@@ -7,7 +7,7 @@ import requests, os, sys
 from datetime import date
 from . forms import AddProfileImageForm, ChangeProfileBodyForm, AddImageForm, SelectServiceForm, RequestQuotationForm
 from . import db
-from .models import User, Dienstleisterprofil, Auftrag, DienstleisterProfilGalerie, Dienstleistung, Dienstleister, Dienstleistung_Profil_association
+from .models import Kunde, User, Dienstleisterprofil, Auftrag, DienstleisterProfilGalerie, Dienstleistung, Dienstleister, Dienstleistung_Profil_association
 from base64 import b64encode
 from enum import Enum
 
@@ -204,25 +204,41 @@ def remove_gallery_image(image_id):
     return redirect(url_for('views.change_service_provider_profile'))
 
 
-@views.route('/order/<id>', methods=['POST', 'GET'])
+@views.route('/orders/', methods=['POST', 'GET'])
 @login_required
-def view_order(id):
-    id = current_user.id
+def view_order():
     if current_user.role == "Dienstleister":
-        current_order = Auftrag.query.where(Auftrag.Dienstleistung_ID == id).all()
+        all_orders = db.session.query(Auftrag, Dienstleistung, Kunde) \
+            .filter(Auftrag.Dienstleistung_ID == Dienstleistung.dienstleistung_id) \
+            .filter(Auftrag.Kunde_ID == Kunde.kunden_id) \
+            .where(Auftrag.Dienstleistung_ID == current_user.id).all()
     elif current_user.role == "Kunde":
-        current_order = Auftrag.query.where(Auftrag.Kunde_ID == current_user.id).first()
-    print(current_order)
-        
-    #service = current_order.Dienstleistung_ID
-    #customer = current_order.Kunde_ID
-    #service_provider = current_order.Dienstleister_ID
-    #status = current_order.Status
-    #starttime = current_order.Startzeitpunkt
-    #endtime = current_order.Endzeitpunkt
+        all_orders = db.session.query(Auftrag, Dienstleistung, Dienstleister) \
+            .filter(Auftrag.Dienstleistung_ID == Dienstleistung.dienstleistung_id) \
+            .filter(Auftrag.Dienstleister_ID == Dienstleister.dienstleister_id) \
+            .where(Auftrag.Kunde_ID == current_user.id).all()
 
-    #print( customer, service_provider, status, starttime, endtime)
-    return "x"
+    services = []
+    service_description = []
+    order_member = []
+
+    for order_auftrag, order_dienstleistung, order_role in all_orders:
+        services.append(order_dienstleistung.Dienstleistung)
+        service_description.append(order_auftrag.anfrage_freitext)
+        if current_user.role == "Dienstleister":
+            order_member.append(f"Kunde: <br> {order_role.k_vorname},{order_role.k_nachname}")
+        elif current_user.role == "Kunde":
+            order_member.append("Dienstleister: <br>" + order_role.firmenname)
+    
+    role = current_user.role == "Dienstleister"
+        
+    return render_template(
+            "view_order.html",
+            services = services,
+            service_description = service_description,
+            order_member = order_member,
+            role = role
+            )
 
 @views.route('/search/<int:service_id>', methods=['GET'])
 @login_required
