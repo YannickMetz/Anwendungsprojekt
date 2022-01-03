@@ -23,7 +23,7 @@ def home():
 @login_required
 def change_service_provider_profile():
     current_profile = Dienstleisterprofil.query.filter_by(dienstleister_id=current_user.id).first()
-    curren_service_provider = Dienstleister.query.filter_by(dienstleister_id=current_user.id).first()
+    current_service_provider = Dienstleister.query.filter_by(dienstleister_id=current_user.id).first()
 
     # erzeugt Dictionary mit Bilddateien aus der Datenbank für die Galerie des Profils
     gallery_table = DienstleisterProfilGalerie.query.filter_by(dienstleister_id=current_user.id).all()
@@ -85,7 +85,7 @@ def change_service_provider_profile():
 
     if service_form.validate_on_submit():
         try:
-            curren_service_provider.relation.append(Dienstleistung.query.filter_by(Dienstleistung=service_form.service.data).first())
+            current_service_provider.relation.append(Dienstleistung.query.filter_by(Dienstleistung=service_form.service.data).first())
             db.session.commit()
         except:
             pass
@@ -182,16 +182,22 @@ def remove_gallery_image(image_id):
 @views.route('/order/<id>', methods=['POST', 'GET'])
 @login_required
 def view_order(id):
-    current_order = Auftrag.query.where(Auftrag.id == id).first()
-    service = current_order.Dienstleistung_ID
-    customer = current_order.Kunde_ID
-    service_provider = current_order.Dienstleister_ID
-    status = current_order.Status
-    starttime = current_order.Startzeitpunkt
-    endtime = current_order.Endzeitpunkt
+    id = current_user.id
+    if current_user.role == "Dienstleister":
+        current_order = Auftrag.query.where(Auftrag.Dienstleistung_ID == id).all()
+    elif current_user.role == "Kunde":
+        current_order = Auftrag.query.where(Auftrag.Kunde_ID == current_user.id).first()
+    print(current_order)
+        
+    #service = current_order.Dienstleistung_ID
+    #customer = current_order.Kunde_ID
+    #service_provider = current_order.Dienstleister_ID
+    #status = current_order.Status
+    #starttime = current_order.Startzeitpunkt
+    #endtime = current_order.Endzeitpunkt
 
-    print(service, customer, service_provider, status, starttime, endtime)
-
+    #print( customer, service_provider, status, starttime, endtime)
+    return "x"
 
 @views.route('/search/<int:service_id>', methods=['GET'])
 @login_required

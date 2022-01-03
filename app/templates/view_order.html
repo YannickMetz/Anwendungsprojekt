@@ -1,2 +1,18 @@
 {% extends 'base.html' %} 
 {% import "bootstrap/wtf.html" as wtf %} 
+
+<div class="container container-standard">
+    <div class="gallery">
+      <div class="row">
+        <h1>Ihre Aufträge:</h1>
+        {% for order in current_order %}
+        <div class="panel panel-default service">
+          <div class="panel-body">
+            {{ order|safe }}
+            <br />
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
