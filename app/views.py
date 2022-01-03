@@ -268,9 +268,10 @@ def request_quotation(id):
         quotation_image = None 
         if quotation_form.img.data.headers['Content-Type'] != 'application/octet-stream':
             quotation_image = quotation_form.img.data.read()
-
+        
         new_service_order = Auftrag(
-            Dienstleistung_ID = quotation_form.service.data,
+            Dienstleistung_ID = list(services_dict.keys())[list(services_dict.values()).index(quotation_form.service.data)],
+            Kunde_ID = current_user.id,
             Dienstleister_ID = id,
             anfrage_freitext = quotation_form.request.data,
             Startzeitpunkt = quotation_form.service_start.data,
