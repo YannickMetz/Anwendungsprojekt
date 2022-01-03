@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container container-standard">
+    <h1>Welche Dienstleistungen suchen sie?</h1>
+    <div class="gallery">
+        <div class="row">
+            {% for service in services_dict %}
+            <a href="{{ url_for('views.search_service', service_id=service) }}">
+                <div class="panel panel-default service-category">
+                    {{ services_dict[service] }}
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

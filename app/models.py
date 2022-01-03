@@ -69,6 +69,8 @@ class Auftrag(db.Model):
     Status = db.Column(db.String(20)) #Liste möglicher status festlegen
     Startzeitpunkt = db.Column(db.DateTime)
     Endzeitpunkt = db.Column(db.DateTime)
+    anfrage_freitext = db.Column(db.String(100))
+    anfrage_bild = db.Column(db.LargeBinary)
     Preis = db.Column(db.Numeric(precision=2))
 
 class Kundenbewertung(db.Model):

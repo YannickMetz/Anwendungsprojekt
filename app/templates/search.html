@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+
+{% block content %}
+
+<div class="container container-standard">
+    {% if not service_providers%}
+    <h1>Keine Treffer!</h1>
+    {% endif %}
+    <div class="col-lg-8 col-md-10 mx-auto content">
+        {% for provider in service_providers %}
+        <div class="row">
+            <div class="panel panel-default service search-result">
+                <div class="panel-body">
+                    <div class="panel-body-left">
+                        <h3>{{ provider.firmenname}} </h3> <br>
+                        Ort: {{ provider.d_ort }} <br> 
+                        <a href="{{ url_for('views.view_service_provider_profile', id=provider.dienstleister_id) }}">Dienstleister anzeigen</a>
+                    </div>
+                    <div class="panel-body-right">
+                        <img src="data:;base64,{{ service_providers[provider] }}" class="thumbnail-search-img">
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+{% endblock %}
