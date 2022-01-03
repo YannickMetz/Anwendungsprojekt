@@ -3,21 +3,52 @@ from flask import Flask, render_template, redirect, url_for, request, Blueprint,
 from sqlalchemy import dialects
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
-import requests, os
+import requests, os, sys
 from datetime import date
-from . forms import AddProfileImageForm, ChangeProfileBodyForm, AddImageForm, SelectServiceForm
+from . forms import AddProfileImageForm, ChangeProfileBodyForm, AddImageForm, SelectServiceForm, RequestQuotationForm
 from . import db
 from .models import User, Dienstleisterprofil, Auftrag, DienstleisterProfilGalerie, Dienstleistung, Dienstleister, Dienstleistung_Profil_association
 from base64 import b64encode
+from enum import Enum
+
 
 
 views = Blueprint('views', __name__,template_folder='templates', static_folder='static')
+
+class ServiceOrderStatus(Enum):
+    requested = "Übermittelt"
+    rejected = "Abgelehnt"
+    cancelled = "Storniert"
+    quotation_available = "Angebot verfügbar"
+    quotation_confirmed = "Angebot Bestätigt"
+    service_confirmed = "Abgenommen"
+    completed = "Abgeschlossen"
+
+###### Functions ######
+
+# erzeugt Dictionary mit den Dienstleistungen des Profils, welches aufsteigend nach Values (name der Dienstleistung) sortiert wird
+def get_services_for_provider(id):
+    services_query = Dienstleistung.query \
+                        .join(Dienstleistung_Profil_association) \
+                        .join(Dienstleister) \
+                        .filter(Dienstleister.dienstleister_id == Dienstleistung_Profil_association.c.dienstleister_id) \
+                        .where(Dienstleister.dienstleister_id == id)
+    services_dict = {}
+    for i in range(0,services_query.count()):
+        services_dict.update({services_query[i].dienstleistung_id: services_query[i].Dienstleistung})
+    services_dict=dict(sorted(services_dict.items(), key=lambda item: item[1],reverse=False))
+    return services_dict
+
+
+
+###### Routes ######
 
 @views.route('/')
 def home():
     categories_query = db.session.query(Dienstleistung.kategorieebene1).all()
     unique_categories = [i[0] for i in sorted(set(categories_query))]
     return render_template("index.html", categories=unique_categories)
+
 
 @views.route('/change_service_provider_profile',methods=['POST', 'GET'])
 @login_required
@@ -39,15 +70,7 @@ def change_service_provider_profile():
     services_list.sort()
 
     # erzeugt Dictionary mit den Dienstleistungen des Profils, welches aufsteigend nach Values (name der Dienstleistung) sortiert wird
-    profile_services_query = Dienstleistung.query \
-                        .join(Dienstleistung_Profil_association) \
-                        .join(Dienstleister) \
-                        .filter(Dienstleister.dienstleister_id == Dienstleistung_Profil_association.c.dienstleister_id) \
-                        .where(Dienstleister.dienstleister_id == current_user.id)     
-    profile_services_dict = {}
-    for i in range(0,profile_services_query.count()):
-        profile_services_dict.update({profile_services_query[i].dienstleistung_id: profile_services_query[i].Dienstleistung})
-    profile_services_dict=dict(sorted(profile_services_dict.items(), key=lambda item: item[1],reverse=False))
+    profile_services_dict = get_services_for_provider(current_user.id)
 
     # Profilbild zur Darstellung aus der Datenbank laden. 
     # Existiert das Bild nicht, wird ein Platzhalter aus dem static Verzeichnis geladen
@@ -115,6 +138,7 @@ def view_service_provider_profile(id):
 
 #dienstleister nach aufgerufener id
     service_provider = Dienstleister.query.where(Dienstleister.dienstleister_id == id).first()
+    service_provider_id = service_provider.dienstleister_id
 
 #vor, nachname und firmenname 
     service_provider_firstname = service_provider.d_vorname
@@ -154,6 +178,7 @@ def view_service_provider_profile(id):
         service_provider_lastname = service_provider_lastname,
         service_provider_businessname = service_provider_businessname,
         service_provider_profile_image = service_provider_profile_image,
+        service_provider_id = service_provider_id,
         services = services,
         gallery_images = gallery_images,
         service_provider_profile_body = service_provider_profile_body
@@ -219,7 +244,6 @@ def search_service(service_id):
             with open(filename, 'rb') as imagefile:
                 service_providers_dict.update({provider: b64encode(imagefile.read()).decode('utf-8')})
 
-    print(service_providers_dict)
 
     return render_template('search.html', service_providers = service_providers_dict)
 
@@ -232,3 +256,38 @@ def select_service(category1):
     for service in services:
         services_dict.update({service.dienstleistung_id: service.Dienstleistung})
     return render_template('services.html', services_dict=services_dict)
+
+
+@views.route('/request-quotation/<id>', methods= ['GET', 'POST'])
+@login_required
+def request_quotation(id):
+
+    services_dict = get_services_for_provider(id)
+    services_list = [services_dict[service] for service in services_dict]
+
+    quotation_form = RequestQuotationForm()
+    quotation_form.service.choices = services_list
+
+    if quotation_form.validate_on_submit():
+
+        # stellt sicher, dass der Eintrag in der Datenbank auf 'NULL' gesetzt wird, falls kein Bild ausgewählt wurde 
+        quotation_image = None 
+        if quotation_form.img.data.headers['Content-Type'] != 'application/octet-stream':
+            quotation_image = quotation_form.img.data.read()
+
+        new_service_order = Auftrag(
+            Dienstleistung_ID = quotation_form.service.data,
+            Dienstleister_ID = id,
+            anfrage_freitext = quotation_form.request.data,
+            Startzeitpunkt = quotation_form.service_start.data,
+            anfrage_bild = quotation_image,
+            Status = ServiceOrderStatus.requested.value
+        )
+        db.session.add(new_service_order)
+        db.session.commit()
+        
+        flash("Angebotsanfrage erfolgreich übermittelt.")
+        return redirect(url_for('views.home'))
+
+
+    return render_template('request-quotation.html', quotation_form=quotation_form, service_provider_id = id, services_list=services_list) 
