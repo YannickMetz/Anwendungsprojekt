@@ -3,5 +3,53 @@
 
 
 {% block content %}
-
+<div class="container container-standard">
+    <h1>Auftragsdetails</h1>
+    <table class="table-order-details">
+        <tr>
+            <td class="table-order-details-column-left">Auftragsnummer</td>
+            <td class="table-order-details-column-right">{{ service_order.current_order.id }}</td>
+        </tr>
+        <tr>
+            <td class="table-order-details-column-left">Dienstleistung</td>
+            <td class="table-order-details-column-right">{{ service_order.service.Dienstleistung }}</td>
+        </tr>
+        <tr>
+            <td class="table-order-details-column-left">Auftragsstatus</td>
+            <td class="table-order-details-column-right">{{ service_order.current_order.Status }}</td>
+        </tr>
+        <tr>
+            <td class="table-order-details-column-left">Startzeitpunkt</td>
+            <td class="table-order-details-column-right">{{ service_order.current_order.Startzeitpunkt.date() }}</td>
+        </tr>
+        <tr>
+            <td class="table-order-details-column-left">Endzeitpunkt</td>
+            <td class="table-order-details-column-right">
+                {% if service_order.current_order.Endzeitpunkt != None %}
+                    {{ service_order.current_order.Endzeitpunkt.date() }}
+                {% endif %}
+            </td>
+        </tr>
+    </table>
+    <br>
+    <h1>Kundendetails</h1>
+    <table class="table-order-details">
+        <tr>
+            <td class="table-order-details-column-left">Kundenname</td>
+            <td class="table-order-details-column-right">{{ service_order.customer.k_nachname }}, {{ service_order.customer.k_vorname }}</td>
+        </tr>
+        <tr>
+            <td class="table-order-details-column-left">Straße</td>
+            <td class="table-order-details-column-right">{{ service_order.customer.k_straße }}</td>
+        </tr>
+        <tr>
+            <td class="table-order-details-column-left">Ort</td>
+            <td class="table-order-details-column-right">{{ service_order.customer.k_ort }}</td>
+        </tr>
+        <tr>
+            <td class="table-order-details-column-left">PLZ</td>
+            <td class="table-order-details-column-right">{{ service_order.customer.k_plz }}</td>
+        </tr>
+    </table>
+</div>
 {% endblock %}

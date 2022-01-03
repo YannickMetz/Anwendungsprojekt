@@ -15,6 +15,9 @@ from enum import Enum
 
 views = Blueprint('views', __name__,template_folder='templates', static_folder='static')
 
+
+###### Classes ######
+
 class ServiceOrderStatus(Enum):
     requested = "Übermittelt"
     rejected = "Abgelehnt"
@@ -23,6 +26,13 @@ class ServiceOrderStatus(Enum):
     quotation_confirmed = "Angebot Bestätigt"
     service_confirmed = "Abgenommen"
     completed = "Abgeschlossen"
+
+class ServiceOrder:
+    def __init__(self, order_id):
+        self.current_order = Auftrag.query.where(Auftrag.id == order_id).first()
+        self.customer = Kunde.query.where(Kunde.kunden_id == self.current_order.Kunde_ID).first()
+        self.service_provider = Dienstleister.query.where(Dienstleister.dienstleister_id == self.current_order.Dienstleister_ID).first()
+        self.service = Dienstleistung.query.where(Dienstleistung.dienstleistung_id == self.current_order.Dienstleistung_ID).first()
 
 ###### Functions ######
 
@@ -296,10 +306,9 @@ def request_quotation(id):
 @views.route('/order-details/<id>', methods=['POST', 'GET'])
 @login_required
 def view_order_details(id):
-    current_order = Auftrag.query.where(Auftrag.id == id).first()
-    service = current_order.Dienstleistung_ID
-    customer = Kunde.query.where(Kunde.kunden_id==current_order.Kunde_ID).first()
-    service_provider = current_order.Dienstleister_ID
-    status = current_order.Status
-    starttime = current_order.Startzeitpunkt
-    endtime = current_order.Endzeitpunkt
+    service_order = ServiceOrder(id)
+    print(service_order.customer.k_nachname)
+    print(service_order.service_provider.firmenname)
+    print(service_order.service.Dienstleistung)
+
+    return render_template('order-details.html', service_order=service_order)
