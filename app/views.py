@@ -19,20 +19,28 @@ views = Blueprint('views', __name__,template_folder='templates', static_folder='
 ###### Classes ######
 
 class ServiceOrderStatus(Enum):
-    requested = "Übermittelt"
-    rejected = "Abgelehnt"
-    cancelled = "Storniert"
+    requested = "Übermittelt" # Kunde hat Angebot angefragt
+    rejected = "Abgelehnt" # Kunde hat Angebot abgeleht
+    cancelled = "Storniert" # Kunde oder Dienstleister haben den Auftrag abgebrochen
     quotation_available = "Angebot verfügbar"
-    quotation_confirmed = "Angebot Bestätigt"
-    service_confirmed = "Abgenommen"
-    completed = "Abgeschlossen"
+    quotation_confirmed = "Angebot Bestätigt" # Kunde hat dem Angebot zugestimmt
+    service_confirmed = "Abgenommen" # Kunde bestätigt, dass die geleistete Dienstleistung den Anforderungen entspricht
+    completed = "Abgeschlossen" # Dienstleister hat Auftrag abgeschlossen
 
 class ServiceOrder:
     def __init__(self, order_id):
-        self.current_order = Auftrag.query.where(Auftrag.id == order_id).first()
-        self.customer = Kunde.query.where(Kunde.kunden_id == self.current_order.Kunde_ID).first()
-        self.service_provider = Dienstleister.query.where(Dienstleister.dienstleister_id == self.current_order.Dienstleister_ID).first()
-        self.service = Dienstleistung.query.where(Dienstleistung.dienstleistung_id == self.current_order.Dienstleistung_ID).first()
+        self.order_details = Auftrag.query.where(Auftrag.id == order_id).first()
+        self.customer = Kunde.query.where(Kunde.kunden_id == self.order_details.Kunde_ID).first()
+        self.service_provider = Dienstleister.query.where(Dienstleister.dienstleister_id == self.order_details.Dienstleister_ID).first()
+        self.service = Dienstleistung.query.where(Dienstleistung.dienstleistung_id == self.order_details.Dienstleistung_ID).first()
+        if self.order_details.Preis != None:
+            self.quoted_price = str("{:.2f}".format(self.order_details.Preis) + " €")
+        else:
+            self.quoted_price = "wird bearbeitet"
+        if self.order_details.anfrage_bild != None:
+            self.customer_image = b64encode(self.order_details.anfrage_bild).decode('utf-8')
+        else:
+            self.customer_image = None
 
 ###### Functions ######
 
@@ -217,13 +225,13 @@ def remove_gallery_image(image_id):
 @views.route('/order/<id>', methods=['POST', 'GET'])
 @login_required
 def view_order(id):
-    current_order = Auftrag.query.where(Auftrag.id == id).first()
-    service = current_order.Dienstleistung_ID
-    customer = current_order.Kunde_ID
-    service_provider = current_order.Dienstleister_ID
-    status = current_order.Status
-    starttime = current_order.Startzeitpunkt
-    endtime = current_order.Endzeitpunkt
+    order_details = Auftrag.query.where(Auftrag.id == id).first()
+    service = order_details.Dienstleistung_ID
+    customer = order_details.Kunde_ID
+    service_provider = order_details.Dienstleister_ID
+    status = order_details.Status
+    starttime = order_details.Startzeitpunkt
+    endtime = order_details.Endzeitpunkt
 
     print(service, customer, service_provider, status, starttime, endtime)
 
@@ -307,8 +315,7 @@ def request_quotation(id):
 @login_required
 def view_order_details(id):
     service_order = ServiceOrder(id)
-    print(service_order.customer.k_nachname)
-    print(service_order.service_provider.firmenname)
-    print(service_order.service.Dienstleistung)
+    
+
 
     return render_template('order-details.html', service_order=service_order)
