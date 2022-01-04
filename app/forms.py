@@ -3,7 +3,7 @@ from wtforms import StringField, SubmitField, PasswordField, TextAreaField, Sele
 from wtforms import DateField, IntegerField
 from wtforms.validators import DataRequired, URL, Optional
 from flask_wtf.file import FileAllowed
-from wtforms.fields.html5 import DateField
+#from wtforms.fields.html5 import DateField
 from flask_ckeditor import CKEditorField
 
 class LoginForm(FlaskForm):
