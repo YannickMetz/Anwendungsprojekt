@@ -5,7 +5,6 @@ from wtforms.validators import DataRequired, URL, Optional
 from flask_wtf.file import FileAllowed
 from wtforms.fields.html5 import DateField
 from flask_ckeditor import CKEditorField
-from babel.numbers import  format_decimal
 
 # Klasse mit modifiziertem DecimalField, welches sowohl Komma als auch Punkt als Dezimaltrennzeichen erlaubt
 class FlexibleDecimalField(DecimalField):
