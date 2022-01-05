@@ -227,41 +227,21 @@ def remove_gallery_image(image_id):
 @views.route('/orders/', methods=['POST', 'GET'])
 @login_required
 def view_order():
+    
     if current_user.role == "Dienstleister":
-        all_orders = db.session.query(Auftrag, Dienstleistung, Kunde) \
-            .filter(Auftrag.Dienstleistung_ID == Dienstleistung.dienstleistung_id) \
-            .filter(Auftrag.Kunde_ID == Kunde.kunden_id) \
-            .where(Auftrag.Dienstleistung_ID == current_user.id).all()
+        my_orders= Auftrag.query.where(Auftrag.Dienstleister_ID == current_user.id).all()
     elif current_user.role == "Kunde":
-        all_orders = db.session.query(Auftrag, Dienstleistung, Dienstleister) \
-            .filter(Auftrag.Dienstleistung_ID == Dienstleistung.dienstleistung_id) \
-            .filter(Auftrag.Dienstleister_ID == Dienstleister.dienstleister_id) \
-            .where(Auftrag.Kunde_ID == current_user.id).all()
+        my_orders= Auftrag.query.where(Auftrag.Kunde_ID == current_user.id).all()
 
-    services = []
-    order_member = []
-    order_id = []
-    order_status = []
-    print(all_orders)
+    service_orders = []
+    for order in my_orders:
+        my_order = ServiceOrder(order.id)
+        service_orders.append(my_order)
 
-    for order_auftrag, order_dienstleistung, order_role in all_orders:
-        services.append(order_dienstleistung.Dienstleistung)
-        order_id.append(order_auftrag.id)
-        order_status.append(order_auftrag.Status)
-        if current_user.role == "Dienstleister":
-            order_member.append(f"{order_role.k_vorname}, {order_role.k_nachname}")
-        elif current_user.role == "Kunde":
-            order_member.append(order_role.firmenname)
-
-    #role = current_user.role == "Dienstleister"
 
     return render_template(
             "view_order.html",
-            services = services,
-            order_member = order_member,
-            order_id = order_id,
-            order_status = order_status
-            #role = role
+            service_orders=service_orders
             )
 
 @views.route('/search/<int:service_id>', methods=['GET'])
