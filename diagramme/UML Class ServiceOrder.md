@@ -1,8 +1,10 @@
 ```mermaid
  classDiagram
     class ServiceOrder{
-        quoted_price: String
+        customer_contact: String
+        service_provider_contact: String
         customer_image: LargeBinary
+        quoted_price: String
         ServiceOrder(int order_id)
     }
     
@@ -57,6 +59,13 @@
         d_plz: String
         d_ort: String
         radius: Integer
+    }
+
+    Dienstleister "1" -- "1" User
+    Kunde "1" -- "1" User
+
+    class User {
+        email: String
     }
 
     class Dienstleistung {
