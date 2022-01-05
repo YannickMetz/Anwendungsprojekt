@@ -5,9 +5,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
 import requests, os, sys
 from datetime import date
-from . forms import AddProfileImageForm, ChangeProfileBodyForm, AddImageForm, SelectServiceForm, RequestQuotationForm
+from . forms import AddProfileImageForm, ChangeProfileBodyForm, AddImageForm, SelectServiceForm, RequestQuotationForm, CreateQuotation, ProcessQuotation
 from . import db
-from .models import User, Dienstleisterprofil, Auftrag, DienstleisterProfilGalerie, Dienstleistung, Dienstleister, Dienstleistung_Profil_association
+from .models import User, Dienstleisterprofil, Auftrag, DienstleisterProfilGalerie, Dienstleistung, Dienstleister, Kunde, Dienstleistung_Profil_association
 from base64 import b64encode
 from enum import Enum
 
@@ -15,14 +15,34 @@ from enum import Enum
 
 views = Blueprint('views', __name__,template_folder='templates', static_folder='static')
 
+
+###### Classes ######
+
 class ServiceOrderStatus(Enum):
-    requested = "Übermittelt"
-    rejected = "Abgelehnt"
-    cancelled = "Storniert"
+    requested = "Übermittelt" # Kunde hat Angebot angefragt
+    rejected = "Abgelehnt" # Kunde hat Angebot abgeleht
+    cancelled = "Storniert" # Kunde oder Dienstleister haben den Auftrag abgebrochen
     quotation_available = "Angebot verfügbar"
-    quotation_confirmed = "Angebot Bestätigt"
-    service_confirmed = "Abgenommen"
-    completed = "Abgeschlossen"
+    quotation_confirmed = "Angebot Bestätigt" # Kunde hat dem Angebot zugestimmt
+    service_confirmed = "Abgenommen" # Kunde bestätigt, dass die geleistete Dienstleistung den Anforderungen entspricht
+    completed = "Abgeschlossen" # Dienstleister hat Auftrag abgeschlossen
+
+class ServiceOrder:
+    def __init__(self, order_id):
+        self.order_details = Auftrag.query.where(Auftrag.id == order_id).first()
+        self.customer = Kunde.query.where(Kunde.kunden_id == self.order_details.Kunde_ID).first()
+        self.service_provider = Dienstleister.query.where(Dienstleister.dienstleister_id == self.order_details.Dienstleister_ID).first()
+        self.service = Dienstleistung.query.where(Dienstleistung.dienstleistung_id == self.order_details.Dienstleistung_ID).first()
+        self.customer_contact = User.query.where(User.id == self.customer.kunden_id).first().email
+        self.service_provider_contact = User.query.where(User.id == self.service_provider.dienstleister_id).first().email
+        if self.order_details.Preis != None:
+            self.quoted_price = str("{:.2f}".format(self.order_details.Preis) + " €")
+        else:
+            self.quoted_price = "wird bearbeitet"
+        if self.order_details.anfrage_bild != None:
+            self.customer_image = b64encode(self.order_details.anfrage_bild).decode('utf-8')
+        else:
+            self.customer_image = None
 
 ###### Functions ######
 
@@ -207,13 +227,13 @@ def remove_gallery_image(image_id):
 @views.route('/order/<id>', methods=['POST', 'GET'])
 @login_required
 def view_order(id):
-    current_order = Auftrag.query.where(Auftrag.id == id).first()
-    service = current_order.Dienstleistung_ID
-    customer = current_order.Kunde_ID
-    service_provider = current_order.Dienstleister_ID
-    status = current_order.Status
-    starttime = current_order.Startzeitpunkt
-    endtime = current_order.Endzeitpunkt
+    order_details = Auftrag.query.where(Auftrag.id == id).first()
+    service = order_details.Dienstleistung_ID
+    customer = order_details.Kunde_ID
+    service_provider = order_details.Dienstleister_ID
+    status = order_details.Status
+    starttime = order_details.Startzeitpunkt
+    endtime = order_details.Endzeitpunkt
 
     print(service, customer, service_provider, status, starttime, endtime)
 
@@ -252,9 +272,13 @@ def select_service(category1):
     return render_template('services.html', services_dict=services_dict)
 
 
-@views.route('/request-quotation/<id>', methods= ['GET', 'POST'])
+@views.route('/request-quotation/<int:id>', methods= ['GET', 'POST'])
 @login_required
 def request_quotation(id):
+
+    if current_user.role == "Dienstleister":
+        flash("Sie können als Dienstleister leider keine Dienstleistungen anfragen.")
+        return redirect(url_for('views.home'))
 
     services_dict = get_services_for_provider(id)
     services_list = [services_dict[service] for service in services_dict]
@@ -268,9 +292,10 @@ def request_quotation(id):
         quotation_image = None 
         if quotation_form.img.data.headers['Content-Type'] != 'application/octet-stream':
             quotation_image = quotation_form.img.data.read()
-
+        
         new_service_order = Auftrag(
-            Dienstleistung_ID = quotation_form.service.data,
+            Dienstleistung_ID = list(services_dict.keys())[list(services_dict.values()).index(quotation_form.service.data)],
+            Kunde_ID = current_user.id,
             Dienstleister_ID = id,
             anfrage_freitext = quotation_form.request.data,
             Startzeitpunkt = quotation_form.service_start.data,
@@ -279,9 +304,42 @@ def request_quotation(id):
         )
         db.session.add(new_service_order)
         db.session.commit()
-        
+
         flash("Angebotsanfrage erfolgreich übermittelt.")
         return redirect(url_for('views.home'))
 
 
-    return render_template('request-quotation.html', quotation_form=quotation_form, service_provider_id = id, services_list=services_list) 
+    return render_template(
+        'request-quotation.html',
+        quotation_form=quotation_form,
+        service_provider_id = id,
+        services_list=services_list
+        )
+
+
+@views.route('/order-details/<id>', methods=['POST', 'GET'])
+@login_required
+def view_order_details(id):
+    service_order = ServiceOrder(id)
+    quotation_button = ProcessQuotation()
+    if quotation_button.validate_on_submit():
+        return redirect(url_for('views.create_quotation', id=id))
+    
+    return render_template('order-details.html', service_order=service_order, quotation_button=quotation_button, ServiceOrderStatus=ServiceOrderStatus)
+
+
+@views.route('/quote/<id>', methods=['POST', 'GET'])
+@login_required
+def create_quotation(id):
+    service_order = ServiceOrder(id)
+    quotation_form = CreateQuotation()
+    if quotation_form.validate_on_submit():
+        quotation_price = round(quotation_form.quote.data, 2)
+        service_finish = quotation_form.service_finish.data
+        service_order.order_details.Status = ServiceOrderStatus.quotation_available.value
+        service_order.order_details.Preis =quotation_price
+        service_order.order_details.Endzeitpunkt = service_finish
+        db.session.commit()
+        return redirect(url_for('views.view_order_details', id=id))
+
+    return render_template('quote.html', service_order=service_order, quotation_form=quotation_form)

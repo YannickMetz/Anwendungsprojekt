@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+
+{% block content %}
+{% if current_user.id == service_order.customer.kunden_id or current_user.id == service_order.service_provider.dienstleister_id%}
+<div class="container container-standard">
+    <h1>Auftragsdetails</h1>
+    <table class="table-order-details">
+        <tr>
+            <td class="table-order-details-column-left">Auftragsnummer</td>
+            <td class="table-order-details-column-right">{{ service_order.order_details.id }}</td>
+        </tr>
+        <tr>
+            <td class="table-order-details-column-left">Dienstleistung</td>
+            <td class="table-order-details-column-right">{{ service_order.service.Dienstleistung }}</td>
+        </tr>
+        <tr>
+            <td class="table-order-details-column-left">Auftragsstatus</td>
+            <td class="table-order-details-column-right">{{ service_order.order_details.Status }}</td>
+        </tr>
+        <tr>
+            <td class="table-order-details-column-left">Startzeitpunkt</td>
+            <td class="table-order-details-column-right">{{ service_order.order_details.Startzeitpunkt.date() }}</td>
+        </tr>
+        <tr>
+            <td class="table-order-details-column-left">Endzeitpunkt</td>
+            <td class="table-order-details-column-right">
+                {% if service_order.order_details.Endzeitpunkt != None %}
+                {{ service_order.order_details.Endzeitpunkt.date() }}
+                {% endif %}
+            </td>
+        </tr>
+    </table>
+    <br>
+    <h1>Kundendendaten</h1>
+    <table class="table-order-details">
+        <tr>
+            <td class="table-order-details-column-left">Kundenname</td>
+            <td class="table-order-details-column-right">{{ service_order.customer.k_nachname }}, {{
+                service_order.customer.k_vorname }}</td>
+        </tr>
+        <tr>
+            <td class="table-order-details-column-left">Straße</td>
+            <td class="table-order-details-column-right">{{ service_order.customer.k_straße }}</td>
+        </tr>
+        <tr>
+            <td class="table-order-details-column-left">Ort</td>
+            <td class="table-order-details-column-right">{{ service_order.customer.k_ort }}</td>
+        </tr>
+        <tr>
+            <td class="table-order-details-column-left">PLZ</td>
+            <td class="table-order-details-column-right">{{ service_order.customer.k_plz }}</td>
+        </tr>
+        <tr>
+            <td class="table-order-details-column-left">Kontakt</td>
+            <td class="table-order-details-column-right">{{ service_order.customer_contact }}</td>
+        </tr>
+    </table>
+    <br>
+    <h1>Beschreibung der Anforderungen</h1>
+    <div class="table-order-details textbox">
+        {{ service_order.order_details.anfrage_freitext|safe}}
+    </div>
+    <br>
+    <div class="table-order-details">
+        {% if service_order.customer_image != None %}
+        <img src="data:;base64,{{ service_order.customer_image }}" />
+        {% endif %}
+    </div>
+    <br>
+    <h1>Dienstleisterdaten</h1>
+    <table class="table-order-details">
+        <tr>
+            <td class="table-order-details-column-left">Dienstleister</td>
+            <td class="table-order-details-column-right">{{ service_order.service_provider.firmenname }}</td>
+        </tr>
+        <tr>
+            <td class="table-order-details-column-left">Straße</td>
+            <td class="table-order-details-column-right">{{ service_order.service_provider.d_straße }}</td>
+        </tr>
+        <tr>
+            <td class="table-order-details-column-left">Ort</td>
+            <td class="table-order-details-column-right">{{ service_order.service_provider.d_ort }}</td>
+        </tr>
+        <tr>
+            <td class="table-order-details-column-left">PLZ</td>
+            <td class="table-order-details-column-right">{{ service_order.service_provider.d_plz }}</td>
+        </tr>
+        <tr>
+            <td class="table-order-details-column-left">Kontakt</td>
+            <td class="table-order-details-column-right">{{ service_order.service_provider_contact }}</td>
+        </tr>
+    </table>
+    <br>
+   
+    <div>
+        <h1 class="quote ">
+            <div>Angebotspreis:</div>
+            <div>{{ (service_order.quoted_price) }}</div>
+        </h1>
+        <br>
+        <div>
+            {% if current_user.id == service_order.service_provider.dienstleister_id and service_order.order_details.Status == ServiceOrderStatus.requested.value %}
+                {{ wtf.quick_form(quotation_button, novalidate=True, button_map={"submit": "custom"}) }}
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
