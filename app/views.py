@@ -5,7 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
 import requests, os, sys
 from datetime import date
-from . forms import AddProfileImageForm, ChangeProfileBodyForm, AddImageForm, SelectServiceForm, RequestQuotationForm
+from . forms import AddProfileImageForm, ChangeProfileBodyForm, AddImageForm, SelectServiceForm, RequestQuotationForm, CreateQuotation, ProcessQuotation
 from . import db
 from .models import User, Dienstleisterprofil, Auftrag, DienstleisterProfilGalerie, Dienstleistung, Dienstleister, Kunde, Dienstleistung_Profil_association
 from base64 import b64encode
@@ -33,6 +33,8 @@ class ServiceOrder:
         self.customer = Kunde.query.where(Kunde.kunden_id == self.order_details.Kunde_ID).first()
         self.service_provider = Dienstleister.query.where(Dienstleister.dienstleister_id == self.order_details.Dienstleister_ID).first()
         self.service = Dienstleistung.query.where(Dienstleistung.dienstleistung_id == self.order_details.Dienstleistung_ID).first()
+        self.customer_contact = User.query.where(User.id == self.customer.kunden_id).first().email
+        self.service_provider_contact = User.query.where(User.id == self.service_provider.dienstleister_id).first().email
         if self.order_details.Preis != None:
             self.quoted_price = str("{:.2f}".format(self.order_details.Preis) + " €")
         else:
@@ -270,9 +272,13 @@ def select_service(category1):
     return render_template('services.html', services_dict=services_dict)
 
 
-@views.route('/request-quotation/<id>', methods= ['GET', 'POST'])
+@views.route('/request-quotation/<int:id>', methods= ['GET', 'POST'])
 @login_required
 def request_quotation(id):
+
+    if current_user.role == "Dienstleister":
+        flash("Sie können als Dienstleister leider keine Dienstleistungen anfragen.")
+        return redirect(url_for('views.home'))
 
     services_dict = get_services_for_provider(id)
     services_list = [services_dict[service] for service in services_dict]
@@ -315,7 +321,25 @@ def request_quotation(id):
 @login_required
 def view_order_details(id):
     service_order = ServiceOrder(id)
+    quotation_button = ProcessQuotation()
+    if quotation_button.validate_on_submit():
+        return redirect(url_for('views.create_quotation', id=id))
     
+    return render_template('order-details.html', service_order=service_order, quotation_button=quotation_button, ServiceOrderStatus=ServiceOrderStatus)
 
 
-    return render_template('order-details.html', service_order=service_order)
+@views.route('/quote/<id>', methods=['POST', 'GET'])
+@login_required
+def create_quotation(id):
+    service_order = ServiceOrder(id)
+    quotation_form = CreateQuotation()
+    if quotation_form.validate_on_submit():
+        quotation_price = round(quotation_form.quote.data, 2)
+        service_finish = quotation_form.service_finish.data
+        service_order.order_details.Status = ServiceOrderStatus.quotation_available.value
+        service_order.order_details.Preis =quotation_price
+        service_order.order_details.Endzeitpunkt = service_finish
+        db.session.commit()
+        return redirect(url_for('views.view_order_details', id=id))
+
+    return render_template('quote.html', service_order=service_order, quotation_form=quotation_form)

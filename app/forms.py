@@ -1,10 +1,20 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, PasswordField, TextAreaField, SelectField, FileField
+from wtforms import StringField, SubmitField, PasswordField, TextAreaField, SelectField, FileField, DecimalField
 from wtforms import DateField, IntegerField
 from wtforms.validators import DataRequired, URL, Optional
 from flask_wtf.file import FileAllowed
 from wtforms.fields.html5 import DateField
 from flask_ckeditor import CKEditorField
+from babel.numbers import  format_decimal
+
+# Klasse mit modifiziertem DecimalField, welches sowohl Komma als auch Punkt als Dezimaltrennzeichen erlaubt
+class FlexibleDecimalField(DecimalField):
+    def process_formdata(self, valuelist):
+       if valuelist:
+           valuelist[0] = valuelist[0].replace(",", ".")
+       return super(FlexibleDecimalField, self).process_formdata(valuelist) 
+
+
 
 class LoginForm(FlaskForm):
     email = StringField(label="Email", validators=[DataRequired()])
@@ -72,3 +82,12 @@ class RequestQuotationForm(FlaskForm):
     service_start = DateField(label="Wann soll die Dienstleistung beginnen?", format='%Y-%m-%d')
     img = FileField("Bild auswählen (Optional)", validators=[FileAllowed(['jpg', 'jpeg'],'Only "jpg" and "jpeg" files are supported!')])
     submit = SubmitField("Angebotsanfrage versenden")
+
+
+class CreateQuotation(FlaskForm):
+    quote = FlexibleDecimalField(label="Bitte geben sie den Preis(€) für das Angebot ein:")
+    service_finish = DateField(label="Bis wann kann die Dienstleistung erbacht werden?", format='%Y-%m-%d')
+    submit = SubmitField("Angebot versenden")
+
+class ProcessQuotation(FlaskForm):
+    submit = SubmitField("Angebot erstellen")

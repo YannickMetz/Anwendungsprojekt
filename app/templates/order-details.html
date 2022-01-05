@@ -52,6 +52,10 @@
             <td class="table-order-details-column-left">PLZ</td>
             <td class="table-order-details-column-right">{{ service_order.customer.k_plz }}</td>
         </tr>
+        <tr>
+            <td class="table-order-details-column-left">Kontakt</td>
+            <td class="table-order-details-column-right">{{ service_order.customer_contact }}</td>
+        </tr>
     </table>
     <br>
     <h1>Beschreibung der Anforderungen</h1>
@@ -83,6 +87,10 @@
             <td class="table-order-details-column-left">PLZ</td>
             <td class="table-order-details-column-right">{{ service_order.service_provider.d_plz }}</td>
         </tr>
+        <tr>
+            <td class="table-order-details-column-left">Kontakt</td>
+            <td class="table-order-details-column-right">{{ service_order.service_provider_contact }}</td>
+        </tr>
     </table>
     <br>
    
@@ -90,8 +98,13 @@
         <h1 class="quote ">
             <div>Angebotspreis:</div>
             <div>{{ (service_order.quoted_price) }}</div>
-            
         </h1>
+        <br>
+        <div>
+            {% if current_user.id == service_order.service_provider.dienstleister_id and service_order.order_details.Status == ServiceOrderStatus.requested.value %}
+                {{ wtf.quick_form(quotation_button, novalidate=True, button_map={"submit": "custom"}) }}
+            {% endif %}
+        </div>
     </div>
 </div>
 {% endif %}
