@@ -1,22 +1,32 @@
-{% extends 'base.html' %} 
-{% import "bootstrap/wtf.html" as wtf %} 
-{% block content %}
+{% extends 'base.html' %} {% import "bootstrap/wtf.html" as wtf %} {% block
+content %}
 
 <div class="container container-standard">
   <h1>Ihre Aufträge:</h1>
-    <div class="gallery">
-      <div class="row">   
-        {% for service in services %}
-        <div class="panel panel-default service">
-          <div class="panel-body">
-            {{ services[loop.index0]| safe }} {{service_description[loop.index0] | safe }}
-            {{order_member[loop.index0] | safe }}
-            <br />
+  <div class="gallery">
+    {% for service in services %}
+    <a href="{{ url_for('views.view_order_details',id=order_id[loop.index0]) }}">
+      <div class="panel panel-default service">
+        <div class="panel-body">
+          <div class="row">
+            <div class="order-overview-section">
+              {{order_id[loop.index0] | safe }}
+            </div>
+            <div class="order-overview-section">
+              {{ services[loop.index0]| safe }}
+            </div>
+            <div class="order-overview-section">
+              {{order_member[loop.index0] | safe }}
+            </div>
+            <div class="order-overview-section">
+              {{order_status[loop.index0] | safe }}
+            </div>
           </div>
         </div>
-        {% endfor %}
       </div>
-    </div>
+    </a>
+    {% endfor %}
   </div>
+</div>
 
-  {% endblock %}
+{% endblock %}

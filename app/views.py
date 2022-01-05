@@ -239,25 +239,29 @@ def view_order():
             .where(Auftrag.Kunde_ID == current_user.id).all()
 
     services = []
-    service_description = []
     order_member = []
+    order_id = []
+    order_status = []
+    print(all_orders)
 
     for order_auftrag, order_dienstleistung, order_role in all_orders:
         services.append(order_dienstleistung.Dienstleistung)
-        service_description.append(order_auftrag.anfrage_freitext)
+        order_id.append(order_auftrag.id)
+        order_status.append(order_auftrag.Status)
         if current_user.role == "Dienstleister":
-            order_member.append(f"Kunde: <br> {order_role.k_vorname},{order_role.k_nachname}")
+            order_member.append(f"{order_role.k_vorname}, {order_role.k_nachname}")
         elif current_user.role == "Kunde":
-            order_member.append("Dienstleister: <br>" + order_role.firmenname)
-    
-    role = current_user.role == "Dienstleister"
-        
+            order_member.append(order_role.firmenname)
+
+    #role = current_user.role == "Dienstleister"
+
     return render_template(
             "view_order.html",
             services = services,
-            service_description = service_description,
             order_member = order_member,
-            role = role
+            order_id = order_id,
+            order_status = order_status
+            #role = role
             )
 
 @views.route('/search/<int:service_id>', methods=['GET'])
