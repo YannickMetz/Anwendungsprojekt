@@ -1,2 +1,59 @@
 {% extends 'base.html' %} 
 {% import "bootstrap/wtf.html" as wtf %} 
+
+
+{% block content %}
+<div class="container container-standard">
+  <h1>Ihre Aufträge:</h1>
+  {% for service in service_orders %}
+      <a class="table-order-text" href="{{ url_for('views.view_order_details',id=service.order_details.id) }}">
+        <div class="panel-default">
+          <table class="table-order-overview">
+            <div class="order-overview-section">
+              <tr>
+                <div>
+                  <td class="table-order-details-column-left">
+                    Auftragsnummer:
+                  </td>
+                  <td class="table-order-details-column-right">
+                    {{service.order_details.id}}
+                  </td>
+                </div>
+              </tr>
+              <tr>
+                <td class="table-order-details-column-left">
+                  Dienstleistung:
+                </td>
+                <td class="table-order-details-column-right">
+                  {{ service.service.Dienstleistung}}
+                </td>
+              </tr>
+              <tr>
+                <td class="table-order-details-column-left">
+                  {% if current_user.id == service.service_provider.dienstleister_id %} 
+                  Kunde: {% endif %}
+                  {% if current_user.id == service.customer.kunden_id %}
+                  Dienstleister: {% endif %}
+                </td>
+                <td class="table-order-details-column-left">
+                  {% if current_user.id == service.service_provider.dienstleister_id %}
+                  {{service.customer.k_nachname}} {% endif %}
+                  {% if current_user.id == service.customer.kunden_id %} 
+                  {{service.service_provider.firmenname}} {% endif %}
+                </td>
+              </tr>
+              <tr>
+                <td class="table-order-details-column-left">
+                  Auftragsstatus:
+                </td>
+                <td class="table-order-details-column-right">
+                  {{service.order_details.Status}}
+                </td>
+              </tr>
+            </div>
+          </table>
+        </div>
+      </a>
+  {% endfor %}
+</div>
+{% endblock %}

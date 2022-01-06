@@ -74,7 +74,7 @@ def home():
 @login_required
 def change_service_provider_profile():
     current_profile = Dienstleisterprofil.query.filter_by(dienstleister_id=current_user.id).first()
-    curren_service_provider = Dienstleister.query.filter_by(dienstleister_id=current_user.id).first()
+    current_service_provider = Dienstleister.query.filter_by(dienstleister_id=current_user.id).first()
 
     # erzeugt Dictionary mit Bilddateien aus der Datenbank für die Galerie des Profils
     gallery_table = DienstleisterProfilGalerie.query.filter_by(dienstleister_id=current_user.id).all()
@@ -128,7 +128,7 @@ def change_service_provider_profile():
 
     if service_form.validate_on_submit():
         try:
-            curren_service_provider.relation.append(Dienstleistung.query.filter_by(Dienstleistung=service_form.service.data).first())
+            current_service_provider.relation.append(Dienstleistung.query.filter_by(Dienstleistung=service_form.service.data).first())
             db.session.commit()
         except:
             pass
@@ -224,19 +224,24 @@ def remove_gallery_image(image_id):
     return redirect(url_for('views.change_service_provider_profile'))
 
 
-@views.route('/order/<id>', methods=['POST', 'GET'])
+@views.route('/orders/', methods=['POST', 'GET'])
 @login_required
-def view_order(id):
-    order_details = Auftrag.query.where(Auftrag.id == id).first()
-    service = order_details.Dienstleistung_ID
-    customer = order_details.Kunde_ID
-    service_provider = order_details.Dienstleister_ID
-    status = order_details.Status
-    starttime = order_details.Startzeitpunkt
-    endtime = order_details.Endzeitpunkt
+def view_order():
+    
+    if current_user.role == "Dienstleister":
+        my_orders = Auftrag.query.where(Auftrag.Dienstleister_ID == current_user.id, Auftrag.Status != ServiceOrderStatus.completed.value).all()
+    elif current_user.role == "Kunde":
+        my_orders = Auftrag.query.where(Auftrag.Kunde_ID == current_user.id, Auftrag.Status != ServiceOrderStatus.completed.value).all()
 
-    print(service, customer, service_provider, status, starttime, endtime)
+    service_orders = []
+    for order in my_orders:
+        my_order = ServiceOrder(order.id)
+        service_orders.append(my_order)
 
+    return render_template(
+            "view_order.html",
+            service_orders=service_orders
+            )
 
 @views.route('/search/<int:service_id>', methods=['GET'])
 @login_required

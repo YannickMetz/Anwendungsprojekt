@@ -132,13 +132,5 @@ def load_testdata():
         dienstleisterliste[2].relation.append(dienstleistungsliste[1])
         db.session.commit()
 
-        new_order = Auftrag(
-          Status = "in Bearbeitung",
-          Startzeitpunkt = datetime(2022, 11, 11, 10, 10, 00),
-          Endzeitpunkt = datetime(2022, 11, 14, 10, 10, 10),
-          Preis = 200
-        )
-        db.session.add(new_order)
-        db.session.commit()
     return render_template("load_testdata.html", form=testdata_form)
 
