@@ -229,15 +229,14 @@ def remove_gallery_image(image_id):
 def view_order():
     
     if current_user.role == "Dienstleister":
-        my_orders= Auftrag.query.where(Auftrag.Dienstleister_ID == current_user.id).all()
+        my_orders = Auftrag.query.where(Auftrag.Dienstleister_ID == current_user.id, Auftrag.Status != ServiceOrderStatus.completed.value).all()
     elif current_user.role == "Kunde":
-        my_orders= Auftrag.query.where(Auftrag.Kunde_ID == current_user.id).all()
+        my_orders = Auftrag.query.where(Auftrag.Kunde_ID == current_user.id, Auftrag.Status != ServiceOrderStatus.completed.value).all()
 
     service_orders = []
     for order in my_orders:
         my_order = ServiceOrder(order.id)
         service_orders.append(my_order)
-
 
     return render_template(
             "view_order.html",
