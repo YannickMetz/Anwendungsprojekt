@@ -252,4 +252,33 @@ z-index: 1;
 .order-overview-section{
     padding: 10px;
     font-size: 20px
+    
 }
+
+.table-order-overview {
+    border: 1px solid white;
+    width: 100%;
+}
+
+@media screen and (max-width: 610px){
+    td {
+        font-size: 8px;
+    }
+
+    .table-order-overview {
+        border: 1px solid white;
+        width: 100%;
+    }
+
+    h1 {
+        font-size: 15px;
+    }
+}
+
+.table-order-text{
+    color: var(--color5);
+}
+
+a:hover { 
+    color: var(--color4);
+  }
