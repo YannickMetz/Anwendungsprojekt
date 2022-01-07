@@ -20,11 +20,11 @@ views = Blueprint('views', __name__,template_folder='templates', static_folder='
 
 class ServiceOrderStatus(Enum):
     requested = "Übermittelt" # Kunde hat Angebot angefragt
-    rejected = "Abgelehnt" # Kunde hat Angebot abgeleht
-    cancelled = "Storniert" # Kunde oder Dienstleister haben den Auftrag abgebrochen
     quotation_available = "Angebot verfügbar"
     quotation_confirmed = "Angebot Bestätigt" # Kunde hat dem Angebot zugestimmt
     service_confirmed = "Abgenommen" # Kunde bestätigt, dass die geleistete Dienstleistung den Anforderungen entspricht
+    rejected_by_customer = "Abgelehnt durch Kunde" # Kunde hat Angebot abgeleht
+    rejected_by_service_provider = "Abgelehnt durch Dienstleister" # Kunde hat Angebot abgeleht
     completed = "Abgeschlossen" # Dienstleister hat Auftrag abgeschlossen
 
 class ServiceOrder:
