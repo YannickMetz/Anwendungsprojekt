@@ -1,6 +1,6 @@
 from posixpath import join
 from flask import Flask, render_template, redirect, url_for, request, Blueprint, flash
-from sqlalchemy import dialects
+from sqlalchemy import dialects, or_
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
 import requests, os, sys
@@ -21,7 +21,7 @@ views = Blueprint('views', __name__,template_folder='templates', static_folder='
 class ServiceOrderStatus(Enum):
     requested = "Übermittelt" # Kunde hat Angebot angefragt
     quotation_available = "Angebot verfügbar"
-    quotation_confirmed = "Angebot Bestätigt" # Kunde hat dem Angebot zugestimmt
+    quotation_confirmed = "Angebot bestätigt" # Kunde hat dem Angebot zugestimmt
     service_confirmed = "Abgenommen" # Kunde bestätigt, dass die geleistete Dienstleistung den Anforderungen entspricht
     rejected_by_customer = "Abgelehnt durch Kunde" # Kunde hat Angebot abgeleht
     rejected_by_service_provider = "Abgelehnt durch Dienstleister" # Kunde hat Angebot abgeleht
@@ -229,18 +229,41 @@ def remove_gallery_image(image_id):
 def view_order():
     
     if current_user.role == "Dienstleister":
-        my_orders = Auftrag.query.where(Auftrag.Dienstleister_ID == current_user.id, Auftrag.Status != ServiceOrderStatus.completed.value).all()
-    elif current_user.role == "Kunde":
-        my_orders = Auftrag.query.where(Auftrag.Kunde_ID == current_user.id, Auftrag.Status != ServiceOrderStatus.completed.value).all()
+        open_orders = Auftrag.query.where(Auftrag.Dienstleister_ID == current_user.id).filter \
+                        (or_(Auftrag.Status == ServiceOrderStatus.requested.value, \
+                        Auftrag.Status == ServiceOrderStatus.quotation_available.value, \
+                        Auftrag.Status == ServiceOrderStatus.quotation_confirmed.value)).all()
 
-    service_orders = []
-    for order in my_orders:
-        my_order = ServiceOrder(order.id)
-        service_orders.append(my_order)
+        closed_orders = Auftrag.query.where(Auftrag.Dienstleister_ID == current_user.id).filter \
+                        (or_(Auftrag.Status == ServiceOrderStatus.completed.value, \
+                        Auftrag.Status == ServiceOrderStatus.rejected_by_customer.value, \
+                        Auftrag.Status == ServiceOrderStatus.rejected_by_service_provider.value)).all()
+
+    elif current_user.role == "Kunde":
+        open_orders = Auftrag.query.where(Auftrag.Kunde_ID == current_user.id).filter \
+                        (or_(Auftrag.Status == ServiceOrderStatus.requested.value, \
+                        Auftrag.Status == ServiceOrderStatus.quotation_available.value, \
+                        Auftrag.Status == ServiceOrderStatus.quotation_confirmed.value)).all()
+
+        closed_orders = Auftrag.query.where(Auftrag.Kunde_ID == current_user.id).filter \
+                        (or_(Auftrag.Status == ServiceOrderStatus.completed.value, \
+                        Auftrag.Status == ServiceOrderStatus.rejected_by_customer.value, \
+                        Auftrag.Status == ServiceOrderStatus.rejected_by_service_provider.value)).all()
+
+    service_orders_open = []
+    for order in open_orders:
+        my_open_order = ServiceOrder(order.id)
+        service_orders_open.append(my_open_order)
+
+    service_orders_closed = []
+    for order in closed_orders:
+        my_closed_order = ServiceOrder(order.id)
+        service_orders_closed.append(my_closed_order)
 
     return render_template(
             "view_order.html",
-            service_orders=service_orders
+            service_orders_open = service_orders_open,
+            service_orders_closed = service_orders_closed
             )
 
 @views.route('/search/<int:service_id>', methods=['GET'])
