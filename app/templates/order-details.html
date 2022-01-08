@@ -123,7 +123,7 @@
         </div>
         {% if current_user.id == service_order.customer.kunden_id and service_order.order_details.Status == ServiceOrderStatus.quotation_available.value %}
         <form method="post">
-            Angebot des Dienstleisters akzeptieren und Auftrag annehmen?
+            Angebot des Dienstleisters akzeptieren und Auftrag verbindlich annehmen?
             <br>
             <div class="quote textbox">
                 Annehmen:
