@@ -200,7 +200,7 @@ z-index: 1;
 
 
 .table-order-details {
-    border: 1px solid white;
+    color: var(--color5);
     width: 80%;
 }
 
@@ -214,36 +214,44 @@ z-index: 1;
     width: 80%;
 }
 
-@media screen and (min-width: 610px){
-
-}
 
 @media screen and (max-width: 610px){
     td {
-        font-size: 8px;
+        font-size: 12px;
     }
 
     .table-order-details {
-        border: 1px solid white;
+        border: 1px solid var(--color5);
         width: 100%;
     }
 
     h1 {
         font-size: 15px;
     }
+
+    .table-order-overview {
+        border: 1px solid var(--color3);
+        width: 100%;
+    }
+
+    .quote {
+        
+        width: 100%;
+    }
+    
 }
 
 .table-order-details-column-left{
-    border: 1px solid white;
-    width: 30%;
+    border: 1px solid var(--color3);
+    width: 40%;
     padding-top: 5px;
     padding-bottom: 5px;
     padding-left: 5%;
   }
 
   .table-order-details-column-right{
-    border: 1px solid white;
-    width: 70%;
+    border: 1px solid var(--color3);
+    width: 60%;
     padding-top: 5px;
     padding-bottom: 5px;
     padding-left: 5%;
@@ -256,24 +264,14 @@ z-index: 1;
 }
 
 .table-order-overview {
-    border: 1px solid white;
+    border: 1px solid var(--color3);
     width: 100%;
+    margin-top: 10px;
+    background-color: var(--color2);
 }
 
-@media screen and (max-width: 610px){
-    td {
-        font-size: 8px;
-    }
 
-    .table-order-overview {
-        border: 1px solid white;
-        width: 100%;
-    }
 
-    h1 {
-        font-size: 15px;
-    }
-}
 
 .table-order-text{
     color: var(--color5);
