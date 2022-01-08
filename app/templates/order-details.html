@@ -134,6 +134,13 @@
             </div>
         </form>
         {% endif %}
+        {% if current_user.id == service_order.customer.kunden_id and service_order.order_details.Status == ServiceOrderStatus.quotation_confirmed.value %}
+        <form method="post">
+            <div class="quote textbox">
+                <button type="submit" class="btn btn-custom" name="options_confirm" id="accept" value="confirm">Dienstleistung abnehmen</button>
+            </div>
+        </form>
+        {% endif %}
     </div>
 </div>
 {% endif %}

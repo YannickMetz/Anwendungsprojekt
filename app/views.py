@@ -343,10 +343,19 @@ def view_order_details(id):
             db.session.commit()
             flash("Angebot wurde abgelehnt.")
             return redirect(url_for('views.view_order_details', id=id))
+        if request.form.get('options_confirm') == 'confirm':
+            service_order.order_details.Status = ServiceOrderStatus.completed.value
+            db.session.commit()
+            return redirect(url_for('views.view_order_details', id=id))    
 
     
     return render_template('order-details.html', service_order=service_order, quotation_button=quotation_button, ServiceOrderStatus=ServiceOrderStatus)
 
+@views.route('/confirm_order', methods=['POST', 'GET'])
+@login_required
+def confirm_order(id):
+    
+    render_template('confirm_order.html')
 
 @views.route('/quote/<id>', methods=['POST', 'GET'])
 @login_required
