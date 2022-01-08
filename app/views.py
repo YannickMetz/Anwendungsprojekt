@@ -232,6 +232,7 @@ def view_order():
         open_orders = Auftrag.query.where(Auftrag.Dienstleister_ID == current_user.id).filter \
                         (or_(Auftrag.Status == ServiceOrderStatus.requested.value, \
                         Auftrag.Status == ServiceOrderStatus.quotation_available.value, \
+                        Auftrag.Status == ServiceOrderStatus.service_confirmed.value, \
                         Auftrag.Status == ServiceOrderStatus.quotation_confirmed.value)).all()
 
         closed_orders = Auftrag.query.where(Auftrag.Dienstleister_ID == current_user.id).filter \
@@ -243,6 +244,7 @@ def view_order():
         open_orders = Auftrag.query.where(Auftrag.Kunde_ID == current_user.id).filter \
                         (or_(Auftrag.Status == ServiceOrderStatus.requested.value, \
                         Auftrag.Status == ServiceOrderStatus.quotation_available.value, \
+                        Auftrag.Status == ServiceOrderStatus.service_confirmed.value, \
                         Auftrag.Status == ServiceOrderStatus.quotation_confirmed.value)).all()
 
         closed_orders = Auftrag.query.where(Auftrag.Kunde_ID == current_user.id).filter \
@@ -366,6 +368,11 @@ def view_order_details(id):
             db.session.commit()
             flash("Angebot wurde abgelehnt.")
             return redirect(url_for('views.view_order_details', id=id))
+        if request.form.get('confirm_complete') == 'complete':
+            service_order.order_details.Status = ServiceOrderStatus.completed.value
+            db.session.commit()
+            flash("Auftrag erfolgreich beendet.")
+            return redirect(url_for('views.view_order'))
 
     
     return render_template('order-details.html', service_order=service_order, quotation_button=quotation_button, ServiceOrderStatus=ServiceOrderStatus)
