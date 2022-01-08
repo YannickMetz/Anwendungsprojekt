@@ -243,6 +243,7 @@ def view_order():
             service_orders=service_orders
             )
 
+
 @views.route('/search/<int:service_id>', methods=['GET'])
 @login_required
 def search_service(service_id):
@@ -326,9 +327,23 @@ def request_quotation(id):
 @login_required
 def view_order_details(id):
     service_order = ServiceOrder(id)
+
     quotation_button = ProcessQuotation()
     if quotation_button.validate_on_submit():
         return redirect(url_for('views.create_quotation', id=id))
+
+    if request.method == 'POST':
+        if request.form.get('options') == 'accept':
+            service_order.order_details.Status = ServiceOrderStatus.quotation_confirmed.value
+            db.session.commit()
+            flash("Angebot angenommen.")
+            return redirect(url_for('views.view_order_details', id=id))
+        if request.form.get('options') == 'reject':
+            service_order.order_details.Status = ServiceOrderStatus.rejected_by_customer.value
+            db.session.commit()
+            flash("Angebot wurde abgelehnt.")
+            return redirect(url_for('views.view_order_details', id=id))
+
     
     return render_template('order-details.html', service_order=service_order, quotation_button=quotation_button, ServiceOrderStatus=ServiceOrderStatus)
 
@@ -346,5 +361,6 @@ def create_quotation(id):
         service_order.order_details.Endzeitpunkt = service_finish
         db.session.commit()
         return redirect(url_for('views.view_order_details', id=id))
+
 
     return render_template('quote.html', service_order=service_order, quotation_form=quotation_form)

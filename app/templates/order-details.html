@@ -2,7 +2,23 @@
 {% import "bootstrap/wtf.html" as wtf %}
 
 
+
 {% block content %}
+<div>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+            <div class="flashed-msg">
+                <div class="alert alert-warning alert-dismissible" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    {{ message }}
+                </div>
+            </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
 {% if current_user.id == service_order.customer.kunden_id or current_user.id == service_order.service_provider.dienstleister_id%}
 <div class="container container-standard">
     <h1>Auftragsdetails</h1>
@@ -94,7 +110,7 @@
     </table>
     <br>
    
-    <div>
+    <div class="table-order-details textbox">
         <h1 class="quote ">
             <div>Angebotspreis:</div>
             <div>{{ (service_order.quoted_price) }}</div>
@@ -105,7 +121,22 @@
                 {{ wtf.quick_form(quotation_button, novalidate=True, button_map={"submit": "custom"}) }}
             {% endif %}
         </div>
+        {% if current_user.id == service_order.customer.kunden_id and service_order.order_details.Status == ServiceOrderStatus.quotation_available.value %}
+        <form method="post">
+            Angebot des Dienstleisters akzeptieren und Auftrag annehmen?
+            <br>
+            <div class="quote textbox">
+                Annehmen:
+                <input type="radio" name="options" id="accept" value="accept" >
+                Ablehnen:
+                <input type="radio" name="options" id="accept" value="reject" >
+                <button type="submit" class="btn btn-custom">Bestätigen</button>
+            </div>
+        </form>
+        {% endif %}
     </div>
 </div>
 {% endif %}
+
+
 {% endblock %}
