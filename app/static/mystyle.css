@@ -18,9 +18,6 @@ img {
     width: 100%;
 }
 
-.flashed-msg {
-    margin: 70px;
-}
 
 /* Formular textfeld Farbe */
 .form-control {
@@ -80,11 +77,29 @@ img {
 
 
 /* flashed warning messages */
+
+.flashed-msg {
+    margin: 40px;
+}
+
 .alert{
     background-color: var(--color4);
     color: var(--color2);
-    width: 500px;
+    width: 50%;
     margin: 10px auto;
+}
+
+@media screen and (max-width: 610px){
+    .alert{
+        background-color: var(--color4);
+        color: var(--color2);
+        width: 90%;
+        margin: 10px auto;
+    }
+
+    .flashed-msg {
+        margin: 15px;
+    }
 }
 
 .jumbotron-frontpage {
