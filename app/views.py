@@ -20,11 +20,12 @@ views = Blueprint('views', __name__,template_folder='templates', static_folder='
 
 class ServiceOrderStatus(Enum):
     requested = "Übermittelt" # Kunde hat Angebot angefragt
-    quotation_available = "Angebot verfügbar"
-    quotation_confirmed = "Angebot bestätigt" # Kunde hat dem Angebot zugestimmt
-    service_confirmed = "Abgenommen" # Kunde bestätigt, dass die geleistete Dienstleistung den Anforderungen entspricht
-    rejected_by_customer = "Abgelehnt durch Kunde" # Kunde hat Angebot abgeleht
     rejected_by_service_provider = "Abgelehnt durch Dienstleister" # Kunde hat Angebot abgeleht
+    quotation_available = "Angebot verfügbar"
+    rejected_by_customer = "Abgelehnt durch Kunde" # Kunde hat Angebot abgeleht
+    quotation_confirmed = "Angebot bestätigt" # Kunde hat dem Angebot zugestimmt
+    cancelled = "Storniert" # Durch Dienstleister. Nach verbindlicher Annahme kann der Auftrag nicht fortgeführt werden. 
+    service_confirmed = "Abgenommen" # Kunde bestätigt, dass die geleistete Dienstleistung den Anforderungen entspricht
     completed = "Abgeschlossen" # Dienstleister hat Auftrag abgeschlossen
 
 class ServiceOrder:
@@ -232,22 +233,26 @@ def view_order():
         open_orders = Auftrag.query.where(Auftrag.Dienstleister_ID == current_user.id).filter \
                         (or_(Auftrag.Status == ServiceOrderStatus.requested.value, \
                         Auftrag.Status == ServiceOrderStatus.quotation_available.value, \
+                        Auftrag.Status == ServiceOrderStatus.service_confirmed.value, \
                         Auftrag.Status == ServiceOrderStatus.quotation_confirmed.value)).all()
 
         closed_orders = Auftrag.query.where(Auftrag.Dienstleister_ID == current_user.id).filter \
                         (or_(Auftrag.Status == ServiceOrderStatus.completed.value, \
                         Auftrag.Status == ServiceOrderStatus.rejected_by_customer.value, \
+                        Auftrag.Status == ServiceOrderStatus.cancelled.value, \
                         Auftrag.Status == ServiceOrderStatus.rejected_by_service_provider.value)).all()
 
     elif current_user.role == "Kunde":
         open_orders = Auftrag.query.where(Auftrag.Kunde_ID == current_user.id).filter \
                         (or_(Auftrag.Status == ServiceOrderStatus.requested.value, \
                         Auftrag.Status == ServiceOrderStatus.quotation_available.value, \
+                        Auftrag.Status == ServiceOrderStatus.service_confirmed.value, \
                         Auftrag.Status == ServiceOrderStatus.quotation_confirmed.value)).all()
 
         closed_orders = Auftrag.query.where(Auftrag.Kunde_ID == current_user.id).filter \
                         (or_(Auftrag.Status == ServiceOrderStatus.completed.value, \
                         Auftrag.Status == ServiceOrderStatus.rejected_by_customer.value, \
+                        Auftrag.Status == ServiceOrderStatus.cancelled.value, \
                         Auftrag.Status == ServiceOrderStatus.rejected_by_service_provider.value)).all()
 
     service_orders_open = []
@@ -366,6 +371,18 @@ def view_order_details(id):
             db.session.commit()
             flash("Angebot wurde abgelehnt.")
             return redirect(url_for('views.view_order_details', id=id))
+        if request.form.get('confirm_complete') == 'complete':
+            service_order.order_details.Status = ServiceOrderStatus.completed.value
+            db.session.commit()
+            flash("Auftrag erfolgreich beendet.")
+            return redirect(url_for('views.view_order'))
+        if request.form.get('cancel_order') == 'cancelled':
+            service_order.order_details.Status = ServiceOrderStatus.cancelled.value
+            db.session.commit()
+            flash("Auftrag erfolgreich storniert.")
+            return redirect(url_for('views.view_order'))
+
+
 
     
     return render_template('order-details.html', service_order=service_order, quotation_button=quotation_button, ServiceOrderStatus=ServiceOrderStatus)
