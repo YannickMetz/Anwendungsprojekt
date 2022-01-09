@@ -18,9 +18,10 @@ img {
     width: 100%;
 }
 
-.flashed-msg {
-    margin: 70px;
+h1 {
+    font-size: 33px;
 }
+
 
 /* Formular textfeld Farbe */
 .form-control {
@@ -80,11 +81,29 @@ img {
 
 
 /* flashed warning messages */
+
+.flashed-msg {
+    margin: 40px;
+}
+
 .alert{
     background-color: var(--color4);
     color: var(--color2);
-    width: 500px;
+    width: 50%;
     margin: 10px auto;
+}
+
+@media screen and (max-width: 610px){
+    .alert{
+        background-color: var(--color4);
+        color: var(--color2);
+        width: 90%;
+        margin: 10px auto;
+    }
+
+    .flashed-msg {
+        margin: 15px;
+    }
 }
 
 .jumbotron-frontpage {
@@ -200,6 +219,7 @@ z-index: 1;
 
 
 .table-order-details {
+    border: 1px solid var(--color5);
     color: var(--color5);
     width: 80%;
 }
@@ -208,10 +228,14 @@ z-index: 1;
     padding: 3%;
 }
 
+.textbox-left-padded {
+    padding-left: 10%;
+}
+
 .quote {
     display: flex;
     justify-content: space-between;
-    width: 80%;
+    width: 90%;
 }
 
 
@@ -235,7 +259,6 @@ z-index: 1;
     }
 
     .quote {
-        
         width: 100%;
     }
     
@@ -277,3 +300,12 @@ z-index: 1;
 a:hover { 
     color: var(--color4);
   }
+
+
+.checkbox-padded {
+    padding: 0 10px 0 10px;
+}
+
+.checkbox-button-right {
+    padding-left: 20%;
+}

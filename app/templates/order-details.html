@@ -116,23 +116,23 @@
     <div class="table-order-details textbox">
         <h1 class="quote ">
             <div>Angebotspreis:</div>
-            <div>{{ (service_order.quoted_price) }}</div>
+            <div class="textbox-left-padded">{{ (service_order.quoted_price) }}</div>
         </h1>
         <br>
-        <div>
-            {% if current_user.id == service_order.service_provider.dienstleister_id and service_order.order_details.Status == ServiceOrderStatus.requested.value %}
+        {% if current_user.id == service_order.service_provider.dienstleister_id and service_order.order_details.Status == ServiceOrderStatus.requested.value %}
+            <div>
                 {{ wtf.quick_form(quotation_button, novalidate=True, button_map={"submit": "custom"}) }}
-            {% endif %}
-        </div>
+            </div>
+        {% endif %}
         {% if current_user.id == service_order.customer.kunden_id and service_order.order_details.Status == ServiceOrderStatus.quotation_available.value %}
         <form method="post">
-            Angebot des Dienstleisters akzeptieren und Auftrag annehmen?
+            Angebot des Dienstleisters akzeptieren und Auftrag verbindlich annehmen?
             <br>
             <div class="quote textbox">
                 Annehmen:
                 <input type="radio" name="options" id="accept" value="accept" >
                 Ablehnen:
-                <input type="radio" name="options" id="accept" value="reject" >
+                <input type="radio" name="options" id="reject" value="reject" >
                 <button type="submit" class="btn btn-custom">Bestätigen</button>
             </div>
         </form>
@@ -140,7 +140,39 @@
         {% if current_user.id == service_order.customer.kunden_id and service_order.order_details.Status == ServiceOrderStatus.quotation_confirmed.value %}
             <a href="{{ url_for('views.confirm_order',id=service_order.order_details.id) }}"> 
             <button type="submit" class="btn btn-custom" name="options_confirm" id="accept" value="confirm">Dienstleistung abnehmen</button>
-            </a>    
+            </a>   
+        {% endif %}     
+        {% if current_user.id == service_order.service_provider.dienstleister_id and service_order.order_details.Status == ServiceOrderStatus.service_confirmed.value %}
+        <form method="post">
+            
+            <div class="quote textbox">
+                <div class="checkbox-padded">
+                    Kunde hat Erfüllung der Dienstleistung bestätigt. Auftrag abschließen?
+                </div>
+                <div class="checkbox-padded">
+                    <input type="checkbox" id="confirm_complete" name="confirm_complete" value="complete">
+                </div>
+                <div class="checkbox-padded checkbox-button-right">
+                    <button type="submit" class="btn btn-custom">Bestätigen</button>
+                </div>
+            </div>
+        </form>
+        {% endif %}
+        {% if current_user.id == service_order.service_provider.dienstleister_id and service_order.order_details.Status == ServiceOrderStatus.quotation_confirmed.value %}
+        <form method="post">
+            
+            <div class="quote textbox">
+                <div class="checkbox-padded">
+                    Möchten sie den Auftrag stornieren?
+                </div>
+                <div class="checkbox-padded">
+                    <input type="checkbox" id="cancel_order" name="cancel_order" value="cancelled">
+                </div>
+                <div class="checkbox-padded checkbox-button-right">
+                    <button type="submit" class="btn btn-custom">Stornierung Bestätigen</button>
+                </div>
+            </div>
+        </form>
         {% endif %}
     </div>
 </div>
