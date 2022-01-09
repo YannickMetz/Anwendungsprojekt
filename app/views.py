@@ -373,6 +373,7 @@ def view_order_details(id):
             return redirect(url_for('views.view_order_details', id=id))
         if request.form.get('back') == 'back_to_overview':
             return redirect(url_for('views.view_order'))
+
         if request.form.get('confirm_complete') == 'complete':
             service_order.order_details.Status = ServiceOrderStatus.completed.value
             db.session.commit()

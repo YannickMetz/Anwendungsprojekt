@@ -142,6 +142,13 @@
             <button type="submit" class="btn btn-custom" name="options_confirm" id="accept" value="confirm">Dienstleistung abnehmen</button>
             </a>   
         {% endif %}     
+
+        {% if current_user.id == service_order.customer.kunden_id and service_order.order_details.Status == ServiceOrderStatus.quotation_confirmed.value %}
+            <a href="{{ url_for('views.confirm_order',id=service_order.order_details.id) }}"> 
+            <button type="submit" class="btn btn-custom" name="options_confirm" id="accept" value="confirm">Dienstleistung abnehmen</button>
+            </a>
+        {% endif %}
+
         {% if current_user.id == service_order.service_provider.dienstleister_id and service_order.order_details.Status == ServiceOrderStatus.service_confirmed.value %}
         <form method="post">
             
@@ -158,6 +165,7 @@
             </div>
         </form>
         {% endif %}
+      
         {% if current_user.id == service_order.service_provider.dienstleister_id and service_order.order_details.Status == ServiceOrderStatus.quotation_confirmed.value %}
         <form method="post">
             
@@ -174,6 +182,7 @@
             </div>
         </form>
         {% endif %}
+      
     </div>
 </div>
 {% endif %}
