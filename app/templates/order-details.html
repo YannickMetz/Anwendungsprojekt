@@ -149,7 +149,23 @@
                 </div>
             </div>
         </form>
-    {% endif %}
+        {% endif %}
+        {% if current_user.id == service_order.service_provider.dienstleister_id and service_order.order_details.Status == ServiceOrderStatus.quotation_confirmed.value %}
+        <form method="post">
+            
+            <div class="quote textbox">
+                <div class="checkbox-padded">
+                    Möchten sie den Auftrag stornieren?
+                </div>
+                <div class="checkbox-padded">
+                    <input type="checkbox" id="cancel_order" name="cancel_order" value="cancelled">
+                </div>
+                <div class="checkbox-padded checkbox-button-right">
+                    <button type="submit" class="btn btn-custom">Stornierung Bestätigen</button>
+                </div>
+            </div>
+        </form>
+        {% endif %}
     </div>
 </div>
 {% endif %}
