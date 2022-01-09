@@ -31,10 +31,11 @@
     class Enum {
         <<enumeration>>
         requested
-        rejected
-        cancelled
+        rejected_by_service_provider
         quotation_available
+        rejected_by_customer
         quotation_confirmed
+        cancelled
         service_confirmed
         completed
     }

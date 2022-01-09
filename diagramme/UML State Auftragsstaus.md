@@ -32,8 +32,11 @@ stateDiagram-v2
         Auftragsübersicht von aktiven zu inaktiven Aufträgen
         end note
 
+    quotation_confirmed --> cancelled: Dienstleister storniert laufenden Auftrag
+
     rejected_by_customer --> [*]
     rejected_by_service_provider --> [*]
     completed --> [*]
+    cancelled --> [*]
 
 ```
