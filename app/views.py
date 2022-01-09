@@ -275,11 +275,17 @@ def view_order():
 @views.route('/search/<int:service_id>', methods=['GET'])
 @login_required
 def search_service(service_id):
+    # Request parameter: ?score=5&date=2022-02-01
+    query_params = request.args.to_dict()
+    print((query_params['score']))
+    print(len(query_params['date']))
+
     service_providers_filtered = Dienstleister.query \
         .join(Dienstleistung_Profil_association) \
         .join(Dienstleistung) \
         .filter(Dienstleistung.dienstleistung_id == Dienstleistung_Profil_association.c.dienstleistung_id) \
         .where(Dienstleistung.dienstleistung_id == service_id)
+    print(service_providers_filtered)
 
     service_providers_dict = {}
     for provider in service_providers_filtered:
