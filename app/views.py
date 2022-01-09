@@ -4,7 +4,7 @@ from sqlalchemy import dialects, or_
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
 import requests, os, sys
-from datetime import date
+from datetime import date, datetime
 from . forms import AddProfileImageForm, ChangeProfileBodyForm, AddImageForm, SelectServiceForm, RequestQuotationForm, CreateQuotation, ProcessQuotation
 from . import db
 from .models import User, Dienstleisterprofil, Auftrag, DienstleisterProfilGalerie, Dienstleistung, Dienstleister, Kunde, Dienstleistung_Profil_association
@@ -277,15 +277,24 @@ def view_order():
 def search_service(service_id):
     # Request parameter: ?score=5&date=2022-02-01
     query_params = request.args.to_dict()
-    print((query_params['score']))
-    print(len(query_params['date']))
+    #print((query_params['score']))
+    #print(len(query_params['date']))
+    filter_date = datetime(2022,1,14)
+    subquery_date = db.session.query(Auftrag.Dienstleister_ID).filter(
+            (filter_date >= Auftrag.Startzeitpunkt) &
+            (filter_date <= Auftrag.Endzeitpunkt)
+        ).subquery()
+    
 
     service_providers_filtered = Dienstleister.query \
         .join(Dienstleistung_Profil_association) \
         .join(Dienstleistung) \
         .filter(Dienstleistung.dienstleistung_id == Dienstleistung_Profil_association.c.dienstleistung_id) \
-        .where(Dienstleistung.dienstleistung_id == service_id)
-    print(service_providers_filtered)
+        .where(
+            (Dienstleistung.dienstleistung_id == service_id)&
+            (Dienstleister.dienstleister_id.not_in(subquery_date))
+            )
+    #print(service_providers_filtered)
 
     service_providers_dict = {}
     for provider in service_providers_filtered:
