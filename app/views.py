@@ -1,3 +1,4 @@
+import enum
 from posixpath import join
 from flask import Flask, render_template, redirect, url_for, request, Blueprint, flash
 from sqlalchemy import dialects, or_
@@ -5,9 +6,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
 import requests, os, sys
 from datetime import date
-from . forms import AddProfileImageForm, ChangeProfileBodyForm, AddImageForm, SelectServiceForm, RequestQuotationForm, CreateQuotation, ProcessQuotation
+from . forms import AddProfileImageForm, ChangeProfileBodyForm, AddImageForm, SelectServiceForm, RateServiceForm, RequestQuotationForm, CreateQuotation, ProcessQuotation
 from . import db
-from .models import User, Dienstleisterprofil, Auftrag, DienstleisterProfilGalerie, Dienstleistung, Dienstleister, Kunde, Dienstleistung_Profil_association
+from .models import Dienstleisterbewertung, User, Dienstleisterprofil, Auftrag, DienstleisterProfilGalerie, Dienstleistung, Dienstleister, Kunde, Dienstleistung_Profil_association
 from base64 import b64encode
 from enum import Enum
 
@@ -192,6 +193,18 @@ def view_service_provider_profile(id):
         with open(filename, 'rb') as imagefile:
            service_provider_profile_image = b64encode(imagefile.read()).decode('utf-8')  
 
+#bewertung auslesen
+    ratings = Dienstleisterbewertung.query \
+                .join(Auftrag) \
+                .join(Dienstleister) \
+                .filter(Auftrag.Dienstleister_ID == Dienstleister.dienstleister_id) \
+                .filter(Dienstleisterbewertung.auftrags_ID == Auftrag.id) \
+                .where(Dienstleister.dienstleister_id == id)
+
+    rating_values = [rating.d_bewertung for rating in ratings] 
+    rating_average = sum(rating_values) / len(rating_values)
+    rating_average = f"{rating_average: .2f}"
+
 #übergabe in html code
     return render_template(
         "view_business_profile.html",
@@ -202,7 +215,8 @@ def view_service_provider_profile(id):
         service_provider_id = service_provider_id,
         services = services,
         gallery_images = gallery_images,
-        service_provider_profile_body = service_provider_profile_body
+        service_provider_profile_body = service_provider_profile_body,
+        rating_average = rating_average
         )
 
 
@@ -394,17 +408,26 @@ def view_order_details(id):
 @login_required
 def confirm_order(id):
     confirm_order = ServiceOrder(id)
-    
-    if request.method == 'POST':
-        if request.form.get('options_confirm') == 'confirm':
-            confirm_order.order_details.Status = ServiceOrderStatus.completed.value
-            db.session.commit()
-            flash("Die Dienstleistung wurde abgenommen und der Auftrag abgeschlossen.")
-            return redirect(url_for('views.view_order_details', id=id)) 
+    rating_choices = [1,2,3,4,5,6]
+    confirm_form = RateServiceForm()
+    confirm_form.rating.choices = rating_choices
+
+    if confirm_form.validate_on_submit():
+        print(confirm_form.rating.data)
+        rating = Dienstleisterbewertung(
+            auftrags_ID = confirm_order.order_details.id,
+            d_bewertung = confirm_form.rating.data)
+        db.session.add(rating)
+        db.session.commit() 
+        confirm_order.order_details.Status = ServiceOrderStatus.completed.value
+        db.session.commit()
+        flash("Die Dienstleistung wurde abgenommen und der Auftrag abgeschlossen.")
+        return redirect(url_for('views.view_order_details', id=id)) 
 
     return render_template(
         'confirm_order.html',
-        confirm_order = confirm_order
+        confirm_order = confirm_order,
+        confirm_form = confirm_form
         )
 
 @views.route('/quote/<id>', methods=['POST', 'GET'])
