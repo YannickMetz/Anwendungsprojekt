@@ -93,3 +93,6 @@ class ProcessQuotation(FlaskForm):
     submit = SubmitField("Angebot erstellen")
 
 
+class SearchFilterForm(FlaskForm):
+    service_date = DateField(label="Dienstleisterverfügbarkeit berücksichtigen", format='%Y-%m-%d')
+    submit_filter = SubmitField("Filter setzen")

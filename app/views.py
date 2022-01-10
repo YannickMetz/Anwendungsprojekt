@@ -5,7 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
 import requests, os, sys
 from datetime import date, datetime
-from . forms import AddProfileImageForm, ChangeProfileBodyForm, AddImageForm, SelectServiceForm, RequestQuotationForm, CreateQuotation, ProcessQuotation
+from . forms import AddProfileImageForm, ChangeProfileBodyForm, AddImageForm, SelectServiceForm, RequestQuotationForm, CreateQuotation, ProcessQuotation, SearchFilterForm
 from . import db
 from .models import User, Dienstleisterprofil, Auftrag, DienstleisterProfilGalerie, Dienstleistung, Dienstleister, Kunde, Dienstleistung_Profil_association
 from base64 import b64encode
@@ -272,20 +272,22 @@ def view_order():
             )
 
 
-@views.route('/search/<int:service_id>', methods=['GET'])
+@views.route('/search/<int:service_id>', methods=['GET', 'POST'])
 @login_required
 def search_service(service_id):
-    # Request parameter: ?score=5&date=2022-02-01
+
+    # Request parameter format example: ?score=5&date=2022-02-01
     query_params = request.args.to_dict()
-    #print((query_params['score']))
-    #print(len(query_params['date']))
-    filter_date = datetime(2022,1,14)
+    if len(query_params) == 0:
+        filter_date = datetime(1970,1,1)
+    else:
+        filter_date = datetime.strptime(query_params['date'],"%Y-%m-%d")
+    
     subquery_date = db.session.query(Auftrag.Dienstleister_ID).filter(
             (filter_date >= Auftrag.Startzeitpunkt) &
             (filter_date <= Auftrag.Endzeitpunkt)
         ).subquery()
     
-
     service_providers_filtered = Dienstleister.query \
         .join(Dienstleistung_Profil_association) \
         .join(Dienstleistung) \
@@ -294,7 +296,6 @@ def search_service(service_id):
             (Dienstleistung.dienstleistung_id == service_id)&
             (Dienstleister.dienstleister_id.not_in(subquery_date))
             )
-    #print(service_providers_filtered)
 
     service_providers_dict = {}
     for provider in service_providers_filtered:
@@ -307,8 +308,15 @@ def search_service(service_id):
             with open(filename, 'rb') as imagefile:
                 service_providers_dict.update({provider: b64encode(imagefile.read()).decode('utf-8')})
 
+    if len(query_params) == 0:
+        filter_date = date.today()
+    search_filter_form = SearchFilterForm(service_date=filter_date)
+    if search_filter_form.validate_on_submit():
+        filter_date = search_filter_form.service_date.data
+        return redirect(url_for('views.search_service', service_id=service_id, date=[filter_date]))
 
-    return render_template('search.html', service_providers = service_providers_dict)
+
+    return render_template('search.html', service_providers = service_providers_dict, search_filter_form=search_filter_form)
 
 
 @views.route('/search/<category1>', methods=['GET'])
