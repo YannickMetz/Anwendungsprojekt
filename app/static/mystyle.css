@@ -82,15 +82,12 @@ h1 {
 
 /* flashed warning messages */
 
-.flashed-msg {
-    margin: 40px;
-}
-
 .alert{
     background-color: var(--color4);
     color: var(--color2);
     width: 50%;
-    margin: 10px auto;
+    max-width: 600px;
+    margin: 40px auto;
 }
 
 @media screen and (max-width: 610px){
@@ -292,9 +289,6 @@ z-index: 1;
     margin-top: 10px;
     background-color: var(--color2);
 }
-
-
-
 
 .table-order-text{
     color: var(--color5);

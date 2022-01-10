@@ -309,7 +309,7 @@ def select_service(category1):
 @views.route('/request-quotation/<int:id>', methods= ['GET', 'POST'])
 @login_required
 def request_quotation(id):
-
+    
     if current_user.role == "Dienstleister":
         flash("Sie können als Dienstleister leider keine Dienstleistungen anfragen.")
         return redirect(url_for('views.home'))
@@ -371,6 +371,9 @@ def view_order_details(id):
             db.session.commit()
             flash("Angebot wurde abgelehnt.")
             return redirect(url_for('views.view_order_details', id=id))
+        if request.form.get('back') == 'back_to_overview':
+            return redirect(url_for('views.view_order'))
+
         if request.form.get('confirm_complete') == 'complete':
             service_order.order_details.Status = ServiceOrderStatus.completed.value
             db.session.commit()
@@ -387,6 +390,22 @@ def view_order_details(id):
     
     return render_template('order-details.html', service_order=service_order, quotation_button=quotation_button, ServiceOrderStatus=ServiceOrderStatus)
 
+@views.route('/confirm_order/<id>', methods=['POST', 'GET'])
+@login_required
+def confirm_order(id):
+    confirm_order = ServiceOrder(id)
+    
+    if request.method == 'POST':
+        if request.form.get('options_confirm') == 'confirm':
+            confirm_order.order_details.Status = ServiceOrderStatus.completed.value
+            db.session.commit()
+            flash("Die Dienstleistung wurde abgenommen und der Auftrag abgeschlossen.")
+            return redirect(url_for('views.view_order_details', id=id)) 
+
+    return render_template(
+        'confirm_order.html',
+        confirm_order = confirm_order
+        )
 
 @views.route('/quote/<id>', methods=['POST', 'GET'])
 @login_required
