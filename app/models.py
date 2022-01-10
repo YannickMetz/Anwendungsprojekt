@@ -78,21 +78,21 @@ class Kundenbewertung(db.Model):
     id = db.Column(db.Integer, primary_key=True, unique=True)
     auftrag_rel = relationship("Auftrag")
     auftrags_ID = db.Column(db.Integer, db.ForeignKey("Auftrag.id")) #FK von Auftrag
-    zahlungsverhalten = db.Column(db.Integer)
+    k_bewertung = db.Column(db.Integer)
 
 class Dienstleisterbewertung(db.Model):
     __tablename__ = "Dienstleisterbewertung"
     id = db.Column(db.Integer, primary_key=True, unique=True)
     auftrag_rel = relationship("Auftrag")
     auftrags_ID = db.Column(db.Integer, db.ForeignKey("Auftrag.id")) #FK von Auftrag
-    zufriedenheit = db.Column(db.Integer)
+    d_bewertung = db.Column(db.Integer)
 
 class Kundenprofil(db.Model):
     __tablename__ = "Kundenprofil"
     kunden_id = db.Column(db.Integer, db.ForeignKey("Kunde.kunden_id"), primary_key=True)
     profilbild = db.Column(db.LargeBinary)
     bewertung_rel = relationship("Kundenbewertung")
-    bewertung = db.Column(db.Float, db.ForeignKey("Kundenbewertung.zahlungsverhalten"))
+    bewertung = db.Column(db.Float, db.ForeignKey("Kundenbewertung.k_bewertung"))
 
 class Dienstleisterprofil(db.Model):
     __tablename__ = ("Dienstleisterprofil")
@@ -100,7 +100,7 @@ class Dienstleisterprofil(db.Model):
     dienstleister_id = db.Column(db.Integer, db.ForeignKey("Dienstleister.dienstleister_id"), primary_key=True)
     profilbild = db.Column(db.LargeBinary)
     bewertung_rel = relationship("Dienstleisterbewertung")
-    bewertung = db.Column(db.Float, db.ForeignKey("Dienstleisterbewertung.zufriedenheit"))
+    bewertung = db.Column(db.Float, db.ForeignKey("Dienstleisterbewertung.d_bewertung"))
     profilbeschreibung = db.Column(db.String(100))
     bildergalerie_rel = relationship("DienstleisterProfilGalerie", back_populates="d_profil_rel")
 
