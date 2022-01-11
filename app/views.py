@@ -2,6 +2,7 @@ import enum
 from posixpath import join
 from flask import Flask, render_template, redirect, url_for, request, Blueprint, flash
 from sqlalchemy import dialects, or_
+from sqlalchemy.sql.expression import null
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
 import requests, os, sys
@@ -202,8 +203,12 @@ def view_service_provider_profile(id):
                 .where(Dienstleister.dienstleister_id == id)
 
     rating_values = [rating.d_bewertung for rating in ratings] 
-    rating_average = sum(rating_values) / len(rating_values)
-    rating_average = f"{rating_average: .2f}"
+    if len(rating_values) == 0:
+         rating_values = None
+         rating_average = "Keine Bewertung vorhanden"
+    else:
+        rating_average = sum(rating_values) / len(rating_values)
+        rating_average = f"{rating_average: .2f}"
 
 #übergabe in html code
     return render_template(
@@ -408,7 +413,7 @@ def view_order_details(id):
 @login_required
 def confirm_order(id):
     confirm_order = ServiceOrder(id)
-    rating_choices = [1,2,3,4,5,6]
+    rating_choices = [5,4,3,2,1]
     confirm_form = RateServiceForm()
     confirm_form.rating.choices = rating_choices
 
