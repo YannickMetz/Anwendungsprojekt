@@ -38,6 +38,12 @@ class ServiceOrder:
         self.service = Dienstleistung.query.where(Dienstleistung.dienstleistung_id == self.order_details.Dienstleistung_ID).first()
         self.customer_contact = User.query.where(User.id == self.customer.kunden_id).first().email
         self.service_provider_contact = User.query.where(User.id == self.service_provider.dienstleister_id).first().email
+
+        if Dienstleisterbewertung.query.where(Dienstleisterbewertung.auftrags_ID == order_id).first() != None:
+            self.customer_rating = Dienstleisterbewertung.query.where(Dienstleisterbewertung.auftrags_ID == order_id).first().d_bewertung
+        else:
+            self.customer_rating = " "
+
         if self.order_details.Preis != None:
             self.quoted_price = str("{:.2f}".format(self.order_details.Preis) + " €")
         else:
