@@ -1,13 +1,15 @@
+import enum
 from posixpath import join
 from flask import Flask, render_template, redirect, url_for, request, Blueprint, flash
 from sqlalchemy import dialects, or_
+from sqlalchemy.sql.expression import null
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
 import requests, os, sys
 from datetime import date, datetime
-from . forms import AddProfileImageForm, ChangeProfileBodyForm, AddImageForm, SelectServiceForm, RequestQuotationForm, CreateQuotation, ProcessQuotation, SearchFilterForm
+from . forms import AddProfileImageForm, ChangeProfileBodyForm, AddImageForm, SelectServiceForm, RequestQuotationForm, CreateQuotation, ProcessQuotation, SearchFilterForm, RateServiceForm
 from . import db
-from .models import User, Dienstleisterprofil, Auftrag, DienstleisterProfilGalerie, Dienstleistung, Dienstleister, Kunde, Dienstleistung_Profil_association
+from .models import Dienstleisterbewertung, User, Dienstleisterprofil, Auftrag, DienstleisterProfilGalerie, Dienstleistung, Dienstleister, Kunde, Dienstleistung_Profil_association
 from base64 import b64encode
 from enum import Enum
 
@@ -36,6 +38,12 @@ class ServiceOrder:
         self.service = Dienstleistung.query.where(Dienstleistung.dienstleistung_id == self.order_details.Dienstleistung_ID).first()
         self.customer_contact = User.query.where(User.id == self.customer.kunden_id).first().email
         self.service_provider_contact = User.query.where(User.id == self.service_provider.dienstleister_id).first().email
+
+        if Dienstleisterbewertung.query.where(Dienstleisterbewertung.auftrags_ID == order_id).first() != None:
+            self.customer_rating = Dienstleisterbewertung.query.where(Dienstleisterbewertung.auftrags_ID == order_id).first().d_bewertung
+        else:
+            self.customer_rating = " "
+
         if self.order_details.Preis != None:
             self.quoted_price = str("{:.2f}".format(self.order_details.Preis) + " €")
         else:
@@ -192,6 +200,22 @@ def view_service_provider_profile(id):
         with open(filename, 'rb') as imagefile:
            service_provider_profile_image = b64encode(imagefile.read()).decode('utf-8')  
 
+#bewertung auslesen
+    ratings = Dienstleisterbewertung.query \
+                .join(Auftrag) \
+                .join(Dienstleister) \
+                .filter(Auftrag.Dienstleister_ID == Dienstleister.dienstleister_id) \
+                .filter(Dienstleisterbewertung.auftrags_ID == Auftrag.id) \
+                .where(Dienstleister.dienstleister_id == id)
+
+    rating_values = [rating.d_bewertung for rating in ratings] 
+    if len(rating_values) == 0:
+         rating_values = None
+         rating_average = "Keine Bewertung vorhanden"
+    else:
+        rating_average = sum(rating_values) / len(rating_values)
+        rating_average = f"{rating_average: .2f}"
+
 #übergabe in html code
     return render_template(
         "view_business_profile.html",
@@ -202,7 +226,8 @@ def view_service_provider_profile(id):
         service_provider_id = service_provider_id,
         services = services,
         gallery_images = gallery_images,
-        service_provider_profile_body = service_provider_profile_body
+        service_provider_profile_body = service_provider_profile_body,
+        rating_average = rating_average
         )
 
 
@@ -417,17 +442,26 @@ def view_order_details(id):
 @login_required
 def confirm_order(id):
     confirm_order = ServiceOrder(id)
-    
-    if request.method == 'POST':
-        if request.form.get('options_confirm') == 'confirm':
-            confirm_order.order_details.Status = ServiceOrderStatus.completed.value
-            db.session.commit()
-            flash("Die Dienstleistung wurde abgenommen und der Auftrag abgeschlossen.")
-            return redirect(url_for('views.view_order_details', id=id)) 
+    rating_choices = [5,4,3,2,1]
+    confirm_form = RateServiceForm()
+    confirm_form.rating.choices = rating_choices
+
+    if confirm_form.validate_on_submit():
+        print(confirm_form.rating.data)
+        rating = Dienstleisterbewertung(
+            auftrags_ID = confirm_order.order_details.id,
+            d_bewertung = confirm_form.rating.data)
+        db.session.add(rating)
+        db.session.commit() 
+        confirm_order.order_details.Status = ServiceOrderStatus.completed.value
+        db.session.commit()
+        flash("Die Dienstleistung wurde abgenommen und der Auftrag abgeschlossen.")
+        return redirect(url_for('views.view_order_details', id=id)) 
 
     return render_template(
         'confirm_order.html',
-        confirm_order = confirm_order
+        confirm_order = confirm_order,
+        confirm_form = confirm_form
         )
 
 @views.route('/quote/<id>', methods=['POST', 'GET'])

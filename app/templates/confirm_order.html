@@ -46,11 +46,14 @@
               </div>
             </table>
           </div>
-          <form method="post">
-              <div class="quote textbox">
-                    <button type="submit" class="btn btn-custom" name="options_confirm" id="accept" value="confirm">Dienstleistung abnehmen</button>
-              </div>
-          </form>
+          <div class="container container-standard">
+            <div class="row">
+            
+                {{ ckeditor.load() }}
+                {{ wtf.quick_form(confirm_form, novalidate=True, button_map={"submit": "custom"}) }}
+              
+            </div>
+        </div>  
 </div>
 
 

@@ -83,6 +83,9 @@ class RequestQuotationForm(FlaskForm):
     img = FileField("Bild auswählen (Optional)", validators=[FileAllowed(['jpg', 'jpeg'],'Only "jpg" and "jpeg" files are supported!')])
     submit = SubmitField("Angebotsanfrage versenden")
 
+class RateServiceForm(FlaskForm):
+    rating = SelectField(label="Bitte bewerten Sie den Dienstleister mit einer Note (1 - Sehr schlecht bis 5 - Sehr gut)", coerce=int, validators=[DataRequired()])
+    submit = SubmitField("Abnahme und Bewertung bestätigen")
 
 class CreateQuotation(FlaskForm):
     quote = FlexibleDecimalField(label="Bitte geben sie den Preis(€) für das Angebot ein:")
