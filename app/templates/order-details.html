@@ -22,9 +22,13 @@
 {% if current_user.id == service_order.customer.kunden_id or current_user.id == service_order.service_provider.dienstleister_id%}
 <div class="container container-standard">
     <h1>Auftragsdetails</h1>
-    <form method="post">
-        <button type="submit" class="btn btn-custom-right" name="back" id="accept" value="back_to_overview">zurück zur Auftragsübersicht</button>
-    </form>
+    
+    <div class="order-back-btn">
+        <form method="post">
+            <button type="submit" class="btn btn-custom-right" name="back" id="accept" value="back_to_overview">zurück zur Auftragsübersicht</button>
+        </form>
+    </div>
+
     <table class="table-order-details">
         <tr>
             <td class="table-order-details-column-left">Auftragsnummer</td>

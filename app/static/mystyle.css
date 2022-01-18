@@ -226,6 +226,11 @@ z-index: 1;
     width: 80%;
 }
 
+.order-back-btn {
+    width: 80%;
+    padding-bottom: 50px;
+}
+
 .textbox {
     padding: 3%;
 }
@@ -262,6 +267,11 @@ z-index: 1;
 
     .quote {
         width: 100%;
+    }
+
+    .order-back-btn {
+        width: 100%;
+        padding-bottom: 50px;
     }
     
 }
