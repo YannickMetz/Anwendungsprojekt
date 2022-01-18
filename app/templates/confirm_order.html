@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+
+
+{% block content %}
+<div class="container container-standard">
+    <h1>Abnahme Ihres Auftrags:</h1>
+          <div class="panel-default">
+            <table class="table-order-overview">
+              <div class="order-overview-section">
+                <tr>
+                  <div>
+                    <td class="table-order-details-column-left">
+                      Auftragsnummer:
+                    </td>
+                    <td class="table-order-details-column-right">
+                      {{confirm_order.order_details.id}}
+                    </td>
+                  </div>
+                </tr>
+                <tr>
+                  <td class="table-order-details-column-left">
+                    Dienstleistung:
+                  </td>
+                  <td class="table-order-details-column-right">
+                    {{ confirm_order.service.Dienstleistung}}
+                  </td>
+                </tr>
+                <tr>
+                  <td class="table-order-details-column-left">
+                    Dienstleister:
+                  </td>
+                  <td class="table-order-details-column-right">
+                    {{confirm_order.service_provider.firmenname}}
+                  </td>
+                </tr>
+                <tr>
+                  <td class="table-order-details-column-left">
+                    Auftragsstatus:
+                  </td>
+                  <td class="table-order-details-column-right">
+                    {{confirm_order.order_details.Status}}
+                  </td>
+                </tr>
+              </div>
+            </table>
+          </div>
+          <form method="post">
+              <div class="quote textbox">
+                    <button type="submit" class="btn btn-custom" name="options_confirm" id="accept" value="confirm">Dienstleistung abnehmen</button>
+              </div>
+          </form>
+</div>
+
+
+{% endblock %}
