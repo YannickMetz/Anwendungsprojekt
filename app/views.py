@@ -1,8 +1,10 @@
 import enum
+from itertools import groupby
 from posixpath import join
+from re import sub
 from flask import Flask, render_template, redirect, url_for, request, Blueprint, flash
 from sqlalchemy import dialects, or_
-from sqlalchemy.sql.expression import null
+from sqlalchemy.sql.expression import null, func
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
 import requests, os, sys
@@ -301,17 +303,25 @@ def view_order():
 @login_required
 def search_service(service_id):
 
-    # Request parameter format example: ?score=5&date=2022-02-01
+    
     query_params = request.args.to_dict()
     if len(query_params) == 0:
         filter_date = datetime(1970,1,1)
+        filter_rating = 0
     else:
         filter_date = datetime.strptime(query_params['date'],"%Y-%m-%d")
+        filter_rating = int(query_params['rating'])
     
     subquery_date = db.session.query(Auftrag.Dienstleister_ID).filter(
             (filter_date >= Auftrag.Startzeitpunkt) &
             (filter_date <= Auftrag.Endzeitpunkt)
         ).subquery()
+    
+    subquery_score = db.session.query(Dienstleister.dienstleister_id) \
+        .join(Auftrag, Dienstleister.dienstleister_id==Auftrag.Dienstleister_ID)\
+        .join(Dienstleisterbewertung, Auftrag.id==Dienstleisterbewertung.auftrags_ID)\
+        .group_by(Dienstleister.dienstleister_id)\
+        .having(func.avg(Dienstleisterbewertung.d_bewertung)>=filter_rating).subquery()
     
     service_providers_filtered = Dienstleister.query \
         .join(Dienstleistung_Profil_association) \
@@ -319,7 +329,8 @@ def search_service(service_id):
         .filter(Dienstleistung.dienstleistung_id == Dienstleistung_Profil_association.c.dienstleistung_id) \
         .where(
             (Dienstleistung.dienstleistung_id == service_id)&
-            (Dienstleister.dienstleister_id.not_in(subquery_date))
+            (Dienstleister.dienstleister_id.not_in(subquery_date))&
+            (Dienstleister.dienstleister_id.in_(subquery_score))
             )
 
     service_providers_dict = {}
@@ -335,10 +346,13 @@ def search_service(service_id):
 
     if len(query_params) == 0:
         filter_date = date.today()
+    ratings = [1,2,3,4,5]
     search_filter_form = SearchFilterForm(service_date=filter_date)
+    search_filter_form.rating.choices = ratings
     if search_filter_form.validate_on_submit():
         filter_date = search_filter_form.service_date.data
-        return redirect(url_for('views.search_service', service_id=service_id, date=[filter_date]))
+        filter_rating = search_filter_form.rating.data
+        return redirect(url_for('views.search_service', service_id=service_id, date=[filter_date], rating=[filter_rating]))
 
 
     return render_template('search.html', service_providers = service_providers_dict, search_filter_form=search_filter_form)
