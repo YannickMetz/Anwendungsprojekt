@@ -323,15 +323,22 @@ def search_service(service_id):
         .group_by(Dienstleister.dienstleister_id)\
         .having(func.avg(Dienstleisterbewertung.d_bewertung)>=filter_rating).subquery()
     
-    service_providers_filtered = Dienstleister.query \
-        .join(Dienstleistung_Profil_association) \
-        .join(Dienstleistung) \
-        .filter(Dienstleistung.dienstleistung_id == Dienstleistung_Profil_association.c.dienstleistung_id) \
-        .where(
-            (Dienstleistung.dienstleistung_id == service_id)&
-            (Dienstleister.dienstleister_id.not_in(subquery_date))&
-            (Dienstleister.dienstleister_id.in_(subquery_score))
-            )
+    if len(query_params) == 0:
+        service_providers_filtered = Dienstleister.query \
+            .join(Dienstleistung_Profil_association) \
+            .join(Dienstleistung) \
+            .filter(Dienstleistung.dienstleistung_id == Dienstleistung_Profil_association.c.dienstleistung_id) \
+            .where(Dienstleistung.dienstleistung_id == service_id)
+    else:
+        service_providers_filtered = Dienstleister.query \
+            .join(Dienstleistung_Profil_association) \
+            .join(Dienstleistung) \
+            .filter(Dienstleistung.dienstleistung_id == Dienstleistung_Profil_association.c.dienstleistung_id) \
+            .where(
+                (Dienstleistung.dienstleistung_id == service_id)&
+                (Dienstleister.dienstleister_id.not_in(subquery_date))&
+                (Dienstleister.dienstleister_id.in_(subquery_score))
+                )
 
     service_providers_dict = {}
     for provider in service_providers_filtered:
