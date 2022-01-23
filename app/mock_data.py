@@ -6,17 +6,37 @@ from . forms import LoginForm, RegisterForm, ChangePasswordForm,LoadTestData
 from . import db
 from datetime import datetime
 from .models import Dienstleister, Dienstleisterprofil, Dienstleistung, Kundenprofil, User, Kunde, Auftrag
+from timeit import default_timer as timer
 
 mockdata = Blueprint('mockdata', __name__,template_folder='templates', static_folder='static')
 
+
+
 def create_service(data_frame):
     for i in range(len(data_frame.index)):
-        print(data_frame.iloc[:, 0][i])
+        service = Dienstleistung(
+            kategorieebene1 = data_frame.iloc[:, 1][i],
+            Dienstleistung = data_frame.iloc[:, 0][i]
+        )
+        db.session.add(service)
+        db.session.commit()
+
+
+def add_service(service_provider_id, service_id):
+    Dienstleister.query.where(
+        Dienstleister.dienstleister_id == service_provider_id
+    ).first() \
+    .relation.append(
+        Dienstleistung.query.where(
+            Dienstleistung.dienstleistung_id == service_id
+            ).first()
+    )
+    db.session.commit()
 
 
 def create_users_from_dataframe(data_frame, row_min, row_max, role):
     for i in range(row_max-row_min+1):
-        
+
         user=User(
             email = data_frame["email"][row_min+i],
             password = generate_password_hash("test", method = 'pbkdf2:sha256', salt_length = 8),
@@ -39,7 +59,6 @@ def create_users_from_dataframe(data_frame, row_min, row_max, role):
             )
             db.session.add(customer)
             db.session.add(customer_profile)
-            db.session.commit()
         
         elif (role == "Dienstleister"):
             service_provider = Dienstleister(
@@ -58,7 +77,16 @@ def create_users_from_dataframe(data_frame, row_min, row_max, role):
             )
             db.session.add(service_provider)
             db.session.add(service_provider_profile)
-            db.session.commit()
+            services = list(data_frame["services"][row_min+i].split(','))
+            for service in services:
+                add_service(service_provider.dienstleister_id, int(service))
+
+    db.session.commit()
+
+
+
+
+
 
 
 
@@ -71,6 +99,9 @@ def load_mockdata():
         mock_data_frame = pandas.read_csv("MOCK_DATA.csv", sep=';')
         services = pandas.read_csv("services.csv", sep=';')
         create_service(services)
+        create_users_from_dataframe(mock_data_frame, 0 , 20 ,"Dienstleister")
+        create_users_from_dataframe(mock_data_frame, 21 , 998 ,"Kunde")
+        
 
     return render_template("load_mockdata.html", form=testdata_form)
 

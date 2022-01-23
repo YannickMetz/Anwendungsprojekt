@@ -346,7 +346,7 @@ def search_service(service_id):
 
     if len(query_params) == 0:
         filter_date = date.today()
-    ratings = [1,2,3,4,5]
+    ratings = [0,1,2,3,4,5]
     search_filter_form = SearchFilterForm(service_date=filter_date)
     search_filter_form.rating.choices = ratings
     if search_filter_form.validate_on_submit():
