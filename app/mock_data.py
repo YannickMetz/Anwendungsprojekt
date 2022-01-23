@@ -84,9 +84,16 @@ def create_users_from_dataframe(data_frame, row_min, row_max, role):
     db.session.commit()
 
 
-
-
-
+def add_profile_image(service_provider_id, image_id):
+    here = os.path.dirname(os.path.abspath(__file__))
+    filename = os.path.join(here, f'stock_images/{image_id}_stock.jpeg')
+    profile = Dienstleisterprofil.query.where(
+            Dienstleisterprofil.dienstleister_id == service_provider_id
+            ) \
+            .first()
+    with open(filename, 'rb') as imagefile:
+        profile.profilbild = imagefile.read()
+    db.session.commit()
 
 
 
@@ -94,13 +101,46 @@ def create_users_from_dataframe(data_frame, row_min, row_max, role):
 def load_mockdata():
     testdata_form=LoadTestData()
     if testdata_form.validate_on_submit():
+        print("Lade testdaten...")
+        start = timer()
         here=os.path.dirname(os.path.abspath(__file__))
         os.chdir(here)
-        mock_data_frame = pandas.read_csv("MOCK_DATA.csv", sep=';')
         services = pandas.read_csv("services.csv", sep=';')
+        mock_data_frame = pandas.read_csv("MOCK_DATA.csv", sep=';')
+        print("Füge Dienstleistungen hinzu...")
         create_service(services)
+        print("Pflege Benutzer (Dienstleister)...")
         create_users_from_dataframe(mock_data_frame, 0 , 20 ,"Dienstleister")
+        print("Pflege Benutzer (Kunden)...")
         create_users_from_dataframe(mock_data_frame, 21 , 998 ,"Kunde")
+        print("Lade Profilbilder...")
+        add_profile_image(1,8)
+        add_profile_image(2,6)
+        add_profile_image(3,3)
+        add_profile_image(4,1)
+        add_profile_image(5,13)
+        add_profile_image(6,9)
+        add_profile_image(7,14)
+        add_profile_image(8,15)
+        add_profile_image(9,16)
+        add_profile_image(10,4)
+        add_profile_image(11,17)
+        add_profile_image(12,10)
+        # Kein Bild für ID 13
+        add_profile_image(14,18)
+        add_profile_image(15,11)
+        add_profile_image(16,2)
+        # Kein Bild für ID 17
+        # Kein Bild für ID 18
+        add_profile_image(19,19)
+        # Kein Bild für ID 20
+        # Kein Bild für ID 21
+        end = timer ()
+        print(f"Abgeschlossen.\nVergange Zeit: {end - start}")
+
+ 
+
+
         
 
     return render_template("load_mockdata.html", form=testdata_form)

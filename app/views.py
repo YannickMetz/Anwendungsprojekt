@@ -120,8 +120,6 @@ def change_service_provider_profile():
     service_form = SelectServiceForm()
     service_form.service.choices = services_list
 
-
-
     if profile_image_form.validate_on_submit():
         current_profile.profilbild = profile_image_form.profile_img.data.read()
         db.session.commit()
