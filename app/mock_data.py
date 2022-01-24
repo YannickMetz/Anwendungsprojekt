@@ -5,7 +5,7 @@ import requests, os, pandas, lorem, random
 from . forms import LoginForm, RegisterForm, ChangePasswordForm,LoadTestData
 from . import db
 from datetime import datetime, timedelta
-from .models import Dienstleister, Dienstleisterprofil, Dienstleistung, Kundenprofil, User, Kunde, Auftrag
+from .models import Dienstleister, Dienstleisterbewertung, Dienstleisterprofil, Dienstleistung, Kundenprofil, User, Kunde, Auftrag
 from .views import ServiceOrderStatus
 from timeit import default_timer as timer
 
@@ -112,7 +112,16 @@ def create_service_orders(order_count, available_services, provider_lower, provi
             Status = ServiceOrderStatus.completed.value
         )
         db.session.add(service_order)
-    db.session.commit()
+        db.session.commit()
+
+        rating = Dienstleisterbewertung(
+            auftrags_ID = int(Auftrag.query.where(Auftrag.id == service_order.id).first().id),
+            d_bewertung = int(random.randrange(1,6))
+        )
+        db.session.add(rating)
+        db.session.commit()
+
+    
 
 
 @mockdata.route('/load_mockdata', methods=['POST', 'GET'])
@@ -154,10 +163,10 @@ def load_mockdata():
         add_profile_image(19,19)
         # Kein Bild für ID 20
         # Kein Bild für ID 21
+        create_service_orders(1000,15,1,21,22,999)
         end = timer ()
         print(f"Abgeschlossen.\nVergange Zeit: {end - start}")
         
-        create_service_orders(1000,15,1,21,22,999)
 
  
 
