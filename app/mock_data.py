@@ -1,11 +1,12 @@
 from flask import Flask, render_template, redirect, url_for, request, Blueprint, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
-import requests, os, pandas, lorem
+import requests, os, pandas, lorem, random
 from . forms import LoginForm, RegisterForm, ChangePasswordForm,LoadTestData
 from . import db
-from datetime import datetime
+from datetime import datetime, timedelta
 from .models import Dienstleister, Dienstleisterprofil, Dienstleistung, Kundenprofil, User, Kunde, Auftrag
+from .views import ServiceOrderStatus
 from timeit import default_timer as timer
 
 mockdata = Blueprint('mockdata', __name__,template_folder='templates', static_folder='static')
@@ -51,7 +52,7 @@ def create_users_from_dataframe(data_frame, row_min, row_max, role):
                 k_vorname = data_frame["first_name"][row_min+i],
                 k_nachname = data_frame["last_name"][row_min+i],
                 k_straße = f'{data_frame["street"][row_min+i]} {data_frame["street suffix"][row_min+i]} {data_frame["street number"][row_min+i]}',
-                k_plz = data_frame["zip"][row_min+i],
+                k_plz = int(data_frame["zip"][row_min+i]),
                 k_ort = data_frame["city"][row_min+i]
             )
             customer_profile=Kundenprofil(
@@ -67,7 +68,7 @@ def create_users_from_dataframe(data_frame, row_min, row_max, role):
                     d_nachname = data_frame["last_name"][row_min+i],
                     firmenname = data_frame["company"][row_min+i],
                     d_straße = f'{data_frame["street"][row_min+i]} {data_frame["street suffix"][row_min+i]} {data_frame["street number"][row_min+i]}',
-                    d_plz = data_frame["zip"][row_min+i],
+                    d_plz = int(data_frame["zip"][row_min+i]),
                     d_ort = data_frame["city"][row_min+i],
                     radius = 30
             )
@@ -96,12 +97,30 @@ def add_profile_image(service_provider_id, image_id):
     db.session.commit()
 
 
+def create_service_orders(order_count, available_services, provider_lower, provider_upper, customer_lower, customter_upper):
+    for i in range(0, order_count):
+        start_date = datetime.now() - timedelta(weeks = random.randrange(1,12))
+        end_date = start_date + timedelta(days = random.randrange(1,5))
+        service_order = Auftrag(
+            Dienstleistung_ID = random.randrange(1, available_services+1),
+            Kunde_ID = random.randrange(customer_lower, customter_upper+1),
+            Dienstleister_ID = random.randrange(provider_lower, provider_upper+1),
+            anfrage_freitext = lorem.paragraph(),
+            Startzeitpunkt = start_date,
+            Endzeitpunkt = end_date, 
+            Preis = random.randrange(100,1099),
+            Status = ServiceOrderStatus.completed.value
+        )
+        db.session.add(service_order)
+    db.session.commit()
+
 
 @mockdata.route('/load_mockdata', methods=['POST', 'GET'])
 def load_mockdata():
     testdata_form=LoadTestData()
     if testdata_form.validate_on_submit():
         print("Lade testdaten...")
+        
         start = timer()
         here=os.path.dirname(os.path.abspath(__file__))
         os.chdir(here)
@@ -137,6 +156,8 @@ def load_mockdata():
         # Kein Bild für ID 21
         end = timer ()
         print(f"Abgeschlossen.\nVergange Zeit: {end - start}")
+        
+        create_service_orders(1000,15,1,21,22,999)
 
  
 
