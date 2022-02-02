@@ -1,13 +1,15 @@
 import enum
+from itertools import groupby
 from posixpath import join
+from re import sub
 from flask import Flask, render_template, redirect, url_for, request, Blueprint, flash
 from sqlalchemy import dialects, or_
-from sqlalchemy.sql.expression import null
+from sqlalchemy.sql.expression import null, func
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
 import requests, os, sys
-from datetime import date
-from . forms import AddProfileImageForm, ChangeProfileBodyForm, AddImageForm, SelectServiceForm, RateServiceForm, RequestQuotationForm, CreateQuotation, ProcessQuotation
+from datetime import date, datetime
+from . forms import AddProfileImageForm, ChangeProfileBodyForm, AddImageForm, SelectServiceForm, RequestQuotationForm, CreateQuotation, ProcessQuotation, SearchFilterForm, RateServiceForm
 from . import db
 from .models import Dienstleisterbewertung, User, Dienstleisterprofil, Auftrag, DienstleisterProfilGalerie, Dienstleistung, Dienstleister, Kunde, Dienstleistung_Profil_association
 from base64 import b64encode
@@ -117,8 +119,6 @@ def change_service_provider_profile():
     image_gallery_form = AddImageForm()
     service_form = SelectServiceForm()
     service_form.service.choices = services_list
-
-
 
     if profile_image_form.validate_on_submit():
         current_profile.profilbild = profile_image_form.profile_img.data.read()
@@ -297,14 +297,46 @@ def view_order():
             )
 
 
-@views.route('/search/<int:service_id>', methods=['GET'])
+@views.route('/search/<int:service_id>', methods=['GET', 'POST'])
 @login_required
 def search_service(service_id):
-    service_providers_filtered = Dienstleister.query \
-        .join(Dienstleistung_Profil_association) \
-        .join(Dienstleistung) \
-        .filter(Dienstleistung.dienstleistung_id == Dienstleistung_Profil_association.c.dienstleistung_id) \
-        .where(Dienstleistung.dienstleistung_id == service_id)
+
+    
+    query_params = request.args.to_dict()
+    if len(query_params) == 0:
+        filter_date = datetime(1970,1,1)
+        filter_rating = 0
+    else:
+        filter_date = datetime.strptime(query_params['date'],"%Y-%m-%d")
+        filter_rating = int(query_params['rating'])
+    
+    subquery_date = db.session.query(Auftrag.Dienstleister_ID).filter(
+            (filter_date >= Auftrag.Startzeitpunkt) &
+            (filter_date <= Auftrag.Endzeitpunkt)
+        ).subquery()
+    
+    subquery_score = db.session.query(Dienstleister.dienstleister_id) \
+        .join(Auftrag, Dienstleister.dienstleister_id==Auftrag.Dienstleister_ID)\
+        .join(Dienstleisterbewertung, Auftrag.id==Dienstleisterbewertung.auftrags_ID)\
+        .group_by(Dienstleister.dienstleister_id)\
+        .having(func.avg(Dienstleisterbewertung.d_bewertung)>=filter_rating).subquery()
+    
+    if len(query_params) == 0:
+        service_providers_filtered = Dienstleister.query \
+            .join(Dienstleistung_Profil_association) \
+            .join(Dienstleistung) \
+            .filter(Dienstleistung.dienstleistung_id == Dienstleistung_Profil_association.c.dienstleistung_id) \
+            .where(Dienstleistung.dienstleistung_id == service_id)
+    else:
+        service_providers_filtered = Dienstleister.query \
+            .join(Dienstleistung_Profil_association) \
+            .join(Dienstleistung) \
+            .filter(Dienstleistung.dienstleistung_id == Dienstleistung_Profil_association.c.dienstleistung_id) \
+            .where(
+                (Dienstleistung.dienstleistung_id == service_id)&
+                (Dienstleister.dienstleister_id.not_in(subquery_date))&
+                (Dienstleister.dienstleister_id.in_(subquery_score))
+                )
 
     service_providers_dict = {}
     for provider in service_providers_filtered:
@@ -317,8 +349,18 @@ def search_service(service_id):
             with open(filename, 'rb') as imagefile:
                 service_providers_dict.update({provider: b64encode(imagefile.read()).decode('utf-8')})
 
+    if len(query_params) == 0:
+        filter_date = date.today()
+    ratings = [0,1,2,3,4,5]
+    search_filter_form = SearchFilterForm(service_date=filter_date)
+    search_filter_form.rating.choices = ratings
+    if search_filter_form.validate_on_submit():
+        filter_date = search_filter_form.service_date.data
+        filter_rating = search_filter_form.rating.data
+        return redirect(url_for('views.search_service', service_id=service_id, date=[filter_date], rating=[filter_rating]))
 
-    return render_template('search.html', service_providers = service_providers_dict)
+
+    return render_template('search.html', service_providers = service_providers_dict, search_filter_form=search_filter_form)
 
 
 @views.route('/search/<category1>', methods=['GET'])

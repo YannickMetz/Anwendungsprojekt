@@ -20,12 +20,14 @@ def create_app():
     from .auth import auth
     from .views import views
     from .test_db_data import testdata
+    from .mock_data import mockdata
     
     ckeditor = CKEditor(app)
     Bootstrap(app)
     app.register_blueprint(auth)
     app.register_blueprint(views)
     app.register_blueprint(testdata)
+    app.register_blueprint(mockdata)
 
 
     from .models import User, Kunde, Dienstleister, Dienstleisterbewertung, Kundenbewertung, Auftrag, Dienstleistung, Kundenprofil, Dienstleisterprofil, DienstleisterProfilGalerie
