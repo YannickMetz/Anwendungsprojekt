@@ -33,7 +33,7 @@ def create_app():
     from .models import User, Kunde, Dienstleister, Dienstleisterbewertung, Kundenbewertung, Auftrag, Dienstleistung, Kundenprofil, Dienstleisterprofil, DienstleisterProfilGalerie
 
     create_database(app)
-    #db.create_all(app=app)
+    
 
     login_manager = LoginManager()
     login_manager.login_view = 'auth.login'

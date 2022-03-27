@@ -75,7 +75,6 @@ def register_customer():
             kunden_id=new_user.id,
             k_vorname = register_customer_form.k_vorname.data,
             k_nachname = register_customer_form.k_nachname.data,
-            k_geburtstatum = register_customer_form.k_geburtstatum.data,
             k_straße = register_customer_form.k_straße.data,
             k_plz = register_customer_form.k_plz.data,
             k_ort = register_customer_form.k_ort.data
