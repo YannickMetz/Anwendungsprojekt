@@ -165,33 +165,33 @@ def change_service_provider_profile():
 @login_required
 def view_service_provider_profile(id):
 
-#dienstleister nach aufgerufener id
+    #dienstleister nach aufgerufener id
     service_provider = Dienstleister.query.where(Dienstleister.dienstleister_id == id).first()
     service_provider_id = service_provider.dienstleister_id
 
-#vor, nachname und firmenname 
+    #vor, nachname und firmenname 
     service_provider_firstname = service_provider.d_vorname
     service_provider_lastname = service_provider.d_nachname
     service_provider_businessname = service_provider.firmenname
 
-#dienstleistungen 
+    #dienstleistungen 
     services = Dienstleistung.query \
                         .join(Dienstleistung_Profil_association) \
                         .join(Dienstleister) \
                         .filter(Dienstleister.dienstleister_id == Dienstleistung_Profil_association.c.dienstleister_id) \
                         .where(Dienstleister.dienstleister_id == id) 
 
-#dienstleisterprofil
+    #dienstleisterprofil
     service_provider_profile = Dienstleisterprofil.query.where(Dienstleisterprofil.dienstleister_id == id).first()
     service_provider_profile_body = service_provider_profile.profilbeschreibung
 
-#Bildergalerie
+    #Bildergalerie
     gallery_table = DienstleisterProfilGalerie.query.filter_by(dienstleister_id=id).all()
     gallery_images = []
     for i in range(0,len(gallery_table)):
         gallery_images.append(b64encode(gallery_table[i].galerie_bild).decode("utf-8"))
 
-#Profilbild
+    #Profilbild
     if service_provider_profile.profilbild != None:
        service_provider_profile_image = b64encode(service_provider_profile.profilbild).decode('utf-8')
     else:
@@ -200,7 +200,7 @@ def view_service_provider_profile(id):
         with open(filename, 'rb') as imagefile:
            service_provider_profile_image = b64encode(imagefile.read()).decode('utf-8')  
 
-#bewertung auslesen
+    #bewertung auslesen
     ratings = Dienstleisterbewertung.query \
                 .join(Auftrag) \
                 .join(Dienstleister) \
@@ -216,7 +216,7 @@ def view_service_provider_profile(id):
         rating_average = sum(rating_values) / len(rating_values)
         rating_average = f"{rating_average: .2f}"
 
-#übergabe in html code
+    #übergabe in html code
     return render_template(
         "view_business_profile.html",
         service_provider_firstname = service_provider_firstname,

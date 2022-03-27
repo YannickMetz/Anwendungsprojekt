@@ -28,7 +28,7 @@ class RegisterForm(FlaskForm):
 class RegisterCustomerForm(FlaskForm):
     k_vorname = StringField(label="Vorname", validators=[DataRequired()])
     k_nachname = StringField(label="Nachname", validators=[DataRequired()])
-    k_geburtstatum = DateField(label="Geburtsdatum (TT.MM.YYYY)", validators=[DataRequired()], format='%d.%m.%Y')
+    #k_geburtstatum = DateField(label="Geburtsdatum (TT.MM.YYYY)", validators=[DataRequired()], format='%d.%m.%Y')
     k_straße = StringField(label="Straße und Hausnummer", validators=[DataRequired()])
     k_plz = StringField(label="Postleitzahl", validators=[DataRequired()])
     k_ort = StringField(label="Wohnort", validators=[DataRequired()])
@@ -41,7 +41,7 @@ class RegisterBusinessForm(FlaskForm):
     d_vorname = StringField(label="Vorname", validators=[DataRequired()])
     d_nachname = StringField(label="Nachname", validators=[DataRequired()]) 
     firmenname = StringField(label="Firmenname", validators=[DataRequired()])
-    d_geburtstatum = DateField(label="Geburtsdatum (TT.MM.YYYY)", validators=[DataRequired()], format='%d.%m.%Y')
+    d_geburtstatum = DateField(label="Geburtsdatum (TT.MM.YYYY)", validators=[DataRequired()], format='%Y-%m-%d')
     d_straße = StringField(label="Straße und Hausnummer", validators=[DataRequired()])
     d_plz = StringField(label="Postleitzahl", validators=[DataRequired()])
     d_ort = StringField(label="Wohnort", validators=[DataRequired()])
