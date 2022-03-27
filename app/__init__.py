@@ -13,7 +13,7 @@ DB_NAME = 'main_db.db'
 
 def create_app():
     app = Flask(__name__)
-    app.config['SECRET_KEY'] = os.environ.get("KEY", "\xa5\x1d>\x8d9\x18@\xa1\xe9:\x07^\r\x81tP")
+    app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY", "\xa5\x1d>\x8d9\x18@\xa1\xe9:\x07^\r\x81tP")
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL", f"sqlite:///{DB_NAME}") # second argument fallback, if DB specified in environment variable is not available, for example on local machine.
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
