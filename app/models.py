@@ -98,7 +98,7 @@ class Dienstleisterprofil(db.Model):
     dienstleister_rel = relationship("Dienstleister")
     dienstleister_id = db.Column(db.Integer, db.ForeignKey("Dienstleister.dienstleister_id"), primary_key=True)
     profilbild = db.Column(db.LargeBinary)
-    profilbeschreibung = db.Column(db.String(100))
+    profilbeschreibung = db.Column(db.String(5000))
     bildergalerie_rel = relationship("DienstleisterProfilGalerie", back_populates="d_profil_rel")
 
 class DienstleisterProfilGalerie(db.Model):
