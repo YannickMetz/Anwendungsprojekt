@@ -91,16 +91,13 @@ class Kundenprofil(db.Model):
     __tablename__ = "Kundenprofil"
     kunden_id = db.Column(db.Integer, db.ForeignKey("Kunde.kunden_id"), primary_key=True)
     profilbild = db.Column(db.LargeBinary)
-    bewertung_rel = relationship("Kundenbewertung")
-    bewertung = db.Column(db.Float, db.ForeignKey("Kundenbewertung.k_bewertung"))
+
 
 class Dienstleisterprofil(db.Model):
     __tablename__ = ("Dienstleisterprofil")
     dienstleister_rel = relationship("Dienstleister")
     dienstleister_id = db.Column(db.Integer, db.ForeignKey("Dienstleister.dienstleister_id"), primary_key=True)
     profilbild = db.Column(db.LargeBinary)
-    bewertung_rel = relationship("Dienstleisterbewertung")
-    bewertung = db.Column(db.Float, db.ForeignKey("Dienstleisterbewertung.d_bewertung"))
     profilbeschreibung = db.Column(db.String(100))
     bildergalerie_rel = relationship("DienstleisterProfilGalerie", back_populates="d_profil_rel")
 
