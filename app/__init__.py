@@ -52,3 +52,4 @@ def create_database(app):
         if not path.exists(f'app/{DB_NAME}'):
             db.create_all(app=app)
             print('created database!')
+    db.create_all(app=app)
