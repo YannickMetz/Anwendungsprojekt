@@ -61,11 +61,11 @@ class Auftrag(db.Model):
     __tablename__ = "Auftrag"
     id = db.Column(db.Integer, primary_key=True, unique=True)
     Dienstleistung_rel = relationship("Dienstleistung")
-    Dienstleistung_ID = db.Column(db.String(20), db.ForeignKey("Dienstleistung.dienstleistung_id")) #FK aus Dienstleistung
+    Dienstleistung_ID = db.Column(db.Integer, db.ForeignKey("Dienstleistung.dienstleistung_id")) #FK aus Dienstleistung
     Kunde_rel = relationship("Kunde", back_populates="auftrag_rel")
     Kunde_ID = db.Column(db.Integer, db.ForeignKey("Kunde.kunden_id")) #FK aus Kunde
     Dienstleister_rel = relationship("Dienstleister")
-    Dienstleister_ID = db.Column(db.String(20), db.ForeignKey("Dienstleister.dienstleister_id")) #FK aus dienstleister
+    Dienstleister_ID = db.Column(db.Integer, db.ForeignKey("Dienstleister.dienstleister_id")) #FK aus dienstleister
     Status = db.Column(db.String(20)) #Liste möglicher status festlegen
     Startzeitpunkt = db.Column(db.DateTime)
     Endzeitpunkt = db.Column(db.DateTime)
