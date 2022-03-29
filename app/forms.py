@@ -14,8 +14,6 @@ class FlexibleDecimalField(DecimalField):
            valuelist[0] = valuelist[0].replace(",", ".")
        return super(FlexibleDecimalField, self).process_formdata(valuelist) 
 
-
-
 class LoginForm(FlaskForm):
     email = StringField(label="Email", validators=[DataRequired()])
     password = PasswordField(label="Password", validators=[DataRequired()])
@@ -72,6 +70,9 @@ class ChangeProfileBodyForm(FlaskForm):
 class LoadTestData(FlaskForm):
     submit = SubmitField("Lade Testdaten")
 
+class SendMail(FlaskForm):
+    submit = SubmitField("Test E-Mail senden")    
+
 class SelectServiceForm(FlaskForm):
     service = SelectField(label="Selektiere Dienstleistung", coerce=str, validators=[DataRequired()])
     submit_service = SubmitField("Dienstleistung hinzufügen")
@@ -94,7 +95,6 @@ class CreateQuotation(FlaskForm):
 
 class ProcessQuotation(FlaskForm):
     submit = SubmitField("Angebot erstellen")
-
 
 class SearchFilterForm(FlaskForm):
     service_date = DateField(label="Dienstleisterverfügbarkeit berücksichtigen", format='%Y-%m-%d')
