@@ -14,19 +14,19 @@ class User(UserMixin, db.Model):
     kunde_rel = relationship("Kunde", uselist=False, back_populates="user_rel")
     dienstleister_rel = relationship("Dienstleister", uselist=False, back_populates="user_rel")
     email = db.Column(db.String(100), unique=True)
-    password = db.Column(db.String(100))
+    password = db.Column(db.String(200))
     role = db.Column(db.String(100))
     
 class Kunde(db.Model):
     __tablename__ = "Kunde"
     kunden_id = db.Column(db.Integer, db.ForeignKey("User.id"), primary_key=True)
     user_rel = relationship("User", back_populates="kunde_rel")
-    k_vorname = db.Column(db.String(20))
-    k_nachname = db.Column(db.String(20))
+    k_vorname = db.Column(db.String(100))
+    k_nachname = db.Column(db.String(100))
     k_geburtsdatum = db.Column(db.Date)
-    k_straße = db.Column(db.String(20))
-    k_plz = db.Column(db.String(20))
-    k_ort = db.Column(db.String(20))
+    k_straße = db.Column(db.String(100))
+    k_plz = db.Column(db.String(100))
+    k_ort = db.Column(db.String(100))
     auftrag_rel = relationship("Auftrag", back_populates="Kunde_rel")
     
 Dienstleistung_Profil_association = db.Table("Dienstleistung_Profil", 
@@ -39,21 +39,21 @@ class Dienstleister(db.Model):
     __tablename__ = "Dienstleister"
     dienstleister_id = db.Column(db.Integer, db.ForeignKey("User.id"), primary_key=True)
     user_rel = relationship("User", back_populates="dienstleister_rel")
-    d_vorname = db.Column(db.String(20))
-    d_nachname = db.Column(db.String(20))
-    firmenname = db.Column(db.String(20))
+    d_vorname = db.Column(db.String(100))
+    d_nachname = db.Column(db.String(100))
+    firmenname = db.Column(db.String(100))
     d_geburtstatum = db.Column(db.Date)
-    d_straße = db.Column(db.String(20))
-    d_plz = db.Column(db.String(20))
-    d_ort = db.Column(db.String(20))
+    d_straße = db.Column(db.String(100))
+    d_plz = db.Column(db.String(100))
+    d_ort = db.Column(db.String(100))
     radius = db.Column(db.Integer)
      
 class Dienstleistung(db.Model):
     __tablename__ = "Dienstleistung"
     dienstleistung_id = db.Column(db.Integer, primary_key=True, unique=True)
     dienstleistung_profil_rel = db.relationship("Dienstleister", secondary=Dienstleistung_Profil_association, backref=db.backref("relation", lazy="dynamic"))
-    kategorieebene1 = db.Column(db.String(20))
-    kategorieebene2 = db.Column(db.String(20))
+    kategorieebene1 = db.Column(db.String(100))
+    kategorieebene2 = db.Column(db.String(100))
     Dienstleistung = db.Column(db.String(100))
     d_beschreibung = db.Column(db.String(100))
 
@@ -66,7 +66,7 @@ class Auftrag(db.Model):
     Kunde_ID = db.Column(db.Integer, db.ForeignKey("Kunde.kunden_id")) #FK aus Kunde
     Dienstleister_rel = relationship("Dienstleister")
     Dienstleister_ID = db.Column(db.Integer, db.ForeignKey("Dienstleister.dienstleister_id")) #FK aus dienstleister
-    Status = db.Column(db.String(20)) #Liste möglicher status festlegen
+    Status = db.Column(db.String(100)) #Liste möglicher status festlegen
     Startzeitpunkt = db.Column(db.DateTime)
     Endzeitpunkt = db.Column(db.DateTime)
     anfrage_freitext = db.Column(db.String(100))
