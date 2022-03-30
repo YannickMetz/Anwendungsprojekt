@@ -89,6 +89,7 @@ class Dienstleisterbewertung(db.Model):
 
 class Kundenprofil(db.Model):
     __tablename__ = "Kundenprofil"
+    kunden_rel = relationship("Kunde")
     kunden_id = db.Column(db.Integer, db.ForeignKey("Kunde.kunden_id"), primary_key=True)
     profilbild = db.Column(db.LargeBinary)
 
