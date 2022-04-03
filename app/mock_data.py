@@ -8,9 +8,19 @@ from datetime import datetime, timedelta
 from .models import Dienstleister, Dienstleisterbewertung, Dienstleisterprofil, Dienstleistung, Kundenprofil, User, Kunde, Auftrag
 from .views import ServiceOrderStatus
 from timeit import default_timer as timer
+import click
+import contextlib
+from sqlalchemy import MetaData
 
 mockdata = Blueprint('mockdata', __name__,template_folder='templates', static_folder='static')
 
+
+def reset_db():
+    meta = db.metadata
+    for table in reversed(meta.sorted_tables):
+        click.echo('Lösche Tabelle %s' % table)
+        db.session.execute(table.delete())
+    db.session.commit()
 
 
 def create_service(data_frame):
@@ -122,6 +132,48 @@ def create_service_orders(order_count, available_services, provider_lower, provi
         db.session.commit()
 
     
+@mockdata.cli.command("init-mockdata")
+def init_mockdata():
+    start = timer()
+    click.echo("Datenbank Reset beginnt...")
+    reset_db()
+    click.echo("Lade testdaten...")
+    here=os.path.dirname(os.path.abspath(__file__))
+    os.chdir(here)
+    services = pandas.read_csv("services.csv", sep=';')
+    mock_data_frame = pandas.read_csv("MOCK_DATA.csv", sep=';')
+    click.echo("Füge Dienstleistungen hinzu...")
+    create_service(services)
+    click.echo("Pflege Benutzer (Dienstleister)...")
+    create_users_from_dataframe(mock_data_frame, 0 , 20 ,"Dienstleister")
+    click.echo("Pflege Benutzer (Kunden)...")
+    create_users_from_dataframe(mock_data_frame, 21 , 998 ,"Kunde")
+    click.echo("Lade Profilbilder...")
+    add_profile_image(1,8)
+    add_profile_image(2,6)
+    add_profile_image(3,3)
+    add_profile_image(4,1)
+    add_profile_image(5,13)
+    add_profile_image(6,9)
+    add_profile_image(7,14)
+    add_profile_image(8,15)
+    add_profile_image(9,16)
+    add_profile_image(10,4)
+    add_profile_image(11,17)
+    add_profile_image(12,10)
+    # Kein Bild für ID 13
+    add_profile_image(14,18)
+    add_profile_image(15,11)
+    add_profile_image(16,2)
+    # Kein Bild für ID 17
+    # Kein Bild für ID 18
+    add_profile_image(19,19)
+    # Kein Bild für ID 20
+    # Kein Bild für ID 21
+    create_service_orders(1000,15,1,21,22,999)
+    end = timer ()
+    click.echo(f"Abgeschlossen.\nVergange Zeit: {end - start}")
+
 
 
 @mockdata.route('/load_mockdata', methods=['POST', 'GET'])
@@ -166,11 +218,6 @@ def load_mockdata():
         create_service_orders(1000,15,1,21,22,999)
         end = timer ()
         print(f"Abgeschlossen.\nVergange Zeit: {end - start}")
-        
-
- 
-
-
         
 
     return render_template("load_mockdata.html", form=testdata_form)
