@@ -1,4 +1,3 @@
-import enum
 from itertools import groupby
 from posixpath import join
 from re import sub
@@ -11,52 +10,16 @@ from flask_login import login_user, login_required, logout_user, current_user
 import requests, os, sys
 from datetime import date, datetime
 
-from .mail import send_mail, OrderActiviy
+from .mail import send_mail
 from . forms import AddProfileImageForm, ChangeProfileBodyForm, AddImageForm, SelectServiceForm, RequestQuotationForm, CreateQuotation, ProcessQuotation, SearchFilterForm, RateServiceForm
 from . import db
 from .models import Dienstleisterbewertung, User, Dienstleisterprofil, Auftrag, DienstleisterProfilGalerie, Dienstleistung, Dienstleister, Kunde, Dienstleistung_Profil_association
 from base64 import b64encode
 from enum import Enum
-
-
+from .classes import *
 
 views = Blueprint('views', __name__,template_folder='templates', static_folder='static')
 
-
-###### Classes ######
-
-class ServiceOrderStatus(Enum):
-    requested = "Übermittelt" # Kunde hat Angebot angefragt
-    rejected_by_service_provider = "Abgelehnt durch Dienstleister" # Kunde hat Angebot abgeleht
-    quotation_available = "Angebot verfügbar"
-    rejected_by_customer = "Abgelehnt durch Kunde" # Kunde hat Angebot abgeleht
-    quotation_confirmed = "Angebot bestätigt" # Kunde hat dem Angebot zugestimmt
-    cancelled = "Storniert" # Durch Dienstleister. Nach verbindlicher Annahme kann der Auftrag nicht fortgeführt werden. 
-    service_confirmed = "Abgenommen" # Kunde bestätigt, dass die geleistete Dienstleistung den Anforderungen entspricht
-    completed = "Abgeschlossen" # Dienstleister hat Auftrag abgeschlossen
-
-class ServiceOrder:
-    def __init__(self, order_id):
-        self.order_details = Auftrag.query.where(Auftrag.id == order_id).first()
-        self.customer = Kunde.query.where(Kunde.kunden_id == self.order_details.Kunde_ID).first()
-        self.service_provider = Dienstleister.query.where(Dienstleister.dienstleister_id == self.order_details.Dienstleister_ID).first()
-        self.service = Dienstleistung.query.where(Dienstleistung.dienstleistung_id == self.order_details.Dienstleistung_ID).first()
-        self.customer_contact = User.query.where(User.id == self.customer.kunden_id).first().email
-        self.service_provider_contact = User.query.where(User.id == self.service_provider.dienstleister_id).first().email
-
-        if Dienstleisterbewertung.query.where(Dienstleisterbewertung.auftrags_ID == order_id).first() != None:
-            self.customer_rating = Dienstleisterbewertung.query.where(Dienstleisterbewertung.auftrags_ID == order_id).first().d_bewertung
-        else:
-            self.customer_rating = " "
-
-        if self.order_details.Preis != None:
-            self.quoted_price = str("{:.2f}".format(self.order_details.Preis) + " €")
-        else:
-            self.quoted_price = "wird bearbeitet"
-        if self.order_details.anfrage_bild != None:
-            self.customer_image = b64encode(self.order_details.anfrage_bild).decode('utf-8')
-        else:
-            self.customer_image = None
 
 ###### Functions ######
 
@@ -408,8 +371,11 @@ def request_quotation(id):
         )
         db.session.add(new_service_order)
         db.session.commit()
-        reciever = User.query.filter_by(id = Auftrag.Dienstleister_ID).first().email
-        send_mail(reciever, OrderActiviy.requested)
+
+        #Empfänger Email herausfinden + email senden
+        open_order = ServiceOrder(new_service_order.id)
+        reciever = open_order.service_provider_contact
+        send_mail(reciever, ServiceOrderStatus.requested, open_order)
 
         flash("Angebotsanfrage erfolgreich übermittelt.")
         return redirect(url_for('views.home'))
