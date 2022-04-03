@@ -78,14 +78,14 @@ class Kundenbewertung(db.Model):
     id = db.Column(db.Integer, primary_key=True, unique=True)
     auftrag_rel = relationship("Auftrag")
     auftrags_ID = db.Column(db.Integer, db.ForeignKey("Auftrag.id")) #FK von Auftrag
-    k_bewertung = db.Column(db.Float)
+    k_bewertung = db.Column(db.Integer)
 
 class Dienstleisterbewertung(db.Model):
     __tablename__ = "Dienstleisterbewertung"
     id = db.Column(db.Integer, primary_key=True, unique=True)
     auftrag_rel = relationship("Auftrag")
     auftrags_ID = db.Column(db.Integer, db.ForeignKey("Auftrag.id")) #FK von Auftrag
-    d_bewertung = db.Column(db.Float)
+    d_bewertung = db.Column(db.Integer)
 
 class Kundenprofil(db.Model):
     __tablename__ = "Kundenprofil"

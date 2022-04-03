@@ -14,9 +14,11 @@ from sqlalchemy import MetaData
 
 mockdata = Blueprint('mockdata', __name__,template_folder='templates', static_folder='static')
 
-
+@mockdata.cli.command("reset-db")
 def reset_db():
+    click.echo("Datenbank Reset beginnt...")
     meta = db.metadata
+    click.echo(meta)
     for table in reversed(meta.sorted_tables):
         click.echo('Lösche Tabelle %s' % table)
         db.session.execute(table.delete())
@@ -125,7 +127,7 @@ def create_service_orders(order_count, available_services, provider_lower, provi
         db.session.commit()
 
         rating = Dienstleisterbewertung(
-            auftrags_ID = int(Auftrag.query.where(Auftrag.id == service_order.id).first().id),
+            auftrags_ID = service_order.id,
             d_bewertung = int(random.randrange(1,6))
         )
         db.session.add(rating)
@@ -135,8 +137,7 @@ def create_service_orders(order_count, available_services, provider_lower, provi
 @mockdata.cli.command("init-mockdata")
 def init_mockdata():
     start = timer()
-    click.echo("Datenbank Reset beginnt...")
-    reset_db()
+    #reset_db()
     click.echo("Lade testdaten...")
     here=os.path.dirname(os.path.abspath(__file__))
     os.chdir(here)
