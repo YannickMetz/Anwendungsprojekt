@@ -2,6 +2,7 @@ import enum
 from itertools import groupby
 from posixpath import join
 from re import sub
+import re
 from flask import Flask, render_template, redirect, url_for, request, Blueprint, flash
 from sqlalchemy import dialects, or_
 from sqlalchemy.sql.expression import null, func
@@ -9,6 +10,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
 import requests, os, sys
 from datetime import date, datetime
+
+from .mail import send_mail, OrderActiviy
 from . forms import AddProfileImageForm, ChangeProfileBodyForm, AddImageForm, SelectServiceForm, RequestQuotationForm, CreateQuotation, ProcessQuotation, SearchFilterForm, RateServiceForm
 from . import db
 from .models import Dienstleisterbewertung, User, Dienstleisterprofil, Auftrag, DienstleisterProfilGalerie, Dienstleistung, Dienstleister, Kunde, Dienstleistung_Profil_association
@@ -405,6 +408,8 @@ def request_quotation(id):
         )
         db.session.add(new_service_order)
         db.session.commit()
+        reciever = User.query.filter_by(id = Auftrag.Dienstleister_ID).first().email
+        send_mail(reciever, OrderActiviy.requested)
 
         flash("Angebotsanfrage erfolgreich übermittelt.")
         return redirect(url_for('views.home'))
