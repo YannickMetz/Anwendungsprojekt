@@ -9,7 +9,6 @@ from .models import Dienstleister, Dienstleisterbewertung, Dienstleisterprofil, 
 from .views import ServiceOrderStatus
 from timeit import default_timer as timer
 import click
-import contextlib
 from sqlalchemy import MetaData
 
 mockdata = Blueprint('mockdata', __name__,template_folder='templates', static_folder='static')
@@ -18,7 +17,6 @@ mockdata = Blueprint('mockdata', __name__,template_folder='templates', static_fo
 def reset_db():
     click.echo("Datenbank Reset beginnt...")
     meta = db.metadata
-    click.echo(meta)
     for table in reversed(meta.sorted_tables):
         click.echo('Lösche Tabelle %s' % table)
         db.session.execute(table.delete())
