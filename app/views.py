@@ -374,8 +374,8 @@ def request_quotation(id):
 
         #Empfänger Email herausfinden + email senden
         open_order = ServiceOrder(new_service_order.id)
-        reciever = open_order.service_provider_contact
-        send_mail(reciever, ServiceOrderStatus.requested, open_order)
+        receiver = open_order.service_provider_contact
+        send_mail(receiver, ServiceOrderStatus.requested, open_order)
 
         flash("Angebotsanfrage erfolgreich übermittelt.")
         return redirect(url_for('views.home'))
@@ -422,9 +422,6 @@ def view_order_details(id):
             db.session.commit()
             flash("Auftrag erfolgreich storniert.")
             return redirect(url_for('views.view_order'))
-
-
-
     
     return render_template('order-details.html', service_order=service_order, quotation_button=quotation_button, ServiceOrderStatus=ServiceOrderStatus)
 
@@ -445,6 +442,11 @@ def confirm_order(id):
         db.session.commit() 
         confirm_order.order_details.Status = ServiceOrderStatus.completed.value
         db.session.commit()
+
+        #Empfänger Email herausfinden + email senden
+        receiver = confirm_order.service_provider_contact
+        send_mail(receiver, ServiceOrderStatus.requested, confirm_order)
+
         flash("Die Dienstleistung wurde abgenommen und der Auftrag abgeschlossen.")
         return redirect(url_for('views.view_order_details', id=id)) 
 
@@ -463,9 +465,14 @@ def create_quotation(id):
         quotation_price = round(quotation_form.quote.data, 2)
         service_finish = quotation_form.service_finish.data
         service_order.order_details.Status = ServiceOrderStatus.quotation_available.value
-        service_order.order_details.Preis =quotation_price
+        service_order.order_details.Preis = quotation_price
         service_order.order_details.Endzeitpunkt = service_finish
         db.session.commit()
+
+        #Empfänger Email herausfinden + email senden
+        receiver = service_order.customer_contact
+        send_mail(receiver, ServiceOrderStatus.quotation_available, service_order)
+
         return redirect(url_for('views.view_order_details', id=id))
 
 

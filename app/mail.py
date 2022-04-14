@@ -1,29 +1,39 @@
 import smtplib, ssl
 from .classes import *
-from . import db
-from enum import Enum
+from email.mime.text import MIMEText as text
 
+# dictionary zum mappen von änderung des Auftraggsstatus und text der in der Email gesendet wird.
 OrderActivies = {ServiceOrderStatus.requested: "Sie haben eien neuen Auftrag erhalten!\n",
-                 ServiceOrderStatus.cancelled: "Ihr Auftrag wurde abgebrochen" }
+                ServiceOrderStatus.rejected_by_customer: "Der Kunde hat den Auftrag abgelehnt!\n",
+                ServiceOrderStatus.rejected_by_service_provider: "Der Dienstleister hat den Auftrag abgelehnt!\n",
+                ServiceOrderStatus.quotation_available: "Der Dienstleister hat Ihnen ein Angebot erstellt!\n",
+                ServiceOrderStatus.quotation_confirmed: "Der Kunde hat das Angebot bestätigt!\n",
+                ServiceOrderStatus.service_confirmed: "Der Kunde hat bestätigt, dass die gewünschte Dienstleistung erbracht wurde!\n",
+                ServiceOrderStatus.cancelled: "Ihr Auftrag wurde storniert!\n",
+                ServiceOrderStatus.completed: "Der Dienstleister hat den Auftrag abgeschlossen!\n" }
 
-def send_mail(reciever, status, order):
-    message = OrderActivies[status] + order.customer_contact
-    
+# definition der email funktion
+def send_mail(receiver, status, order):
+    message = text(OrderActivies[status])
+
+    # [To] und ['Subject] mussten eingefügt werden da sonst nicht übernommen. Empfänger war in BCC und Betreff wurde nicht übernommen
+    message['To'] = receiver
+    message['Subject'] = "Dienstleistung on Demand - Auftragsabwicklung, Auftragsnummer: " + str(order.order_details.id)
+
     smtp_server = "smtp.gmail.com"
-    port = 587  # For starttls
+    # Port Für starttls
+    port = 587
     sender_email = "dienstleistungondemand@gmail.com"
     password = "zlybwbomapicvnrk"
 
-    # Create a secure SSL context
+    # Secure SSL context erstellen
     context = ssl.create_default_context()
 
+    # serververbindung öffnen und email senden
     conn = smtplib.SMTP(smtp_server, port) 
     conn.ehlo()
     conn.starttls(context=context)
     conn.ehlo()
     conn.login(sender_email, password)
-    conn.sendmail(sender_email, reciever, message)
+    conn.sendmail(sender_email, receiver, message.as_string())
  
-
-# Yahoo APP PW: lfcqexqwrkchtctv!
-# gmail APP PW: zlybwbomapicvnrk
