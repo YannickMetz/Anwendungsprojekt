@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField, TextAreaField, SelectField, FileField, DecimalField
 from wtforms import DateField, IntegerField, widgets, SelectMultipleField
-from wtforms.validators import DataRequired, URL, Optional
+from wtforms.validators import DataRequired, EqualTo, URL, Optional
 from flask_wtf.file import FileAllowed
 from wtforms.fields.html5 import DateField
 from flask_ckeditor import CKEditorField
@@ -34,21 +34,21 @@ class RegisterCustomerForm(FlaskForm):
     k_ort = StringField(label="Wohnort", validators=[DataRequired()])
     email = StringField(label="Email", validators=[DataRequired()])
     password = PasswordField(label="Passwort", validators=[DataRequired()])
-    password_repeated = PasswordField(label="Passwort wiederholen", validators=[DataRequired()])
+    password_repeated = PasswordField(label="Passwort wiederholen", validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField("Registrierung abschließen")
 
 class RegisterBusinessForm(FlaskForm):
     d_vorname = StringField(label="Vorname", validators=[DataRequired()])
     d_nachname = StringField(label="Nachname", validators=[DataRequired()]) 
     firmenname = StringField(label="Firmenname", validators=[DataRequired()])
-    d_geburtstatum = DateField(label="Geburtsdatum (TT.MM.YYYY)", validators=[DataRequired()], format='%Y-%m-%d')
+    #d_geburtstatum = DateField(label="Geburtsdatum (TT.MM.YYYY)", validators=[DataRequired()], format='%Y-%m-%d')
     d_straße = StringField(label="Straße und Hausnummer", validators=[DataRequired()])
     d_plz = StringField(label="Postleitzahl", validators=[DataRequired()])
     d_ort = StringField(label="Wohnort", validators=[DataRequired()])
     radius = IntegerField(label="Radius in dem sie Dienstleistungen anbieten möchten", validators=[DataRequired()])
     email = StringField(label="Email", validators=[DataRequired()])
     password = PasswordField(label="Passwort", validators=[DataRequired()])
-    password_repeated = PasswordField(label="Passwort wiederholen", validators=[DataRequired()])
+    password_repeated = PasswordField(label="Passwort wiederholen", validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField("Registrierung abschließen")
 
 class ChangePasswordForm(FlaskForm):
