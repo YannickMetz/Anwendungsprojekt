@@ -84,81 +84,87 @@ def home():
 @views.route('/change_service_provider_profile',methods=['POST', 'GET'])
 @login_required
 def change_service_provider_profile():
-    current_profile = Dienstleisterprofil.query.filter_by(dienstleister_id=current_user.id).first()
-    current_service_provider = Dienstleister.query.filter_by(dienstleister_id=current_user.id).first()
+    user_role = User.query.filter_by(id=current_user.id).first().role
+    if user_role == 'Kunde':
+        flash('Bitte als Dienstleister einloggen')
+        return redirect(url_for('auth.login'))
 
-    # erzeugt Dictionary mit Bilddateien aus der Datenbank für die Galerie des Profils
-    gallery_table = DienstleisterProfilGalerie.query.filter_by(dienstleister_id=current_user.id).all()
-    gallery_images = {}
-    for i in range(0,len(gallery_table)):
-        gallery_images.update({gallery_table[i].id: b64encode(gallery_table[i].galerie_bild).decode("utf-8")})
+    elif user_role == 'Dienstleister':
+        current_profile = Dienstleisterprofil.query.filter_by(dienstleister_id=current_user.id).first()
+        current_service_provider = Dienstleister.query.filter_by(dienstleister_id=current_user.id).first()
 
-    # erzeugt Liste mit allen Dienstleistrungen aus der Datenbak
-    all_services = Dienstleistung.query.all()
-    services_list = []
-    for service in all_services:
-        services_list.append(service.Dienstleistung)
-    services_list.sort()
+        # erzeugt Dictionary mit Bilddateien aus der Datenbank für die Galerie des Profils
+        gallery_table = DienstleisterProfilGalerie.query.filter_by(dienstleister_id=current_user.id).all()
+        gallery_images = {}
+        for i in range(0,len(gallery_table)):
+            gallery_images.update({gallery_table[i].id: b64encode(gallery_table[i].galerie_bild).decode("utf-8")})
 
-    # erzeugt Dictionary mit den Dienstleistungen des Profils, welches aufsteigend nach Values (name der Dienstleistung) sortiert wird
-    profile_services_dict = get_services_for_provider(current_user.id)
+        # erzeugt Liste mit allen Dienstleistrungen aus der Datenbak
+        all_services = Dienstleistung.query.all()
+        services_list = []
+        for service in all_services:
+            services_list.append(service.Dienstleistung)
+        services_list.sort()
 
-    # Profilbild zur Darstellung aus der Datenbank laden. 
-    # Existiert das Bild nicht, wird ein Platzhalter aus dem static Verzeichnis geladen
-    if current_profile.profilbild != None:
-        profile_image = b64encode(current_profile.profilbild).decode('utf-8')
-    else:
-        here = os.path.dirname(os.path.abspath(__file__))
-        filename = os.path.join(here, 'static/img/placeholder_flat.jpg')
-        with open(filename, 'rb') as imagefile:
-            profile_image = b64encode(imagefile.read()).decode('utf-8')
+        # erzeugt Dictionary mit den Dienstleistungen des Profils, welches aufsteigend nach Values (name der Dienstleistung) sortiert wird
+        profile_services_dict = get_services_for_provider(current_user.id)
 
-    # initialisierung der FlaskForms
-    profile_image_form = AddProfileImageForm()
-    profile_body_form = ChangeProfileBodyForm(profilbeschreibung=current_profile.profilbeschreibung)
-    image_gallery_form = AddImageForm()
-    service_form = SelectServiceForm()
-    service_form.service.choices = services_list
+        # Profilbild zur Darstellung aus der Datenbank laden. 
+        # Existiert das Bild nicht, wird ein Platzhalter aus dem static Verzeichnis geladen
+        if current_profile.profilbild != None:
+            profile_image = b64encode(current_profile.profilbild).decode('utf-8')
+        else:
+            here = os.path.dirname(os.path.abspath(__file__))
+            filename = os.path.join(here, 'static/img/placeholder_flat.jpg')
+            with open(filename, 'rb') as imagefile:
+                profile_image = b64encode(imagefile.read()).decode('utf-8')
 
-    if profile_image_form.validate_on_submit():
-        current_profile.profilbild = profile_image_form.profile_img.data.read()
-        db.session.commit()
-        return redirect(url_for('views.change_service_provider_profile'))
+        # initialisierung der FlaskForms
+        profile_image_form = AddProfileImageForm()
+        profile_body_form = ChangeProfileBodyForm(profilbeschreibung=current_profile.profilbeschreibung)
+        image_gallery_form = AddImageForm()
+        service_form = SelectServiceForm()
+        service_form.service.choices = services_list
 
-    if image_gallery_form.validate_on_submit():
-        new_gallery_image = image_gallery_form.img.data.read()
-        new_gallery_item= DienstleisterProfilGalerie(
-            dienstleister_id = current_user.id,
-            galerie_bild = new_gallery_image
-        )
-        db.session.add(new_gallery_item)
-        db.session.commit()
-        return redirect(url_for('views.change_service_provider_profile'))
-
-    if service_form.validate_on_submit():
-        try:
-            current_service_provider.relation.append(Dienstleistung.query.filter_by(Dienstleistung=service_form.service.data).first())
+        if profile_image_form.validate_on_submit():
+            current_profile.profilbild = profile_image_form.profile_img.data.read()
             db.session.commit()
-        except:
-            pass
-        finally:
             return redirect(url_for('views.change_service_provider_profile'))
 
-    if profile_body_form.validate_on_submit():
-        current_profile.profilbeschreibung = profile_body_form.profilbeschreibung.data
-        db.session.commit()
-        return redirect(url_for('views.change_service_provider_profile'))
+        if image_gallery_form.validate_on_submit():
+            new_gallery_image = image_gallery_form.img.data.read()
+            new_gallery_item= DienstleisterProfilGalerie(
+                dienstleister_id = current_user.id,
+                galerie_bild = new_gallery_image
+            )
+            db.session.add(new_gallery_item)
+            db.session.commit()
+            return redirect(url_for('views.change_service_provider_profile'))
 
-    return render_template(
-        "change_business_profile.html",
-        profile_image_form=profile_image_form,
-        profile_body_form=profile_body_form,
-        profile_image=profile_image,
-        service_form=service_form,
-        profile_services_dict=profile_services_dict,
-        image_gallery_form=image_gallery_form,
-        gallery_images=gallery_images
-        )
+        if service_form.validate_on_submit():
+            try:
+                current_service_provider.relation.append(Dienstleistung.query.filter_by(Dienstleistung=service_form.service.data).first())
+                db.session.commit()
+            except:
+                pass
+            finally:
+                return redirect(url_for('views.change_service_provider_profile'))
+
+        if profile_body_form.validate_on_submit():
+            current_profile.profilbeschreibung = profile_body_form.profilbeschreibung.data
+            db.session.commit()
+            return redirect(url_for('views.change_service_provider_profile'))
+
+        return render_template(
+            "change_business_profile.html",
+            profile_image_form=profile_image_form,
+            profile_body_form=profile_body_form,
+            profile_image=profile_image,
+            service_form=service_form,
+            profile_services_dict=profile_services_dict,
+            image_gallery_form=image_gallery_form,
+            gallery_images=gallery_images
+            )
 
 
 @views.route('/profile/service_provider/<id>',methods=['POST', 'GET'])
@@ -299,7 +305,7 @@ def view_order():
 
 @views.route('/search/<int:service_id>', methods=['GET', 'POST'])
 @login_required
-def search_service(service_id):
+def search_service_providers(service_id):
 
     
     query_params = request.args.to_dict()
@@ -365,7 +371,7 @@ def search_service(service_id):
 
 @views.route('/search/<category1>', methods=['GET'])
 @login_required
-def select_service(category1):
+def view_services(category1):
     services = Dienstleistung.query.filter_by(kategorieebene1=category1).all()
     services_dict = {}
     for service in services:

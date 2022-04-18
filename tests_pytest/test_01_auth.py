@@ -1,9 +1,7 @@
-from pickle import FALSE
-from urllib import response
-import pytest, click
 from flask import session
 from click.testing import CliRunner
-from app.mock_data import reset_db, init_mockdata
+from app.mock_data import reset_db
+
 
 
 

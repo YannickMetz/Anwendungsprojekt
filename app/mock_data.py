@@ -33,6 +33,16 @@ def create_service(data_frame):
         db.session.commit()
 
 
+@mockdata.cli.command("init-service")
+def create_test_service():
+    service = Dienstleistung(
+        kategorieebene1 = "Testkategorie",
+        Dienstleistung = "Testservice"
+    )
+    db.session.add(service)
+    db.session.commit()
+
+
 def add_service(service_provider_id, service_id):
     Dienstleister.query.where(
         Dienstleister.dienstleister_id == service_provider_id
