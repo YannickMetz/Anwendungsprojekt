@@ -71,7 +71,8 @@ class Auftrag(db.Model):
     Endzeitpunkt = db.Column(db.DateTime)
     anfrage_freitext = db.Column(db.String(5000))
     anfrage_bild = db.Column(db.LargeBinary)
-    Preis = db.Column(db.Numeric(precision=20, scale=2))
+    Preis = db.Column(db.String(100))
+    #Preis = db.Column(db.Numeric(precision=20, scale=2))
 
 class Kundenbewertung(db.Model):
     __tablename__ = "Kundenbewertung"

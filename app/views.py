@@ -240,7 +240,6 @@ def view_service_provider_profile(id):
 @views.route('/remove_service/<int:service_id>',methods=['POST', 'GET'])
 @login_required
 def remove_service(service_id):
-    print(service_id)
     current_service_provider = Dienstleister.query.filter_by(dienstleister_id=current_user.id).first()
     current_service_provider.relation.remove(Dienstleistung.query.filter_by(dienstleistung_id=service_id).first())
     db.session.commit()
@@ -463,6 +462,7 @@ def view_order_details(id):
     
     return render_template('order-details.html', service_order=service_order, quotation_button=quotation_button, ServiceOrderStatus=ServiceOrderStatus)
 
+
 @views.route('/confirm_order/<id>', methods=['POST', 'GET'])
 @login_required
 def confirm_order(id):
@@ -488,6 +488,7 @@ def confirm_order(id):
         confirm_order = confirm_order,
         confirm_form = confirm_form
         )
+
 
 @views.route('/quote/<id>', methods=['POST', 'GET'])
 @login_required

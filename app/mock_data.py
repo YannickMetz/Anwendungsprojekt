@@ -10,6 +10,7 @@ from .views import ServiceOrderStatus
 from timeit import default_timer as timer
 import click
 from sqlalchemy import MetaData
+from base64 import b64encode
 
 mockdata = Blueprint('mockdata', __name__,template_folder='templates', static_folder='static')
 
@@ -103,6 +104,12 @@ def create_users_from_dataframe(data_frame, row_min, row_max, role):
                 add_service(service_provider.dienstleister_id, int(service))
 
     db.session.commit()
+
+def read_image(image_id):
+    here = os.path.dirname(os.path.abspath(__file__))
+    filename = os.path.join(here, f'stock_images/{image_id}_stock.jpeg')
+    imagefile = open(filename, "rb")
+    return imagefile
 
 
 def add_profile_image(service_provider_id, image_id):

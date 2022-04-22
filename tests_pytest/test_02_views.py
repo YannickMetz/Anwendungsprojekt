@@ -1,12 +1,14 @@
-from flask import session
+from dataclasses import dataclass
+from http import client
+from flask import Response, session
 from click.testing import CliRunner
-from app.mock_data import create_test_service
+from app.mock_data import create_test_service, read_image
+from base64 import b64encode
+from app import db
+from app.models import Auftrag, Dienstleisterprofil, DienstleisterProfilGalerie
+from app.views import get_services_for_provider
 
 
-
-#test will fail if any other CLI command is executed after the CLI command "initmockdata"
-#workaround: run mockdata tests separately, which will also save time as mockdata creation will take longer
-#python3 -m pytest tests_pytest/ -v && python3 -m pytest mockdata_pytest/ -v
 
 ### functions ###
 
@@ -187,10 +189,129 @@ def test_change_service_provider_profile_POST_service(test_client):
     assert b'Testservice' in profile.data
 
 
-#try view_service_provider_profile > fail
 
-#try change > fail
+def test_change_service_provider_profile_POST_add_profile_image(test_client):
+    """
+    WHEN the route '/change_service_provider_profile' receives a POST request for AddProfileImageForm when a service provider is logged in
+    THEN check that...
+    ...response data does contain "Profilbeschreibung"
+    ...response returns status code '302'
+    ...previously empty 'Dienstleisterprofil.profilbild' field contains data
+    """
+    logout(test_client)
+    assert "_user_id" not in session
+    login(test_client, email="erika@testmail.com", password="123456")
+    assert session["_user_id"] == "2"
+    assert db.session.query(Dienstleisterprofil).first().profilbild is None
+    imagefile = {"profile_img": (read_image(1), '1_stock.jpeg')}
+    response = test_client.post("/change_service_provider_profile", data=imagefile, buffered=True, content_type='multipart/form-data')
+    assert response.status_code == 302
+    assert db.session.query(Dienstleisterprofil).first().profilbild is not None
 
-#try service
 
-#change profile
+
+def test_change_service_provider_profile_POST_add_gallery_image(test_client):
+    """
+    WHEN the route '/change_service_provider_profile' receives a POST request for AddImageForm when a service provider is logged in
+    THEN check that...
+    ...response data does contain "Profilbeschreibung"
+    ...response returns status code '302'
+    ...previously empty 'DienstleisterProfilGalerie' table contains data
+    ...previoulsy not appearing string '<div class="col-xl-3 col-lg-4 col-md-6">' appears twice in route profile/service_provider/2' response data (used for gallery image grid view)
+    """
+    logout(test_client)
+    assert "_user_id" not in session
+    login(test_client, email="erika@testmail.com", password="123456")
+    assert session["_user_id"] == "2"
+    profile_response = test_client.get("profile/service_provider/2")
+    assert b'<div class="col-xl-3 col-lg-4 col-md-6">' not in profile_response.data
+    imagefile1 = {"img": (read_image(2), '2_stock.jpeg')}
+    response = test_client.post("/change_service_provider_profile", data=imagefile1, buffered=True, content_type='multipart/form-data')
+    assert response.status_code == 302
+    assert len(db.session.query(DienstleisterProfilGalerie).all()) == 1
+    imagefile2 = {"img": (read_image(3), '3_stock.jpeg')}
+    response = test_client.post("/change_service_provider_profile", data=imagefile2, buffered=True, content_type='multipart/form-data')
+    assert response.status_code == 302
+    assert len(db.session.query(DienstleisterProfilGalerie).all()) == 2
+    profile_response = test_client.get("profile/service_provider/2")
+    assert str(profile_response.data).count('<div class="col-xl-3 col-lg-4 col-md-6">') == 2
+
+
+def test_remove_gallery_image(test_client):
+    """
+    WHEN the route '/remove_gallery_image/1' receives a POST request for AddImageForm when a service provider is logged in
+    THEN check that...
+    ...response returns status code '200'
+    ...'DienstleisterProfilGalerie' table contains only 1 entry (2 entries before test)
+    ...string '<div class="col-xl-3 col-lg-4 col-md-6">' appears only once in route profile/service_provider/2' response data (used for gallery image grid view)
+    """
+    logout(test_client)
+    assert "_user_id" not in session
+    login(test_client, email="erika@testmail.com", password="123456")
+    assert session["_user_id"] == "2"
+    assert len(db.session.query(DienstleisterProfilGalerie).all()) == 2
+    response = test_client.get("/remove_gallery_image/1", follow_redirects=True)
+    assert response.status_code == 200
+    profile_response = test_client.get("profile/service_provider/2")
+    assert str(profile_response.data).count('<div class="col-xl-3 col-lg-4 col-md-6">') == 1
+    assert len(db.session.query(DienstleisterProfilGalerie).all()) == 1
+
+
+def test_request_quotation_as_service_provider(test_client):
+    """
+    WHEN the route '/request-quotation/2' receives a GET request when a service provider is logged in
+    THEN check that...
+    ...response returns redirect to '/'
+    ...response data contains "als Dienstleister leider keine Dienstleistungen anfragen."
+    """
+    logout(test_client)
+    assert "_user_id" not in session
+    login(test_client, email="erika@testmail.com", password="123456")
+    response = test_client.get("/request-quotation/2", follow_redirects=True)
+    assert b'als Dienstleister leider keine Dienstleistungen anfragen.' in response.data
+
+
+def test_request_quotation(test_client):
+    """
+    WHEN the route '/request-quotation/2' receives a POST request for RequestQuotationForm when a customer is logged in
+    THEN check that...
+    ...response returns redirect to '/'
+    ...previously empty table "Auftrag" contains 1 entry
+    ...response for route '/order-details/1' returns status code '200'
+    """
+    logout(test_client)
+    assert "_user_id" not in session
+    login(test_client, email="max@testmail.com", password="123456")
+    assert session["_user_id"] == "1"
+    response = test_client.post("/request-quotation/2", data=dict(
+        service='Testservice',
+        request='Request Body',
+        service_start='9999-01-01',
+        img=read_image(4)
+        ),buffered=True, content_type='multipart/form-data', follow_redirects=True)
+    assert response.request.path == "/"
+    assert len(db.session.query(Auftrag).all()) == 1
+    response_order_details = test_client.get('/order-details/1')
+    assert response_order_details.status_code == 200
+
+
+# test auftäge in übersicht (jeweils für Kunde und Dienstleister)
+ 
+
+
+
+def test_remove_service(test_client):
+    """
+    WHEN the route '/remove_service/1'' receives a GET request
+    THEN check that...
+    ...response returns status code '200'
+    ...the number of services associated with the service provider is "0"
+    """
+    logout(test_client)
+    assert "_user_id" not in session
+    login(test_client, email="erika@testmail.com", password="123456")
+    assert session["_user_id"] == "2"
+    assert len(get_services_for_provider(2)) == 1
+    response = test_client.get('/remove_service/1', follow_redirects=True)
+    assert response.status_code == 200
+    assert len(get_services_for_provider(2)) == 0
