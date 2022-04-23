@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, PasswordField, TextAreaField, SelectField, FileField, DecimalField
+from wtforms import StringField, SubmitField, PasswordField, TextAreaField, SelectField, FileField, DecimalField, RadioField, BooleanField
 from wtforms import DateField, IntegerField, widgets, SelectMultipleField
 from wtforms.validators import DataRequired, EqualTo, URL, Optional
 from flask_wtf.file import FileAllowed
@@ -92,9 +92,17 @@ class CreateQuotation(FlaskForm):
     service_finish = DateField(label="Bis wann kann die Dienstleistung erbacht werden?", format='%Y-%m-%d')
     submit = SubmitField("Angebot versenden")
 
-class ProcessQuotation(FlaskForm):
-    submit = SubmitField("Angebot erstellen")
+class CancelOrder(FlaskForm):
+    cancel_order = BooleanField(label = "Möchten sie den Auftrag stornieren?")
+    submit_cancel_order = SubmitField("Bestätigen")
 
+class AcceptQuotation(FlaskForm):
+    accept_selection = RadioField('Label', choices=[('accept','akzeptieren'),('reject','ablehnen')])
+    submit_accept = SubmitField("Akzeptieren")
+
+class CompleteOrder(FlaskForm):
+    complete_order = BooleanField(label = "Kunde hat Erfüllung der Dienstleistung bestätigt. Auftrag abschließen?")
+    submit_complete_order = SubmitField("Bestätigen")
 
 class SearchFilterForm(FlaskForm):
     service_date = DateField(label="Dienstleisterverfügbarkeit berücksichtigen", format='%Y-%m-%d')

@@ -9,7 +9,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
 import requests, os, sys
 from datetime import date, datetime
-from . forms import AddProfileImageForm, ChangeProfileBodyForm, AddImageForm, SelectServiceForm, RequestQuotationForm, CreateQuotation, ProcessQuotation, SearchFilterForm, RateServiceForm
+from . forms import AddProfileImageForm, ChangeProfileBodyForm, AddImageForm, SelectServiceForm, RequestQuotationForm, CreateQuotation, SearchFilterForm, RateServiceForm, AcceptQuotation, CancelOrder, CompleteOrder
 from . import db
 from .models import Dienstleisterbewertung, User, Dienstleisterprofil, Auftrag, DienstleisterProfilGalerie, Dienstleistung, Dienstleister, Kunde, Dienstleistung_Profil_association
 from base64 import b64encode
@@ -428,42 +428,47 @@ def request_quotation(id):
 def view_order_details(id):
     service_order = ServiceOrder(id)
 
-    quotation_button = ProcessQuotation()
-    if quotation_button.validate_on_submit():
-        print(request.form)
+    #quotation_button = ProcessQuotation()
+    accept_radio = AcceptQuotation()
+    cancel_checkbox = CancelOrder()
+    complete_checkbox = CompleteOrder()
 
-        return redirect(url_for('views.create_quotation', id=id))
 
-    if request.method == 'POST':
-        print(request.form)
-        if request.form.get('options') == 'accept':
+
+    if accept_radio.validate_on_submit():
+        if accept_radio.accept_selection.data == 'accept':
             service_order.order_details.Status = ServiceOrderStatus.quotation_confirmed.value
             db.session.commit()
             flash("Angebot angenommen.")
             return redirect(url_for('views.view_order_details', id=id))
-        if request.form.get('options') == 'reject':
+        elif accept_radio.accept_selection.data == 'reject':
             service_order.order_details.Status = ServiceOrderStatus.rejected_by_customer.value
             db.session.commit()
             flash("Angebot wurde abgelehnt.")
             return redirect(url_for('views.view_order_details', id=id))
-        if request.form.get('back') == 'back_to_overview':
-            return redirect(url_for('views.view_order'))
 
-        if request.form.get('confirm_complete') == 'complete':
-            service_order.order_details.Status = ServiceOrderStatus.completed.value
-            db.session.commit()
-            flash("Auftrag erfolgreich beendet.")
-            return redirect(url_for('views.view_order'))
-        if request.form.get('cancel_order') == 'cancelled':
+    if cancel_checkbox.validate_on_submit():
+        if cancel_checkbox.cancel_order.data == True:
             service_order.order_details.Status = ServiceOrderStatus.cancelled.value
             db.session.commit()
             flash("Auftrag erfolgreich storniert.")
             return redirect(url_for('views.view_order'))
 
-
+    if complete_checkbox.validate_on_submit():
+        if complete_checkbox.complete_order.data == True:
+            service_order.order_details.Status = ServiceOrderStatus.completed.value
+            db.session.commit()
+            flash("Auftrag erfolgreich beendet.")
+            return redirect(url_for('views.view_order'))
 
     
-    return render_template('order-details.html', service_order=service_order, quotation_button=quotation_button, ServiceOrderStatus=ServiceOrderStatus)
+    return render_template('order-details.html', 
+        service_order=service_order,
+        accept_radio=accept_radio,
+        cancel_checkbox=cancel_checkbox,
+        complete_checkbox=complete_checkbox,
+        ServiceOrderStatus=ServiceOrderStatus
+        )
 
 
 @views.route('/confirm_order/<id>', methods=['POST', 'GET'])
@@ -481,9 +486,9 @@ def confirm_order(id):
             d_bewertung = confirm_form.rating.data)
         db.session.add(rating)
         db.session.commit() 
-        confirm_order.order_details.Status = ServiceOrderStatus.completed.value
+        confirm_order.order_details.Status = ServiceOrderStatus.service_confirmed.value
         db.session.commit()
-        flash("Die Dienstleistung wurde abgenommen und der Auftrag abgeschlossen.")
+        flash("Die Dienstleistung wurde abgenommen. Der Dienstleister kann den Auftrag nun abschließen.")
         return redirect(url_for('views.view_order_details', id=id)) 
 
     return render_template(

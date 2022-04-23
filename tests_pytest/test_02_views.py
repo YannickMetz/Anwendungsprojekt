@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from http import client
+from unittest.result import failfast
 from flask import Response, session
 from click.testing import CliRunner
 from app.mock_data import create_test_service, read_image
@@ -376,27 +377,52 @@ def test_create_quotation(test_client):
     assert b'999.95' in response.data
 
 
+def test_reject_quotation(test_client):
+    """
+    WHEN the route '/order-details/1' receives a POST request from customer on form 'AcceptQuotation' with value 'reject'
+    THEN check that...
+    ...response data contains 'Abgelehnt durch Kunde' when logged in as customer
+    """
+    pass
+
 def test_confirm_quotation(test_client):
     """
-    WHEN the route '/order-details/1' receives a POST request from customer on form 'options' with value 'accept'
+    WHEN the route '/order-details/1' receives a POST request from customer on form 'AcceptQuotation' with value 'accept'
     THEN check that...
-    ...response returns status code '302'
-    ...response data contains 'Angebot bestätigt' and 'Dienstleistung abnehmen' when logged in as customer
-    ...response data contains 'Stornierung bestätigen" when logged in as service provider
+    ...response data contains '<a href="/confirm_order/1">' and 'Angebot best\xc3\xa4tigt' when logged in as customer
+    ...response data contains the option to cancel the order when logged in as service provider
     """
     logout(test_client)
     assert "_user_id" not in session
     login(test_client, email="max@testmail.com", password="123456")
     assert session["_user_id"] == "1"
-    #response = test_client.post('/order-details/1', data=ImmutableMultiDict([('back', 'back_to_overview')]),follow_redirects=True)
-    response = test_client.post('/order-details/1', data=dict(back='back_to_overview'),follow_redirects=True)
-    assert response.status_code == 200
-    assert response.request.path=='/orders/'
+    response = test_client.post('/order-details/1', data=dict(accept_selection='accept'),follow_redirects=True)
+    assert b'<a href="/confirm_order/1">' in response.data
     print(response.data)
-    print(response.request.path)
-    #assert b'<a href="/confirm_order/1">' in response.data
+    assert b'Angebot best\xc3\xa4tigt' in response.data
+    assert b' <input class="btn btn-custom" id="submit_cancel_order" name="submit_cancel_order" type="submit" value="Best\xc3\xa4tigen">' not in response.data
+    logout(test_client)
+    assert "_user_id" not in session
+    login(test_client, email="erika@testmail.com", password="123456")
+    assert session["_user_id"] == "2"
+    response = test_client.get('order-details/1')
+    assert b' <input class="btn btn-custom" id="submit_cancel_order" name="submit_cancel_order" type="submit" value="Best\xc3\xa4tigen">' in response.data
 
 
+def test_confirm_order(test_client):
+    """
+    WHEN the route '/confirm_order/1' receives a POST request from customer on form 'RateServiceForm'
+    THEN check that...
+    ...response data contains 'Abgenommen' when logged in as customer
+    ...response data contains the option complete the order
+    """
+
+    pass
+
+
+def test_complete_order(test_client):
+
+    pass
 
 def test_remove_service(test_client):
     """
