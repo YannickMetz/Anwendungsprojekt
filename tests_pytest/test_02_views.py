@@ -7,6 +7,7 @@ from base64 import b64encode
 from app import db
 from app.models import Auftrag, Dienstleisterprofil, DienstleisterProfilGalerie
 from app.views import get_services_for_provider
+from werkzeug.datastructures import ImmutableMultiDict
 
 
 
@@ -295,8 +296,105 @@ def test_request_quotation(test_client):
     assert response_order_details.status_code == 200
 
 
-# test auftäge in übersicht (jeweils für Kunde und Dienstleister)
+
+
+def test_order_overview_as_customer(test_client):
+    """
+    WHEN the route '/orders/' receives a GET request while a customer is logged in
+    THEN check that...
+    ...response returns status code '200'
+    ...the response data contains the correct HTML string
+    """
+
+    minified_html = b'<h1>Ihre offenen Auftr\xc3\xa4ge:</h1>\n  \n      <a class="table-order-text" href="/order-details/1">\n        <div class="panel-default">\n          <table class="table-order-overview">\n            <div class="order-overview-section">\n              <tr>\n                <div>\n                  <td class="table-order-details-column-left">\n                    Auftragsnummer:\n                  </td>\n                  <td class="table-order-details-column-right">\n                    1\n                  </td>\n                </div>\n              </tr>\n              <tr>\n                <td class="table-order-details-column-left">\n                  Dienstleistung:\n                </td>\n                <td class="table-order-details-column-right">\n                  Testservice\n                </td>\n              </tr>\n              <tr>\n                <td class="table-order-details-column-left">\n                  \n                  \n                  Dienstleister: \n                </td>\n                <td class="table-order-details-column-left">\n                  \n                   \n                  Testfirma GmbH \n                </td>\n              </tr>\n              <tr>\n                <td class="table-order-details-column-left">\n                  Auftragsstatus:\n                </td>\n                <td class="table-order-details-column-right">\n                  \xc3\x9cbermittelt\n                </td>\n              </tr>\n            </div>\n          </table>\n        </div>\n      </a>\n  \n</div>\n\n<div class="container container-standard">\n  <h1>Ihre abgeschlossenen Auftr\xc3\xa4ge:</h1>\n  \n</div>\n\n\n    \n'
+    logout(test_client)
+    assert "_user_id" not in session
+    login(test_client, email="max@testmail.com", password="123456")
+    assert session["_user_id"] == "1"
+    response = test_client.get('/orders/')
+    assert response.status_code == 200
+    assert minified_html in response.data
+
+
+def test_order_overview_as_service_provider(test_client):
+    """
+    WHEN the route '/orders/' receives a GET request while a service provider is logged in
+    THEN check that...
+    ...response returns status code '200'
+    ...the response data contains the correct HTML string
+    """
+
+    minified_html = b'<h1>Ihre offenen Auftr\xc3\xa4ge:</h1>\n  \n      <a class="table-order-text" href="/order-details/1">\n        <div class="panel-default">\n          <table class="table-order-overview">\n            <div class="order-overview-section">\n              <tr>\n                <div>\n                  <td class="table-order-details-column-left">\n                    Auftragsnummer:\n                  </td>\n                  <td class="table-order-details-column-right">\n                    1\n                  </td>\n                </div>\n              </tr>\n              <tr>\n                <td class="table-order-details-column-left">\n                  Dienstleistung:\n                </td>\n                <td class="table-order-details-column-right">\n                  Testservice\n                </td>\n              </tr>\n              <tr>\n                <td class="table-order-details-column-left">\n                   \n                  Kunde: \n                  \n                </td>\n                <td class="table-order-details-column-left">\n                  \n                  Mustermann \n                  \n                </td>\n              </tr>\n              <tr>\n                <td class="table-order-details-column-left">\n                  Auftragsstatus:\n                </td>\n                <td class="table-order-details-column-right">\n                  \xc3\x9cbermittelt\n                </td>\n              </tr>\n            </div>\n          </table>\n        </div>\n      </a>\n  \n</div>\n\n<div class="container container-standard">\n  <h1>Ihre abgeschlossenen Auftr\xc3\xa4ge:</h1>\n  \n</div>\n\n\n    \n'
+    logout(test_client)
+    assert "_user_id" not in session
+    login(test_client, email="erika@testmail.com", password="123456")
+    assert session["_user_id"] == "2"
+    response = test_client.get('/orders/')
+    assert response.status_code == 200
+    print(response.data)
+    assert minified_html in response.data
  
+
+def test_order_details_after_quotation_request(test_client):
+    """
+    WHEN the route '/order-details/1' receives a GET request after quotation was requested
+    THEN check that...
+    ...response data contains "Angebot erstellen" when service provider is logged in
+    ...response data does not contain "Angebot erstellen" when customer is logged in
+    """
+
+    logout(test_client)
+    assert "_user_id" not in session
+    login(test_client, email="erika@testmail.com", password="123456")
+    assert session["_user_id"] == "2"
+    response = test_client.get('/order-details/1')
+    assert b'Angebot erstellen' in response.data
+
+    logout(test_client)
+    assert "_user_id" not in session
+    login(test_client, email="max@testmail.com", password="123456")
+    assert session["_user_id"] == "1"
+    response = test_client.get('/order-details/1')
+    assert b'Angebot erstellen' not in response.data
+  
+
+def test_create_quotation(test_client):
+    """
+    WHEN the route '/quote/1' receives a POST request on form 'CreateQuotation' from service provider
+    THEN check that...
+    ...response returns status code '200'
+    ...response redirects to route '/order-details/1'
+    ...response data contains '999.95'
+    """
+    logout(test_client)
+    assert "_user_id" not in session
+    login(test_client, email="erika@testmail.com", password="123456")
+    assert session["_user_id"] == "2"
+    response = test_client.post('/quote/1', data=dict(quote=999.95123, service_finish='9999-01-31'), follow_redirects=True)
+    assert response.status_code == 200
+    assert response.request.path == '/order-details/1'
+    assert b'999.95' in response.data
+
+
+def test_confirm_quotation(test_client):
+    """
+    WHEN the route '/order-details/1' receives a POST request from customer on form 'options' with value 'accept'
+    THEN check that...
+    ...response returns status code '302'
+    ...response data contains 'Angebot bestätigt' and 'Dienstleistung abnehmen' when logged in as customer
+    ...response data contains 'Stornierung bestätigen" when logged in as service provider
+    """
+    logout(test_client)
+    assert "_user_id" not in session
+    login(test_client, email="max@testmail.com", password="123456")
+    assert session["_user_id"] == "1"
+    #response = test_client.post('/order-details/1', data=ImmutableMultiDict([('back', 'back_to_overview')]),follow_redirects=True)
+    response = test_client.post('/order-details/1', data=dict(back='back_to_overview'),follow_redirects=True)
+    assert response.status_code == 200
+    assert response.request.path=='/orders/'
+    print(response.data)
+    print(response.request.path)
+    #assert b'<a href="/confirm_order/1">' in response.data
 
 
 

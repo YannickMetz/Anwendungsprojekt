@@ -423,16 +423,19 @@ def request_quotation(id):
         )
 
 
-@views.route('/order-details/<id>', methods=['POST', 'GET'])
+@views.route('/order-details/<id>', methods=['GET','POST'])
 @login_required
 def view_order_details(id):
     service_order = ServiceOrder(id)
 
     quotation_button = ProcessQuotation()
     if quotation_button.validate_on_submit():
+        print(request.form)
+
         return redirect(url_for('views.create_quotation', id=id))
 
     if request.method == 'POST':
+        print(request.form)
         if request.form.get('options') == 'accept':
             service_order.order_details.Status = ServiceOrderStatus.quotation_confirmed.value
             db.session.commit()
@@ -496,7 +499,7 @@ def create_quotation(id):
     service_order = ServiceOrder(id)
     quotation_form = CreateQuotation()
     if quotation_form.validate_on_submit():
-        quotation_price = round(quotation_form.quote.data, 2)
+        quotation_price = str(round(quotation_form.quote.data, 2))
         service_finish = quotation_form.service_finish.data
         service_order.order_details.Status = ServiceOrderStatus.quotation_available.value
         service_order.order_details.Preis =quotation_price
