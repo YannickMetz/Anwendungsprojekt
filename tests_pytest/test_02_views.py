@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from http import client
 from unittest.result import failfast
+from urllib import response
 from flask import Response, session
 from click.testing import CliRunner
 from app.mock_data import create_test_service, read_image
@@ -382,8 +383,20 @@ def test_reject_quotation(test_client):
     WHEN the route '/order-details/1' receives a POST request from customer on form 'AcceptQuotation' with value 'reject'
     THEN check that...
     ...response data contains 'Abgelehnt durch Kunde' when logged in as customer
+    ...order is listed in the bottom section of route '/orders/'
     """
-    pass
+    logout(test_client)
+    assert "_user_id" not in session
+    login(test_client, email="max@testmail.com", password="123456")
+    assert session["_user_id"] == "1"
+    response = test_client.post('/order-details/1', data=dict(accept_selection='reject'),follow_redirects=True)
+    assert b'Abgelehnt durch Kunde' in response.data
+    orders_response = test_client.get('/orders/')
+    print(orders_response.data)
+    assert (
+        b'<h1>Ihre abgeschlossenen Auftr\xc3\xa4ge:</h1>\n  \n      <a class="table-order-text" href="/order-details/1">\n        <div class="panel-default">\n          <table class="table-order-overview">\n            <div class="order-overview-section">\n              <tr>\n                <div>\n                  <td class="table-order-details-column-left">\n                    Auftragsnummer:\n                  </td>\n                  <td class="table-order-details-column-right">\n                    1'
+        ) in orders_response.data
+
 
 def test_confirm_quotation(test_client):
     """
@@ -398,7 +411,6 @@ def test_confirm_quotation(test_client):
     assert session["_user_id"] == "1"
     response = test_client.post('/order-details/1', data=dict(accept_selection='accept'),follow_redirects=True)
     assert b'<a href="/confirm_order/1">' in response.data
-    print(response.data)
     assert b'Angebot best\xc3\xa4tigt' in response.data
     assert b' <input class="btn btn-custom" id="submit_cancel_order" name="submit_cancel_order" type="submit" value="Best\xc3\xa4tigen">' not in response.data
     logout(test_client)
@@ -414,15 +426,43 @@ def test_confirm_order(test_client):
     WHEN the route '/confirm_order/1' receives a POST request from customer on form 'RateServiceForm'
     THEN check that...
     ...response data contains 'Abgenommen' when logged in as customer
-    ...response data contains the option complete the order
+    ...response data contains the option complete the order when logged in as service provider, but not as customer
     """
-
-    pass
+    logout(test_client)
+    assert "_user_id" not in session
+    login(test_client, email="max@testmail.com", password="123456")
+    assert session["_user_id"] == "1"
+    response = test_client.post('/confirm_order/1', data=dict(rating=3), follow_redirects=True)
+    assert b'Abgenommen' in response.data
+    assert b'<input id="complete_order" name="complete_order" type="checkbox" value="y">' not in response.data
+    login(test_client, email="erika@testmail.com", password="123456")
+    assert session["_user_id"] == "2"
+    response = test_client.get('order-details/1')
+    print(response.data)
+    assert b'<input id="complete_order" name="complete_order" type="checkbox" value="y">' in response.data
+    
 
 
 def test_complete_order(test_client):
+    """
+    WHEN the route '/order-details/1' receives a POST request from service provider on form 'CompleteOrder' with value 'True'
+    THEN check that...
+    ...response data contains 'Abgeschlossen'
+    ...order is listed in the bottom section of route '/orders/'
+    """
+    logout(test_client)
+    assert "_user_id" not in session
+    login(test_client, email="erika@testmail.com", password="123456")
+    assert session["_user_id"] == "2"
+    response = test_client.post('/order-details/1', data=dict(complete_order=True), follow_redirects=True)
+    assert b'Abgeschlossen' in response.data
+    orders_response = test_client.get('/orders/')
+    print(orders_response.data)
+    assert (
+        b'<h1>Ihre abgeschlossenen Auftr\xc3\xa4ge:</h1>\n  \n      <a class="table-order-text" href="/order-details/1">\n        <div class="panel-default">\n          <table class="table-order-overview">\n            <div class="order-overview-section">\n              <tr>\n                <div>\n                  <td class="table-order-details-column-left">\n                    Auftragsnummer:\n                  </td>\n                  <td class="table-order-details-column-right">\n                    1'
+        ) in orders_response.data
 
-    pass
+
 
 def test_remove_service(test_client):
     """
