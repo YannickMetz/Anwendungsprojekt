@@ -47,7 +47,7 @@ class ServiceOrder:
             self.customer_rating = " "
 
         if self.order_details.Preis != None:
-            self.quoted_price = str("{:.2f}".format(self.order_details.Preis) + " €")
+            self.quoted_price = str("{:.2f}".format(float(self.order_details.Preis)) + " €")
         else:
             self.quoted_price = "wird bearbeitet"
         if self.order_details.anfrage_bild != None:
