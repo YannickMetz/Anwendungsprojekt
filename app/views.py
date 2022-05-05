@@ -403,23 +403,38 @@ def view_order_details(id):
             service_order.order_details.Status = ServiceOrderStatus.quotation_confirmed.value
             db.session.commit()
             flash("Angebot angenommen.")
+            #Empfänger Email herausfinden + email senden
+            receiver = service_order.service_provider_contact
+            send_mail(receiver, ServiceOrderStatus.quotation_confirmed, service_order)
             return redirect(url_for('views.view_order_details', id=id))
+
         if request.form.get('options') == 'reject':
             service_order.order_details.Status = ServiceOrderStatus.rejected_by_customer.value
             db.session.commit()
+            #Empfänger Email herausfinden + email senden
+            receiver = service_order.service_provider_contact
+            send_mail(receiver, ServiceOrderStatus.rejected_by_customer, service_order)
             flash("Angebot wurde abgelehnt.")
             return redirect(url_for('views.view_order_details', id=id))
+
         if request.form.get('back') == 'back_to_overview':
             return redirect(url_for('views.view_order'))
 
         if request.form.get('confirm_complete') == 'complete':
             service_order.order_details.Status = ServiceOrderStatus.completed.value
             db.session.commit()
+            #Empfänger Email herausfinden + email senden
+            receiver = service_order.customer_contact
+            send_mail(receiver, ServiceOrderStatus.completed, service_order)
             flash("Auftrag erfolgreich beendet.")
             return redirect(url_for('views.view_order'))
+
         if request.form.get('cancel_order') == 'cancelled':
             service_order.order_details.Status = ServiceOrderStatus.cancelled.value
             db.session.commit()
+            #Empfänger Email herausfinden + email senden
+            receiver = service_order.customer_contact
+            send_mail(receiver, ServiceOrderStatus.cancelled, service_order)
             flash("Auftrag erfolgreich storniert.")
             return redirect(url_for('views.view_order'))
     
@@ -445,7 +460,7 @@ def confirm_order(id):
 
         #Empfänger Email herausfinden + email senden
         receiver = confirm_order.service_provider_contact
-        send_mail(receiver, ServiceOrderStatus.requested, confirm_order)
+        send_mail(receiver, ServiceOrderStatus.service_confirmed, confirm_order)
 
         flash("Die Dienstleistung wurde abgenommen und der Auftrag abgeschlossen.")
         return redirect(url_for('views.view_order_details', id=id)) 

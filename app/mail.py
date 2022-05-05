@@ -9,7 +9,7 @@ OrderActivies = {ServiceOrderStatus.requested: "Sie haben eien neuen Auftrag erh
                 ServiceOrderStatus.quotation_available: "Der Dienstleister hat Ihnen ein Angebot erstellt!\n",
                 ServiceOrderStatus.quotation_confirmed: "Der Kunde hat das Angebot bestätigt!\n",
                 ServiceOrderStatus.service_confirmed: "Der Kunde hat bestätigt, dass die gewünschte Dienstleistung erbracht wurde!\n",
-                ServiceOrderStatus.cancelled: "Ihr Auftrag wurde storniert!\n",
+                ServiceOrderStatus.cancelled: "Ihr Auftrag wurde durch den Dienstleister storniert!\n",
                 ServiceOrderStatus.completed: "Der Dienstleister hat den Auftrag abgeschlossen!\n" }
 
 # definition der email funktion
