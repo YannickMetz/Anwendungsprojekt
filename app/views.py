@@ -9,7 +9,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
 import requests, os, sys
 from datetime import date, datetime
-from . forms import AddProfileImageForm, ChangeProfileBodyForm, AddImageForm, SelectServiceForm, RequestQuotationForm, CreateQuotation, ProcessQuotation, SearchFilterForm, RateServiceForm
+from . forms import AddProfileImageForm, ChangeProfileBodyForm, AddImageForm, SelectServiceForm, RequestQuotationForm, CreateQuotation, SearchFilterForm, RateServiceForm, AcceptQuotation, CancelOrder, CompleteOrder
 from . import db
 from .models import Dienstleisterbewertung, User, Dienstleisterprofil, Auftrag, DienstleisterProfilGalerie, Dienstleistung, Dienstleister, Kunde, Dienstleistung_Profil_association
 from base64 import b64encode
@@ -47,7 +47,7 @@ class ServiceOrder:
             self.customer_rating = " "
 
         if self.order_details.Preis != None:
-            self.quoted_price = str("{:.2f}".format(self.order_details.Preis) + " €")
+            self.quoted_price = str("{:.2f}".format(float(self.order_details.Preis)) + " €")
         else:
             self.quoted_price = "wird bearbeitet"
         if self.order_details.anfrage_bild != None:
@@ -84,81 +84,87 @@ def home():
 @views.route('/change_service_provider_profile',methods=['POST', 'GET'])
 @login_required
 def change_service_provider_profile():
-    current_profile = Dienstleisterprofil.query.filter_by(dienstleister_id=current_user.id).first()
-    current_service_provider = Dienstleister.query.filter_by(dienstleister_id=current_user.id).first()
+    user_role = User.query.filter_by(id=current_user.id).first().role
+    if user_role == 'Kunde':
+        flash('Bitte als Dienstleister einloggen')
+        return redirect(url_for('auth.login'))
 
-    # erzeugt Dictionary mit Bilddateien aus der Datenbank für die Galerie des Profils
-    gallery_table = DienstleisterProfilGalerie.query.filter_by(dienstleister_id=current_user.id).all()
-    gallery_images = {}
-    for i in range(0,len(gallery_table)):
-        gallery_images.update({gallery_table[i].id: b64encode(gallery_table[i].galerie_bild).decode("utf-8")})
+    elif user_role == 'Dienstleister':
+        current_profile = Dienstleisterprofil.query.filter_by(dienstleister_id=current_user.id).first()
+        current_service_provider = Dienstleister.query.filter_by(dienstleister_id=current_user.id).first()
 
-    # erzeugt Liste mit allen Dienstleistrungen aus der Datenbak
-    all_services = Dienstleistung.query.all()
-    services_list = []
-    for service in all_services:
-        services_list.append(service.Dienstleistung)
-    services_list.sort()
+        # erzeugt Dictionary mit Bilddateien aus der Datenbank für die Galerie des Profils
+        gallery_table = DienstleisterProfilGalerie.query.filter_by(dienstleister_id=current_user.id).all()
+        gallery_images = {}
+        for i in range(0,len(gallery_table)):
+            gallery_images.update({gallery_table[i].id: b64encode(gallery_table[i].galerie_bild).decode("utf-8")})
 
-    # erzeugt Dictionary mit den Dienstleistungen des Profils, welches aufsteigend nach Values (name der Dienstleistung) sortiert wird
-    profile_services_dict = get_services_for_provider(current_user.id)
+        # erzeugt Liste mit allen Dienstleistrungen aus der Datenbak
+        all_services = Dienstleistung.query.all()
+        services_list = []
+        for service in all_services:
+            services_list.append(service.Dienstleistung)
+        services_list.sort()
 
-    # Profilbild zur Darstellung aus der Datenbank laden. 
-    # Existiert das Bild nicht, wird ein Platzhalter aus dem static Verzeichnis geladen
-    if current_profile.profilbild != None:
-        profile_image = b64encode(current_profile.profilbild).decode('utf-8')
-    else:
-        here = os.path.dirname(os.path.abspath(__file__))
-        filename = os.path.join(here, 'static/img/placeholder_flat.jpg')
-        with open(filename, 'rb') as imagefile:
-            profile_image = b64encode(imagefile.read()).decode('utf-8')
+        # erzeugt Dictionary mit den Dienstleistungen des Profils, welches aufsteigend nach Values (name der Dienstleistung) sortiert wird
+        profile_services_dict = get_services_for_provider(current_user.id)
 
-    # initialisierung der FlaskForms
-    profile_image_form = AddProfileImageForm()
-    profile_body_form = ChangeProfileBodyForm(profilbeschreibung=current_profile.profilbeschreibung)
-    image_gallery_form = AddImageForm()
-    service_form = SelectServiceForm()
-    service_form.service.choices = services_list
+        # Profilbild zur Darstellung aus der Datenbank laden. 
+        # Existiert das Bild nicht, wird ein Platzhalter aus dem static Verzeichnis geladen
+        if current_profile.profilbild != None:
+            profile_image = b64encode(current_profile.profilbild).decode('utf-8')
+        else:
+            here = os.path.dirname(os.path.abspath(__file__))
+            filename = os.path.join(here, 'static/img/placeholder_flat.jpg')
+            with open(filename, 'rb') as imagefile:
+                profile_image = b64encode(imagefile.read()).decode('utf-8')
 
-    if profile_image_form.validate_on_submit():
-        current_profile.profilbild = profile_image_form.profile_img.data.read()
-        db.session.commit()
-        return redirect(url_for('views.change_service_provider_profile'))
+        # initialisierung der FlaskForms
+        profile_image_form = AddProfileImageForm()
+        profile_body_form = ChangeProfileBodyForm(profilbeschreibung=current_profile.profilbeschreibung)
+        image_gallery_form = AddImageForm()
+        service_form = SelectServiceForm()
+        service_form.service.choices = services_list
 
-    if image_gallery_form.validate_on_submit():
-        new_gallery_image = image_gallery_form.img.data.read()
-        new_gallery_item= DienstleisterProfilGalerie(
-            dienstleister_id = current_user.id,
-            galerie_bild = new_gallery_image
-        )
-        db.session.add(new_gallery_item)
-        db.session.commit()
-        return redirect(url_for('views.change_service_provider_profile'))
-
-    if service_form.validate_on_submit():
-        try:
-            current_service_provider.relation.append(Dienstleistung.query.filter_by(Dienstleistung=service_form.service.data).first())
+        if profile_image_form.validate_on_submit():
+            current_profile.profilbild = profile_image_form.profile_img.data.read()
             db.session.commit()
-        except:
-            pass
-        finally:
             return redirect(url_for('views.change_service_provider_profile'))
 
-    if profile_body_form.validate_on_submit():
-        current_profile.profilbeschreibung = profile_body_form.profilbeschreibung.data
-        db.session.commit()
-        return redirect(url_for('views.change_service_provider_profile'))
+        if image_gallery_form.validate_on_submit():
+            new_gallery_image = image_gallery_form.img.data.read()
+            new_gallery_item= DienstleisterProfilGalerie(
+                dienstleister_id = current_user.id,
+                galerie_bild = new_gallery_image
+            )
+            db.session.add(new_gallery_item)
+            db.session.commit()
+            return redirect(url_for('views.change_service_provider_profile'))
 
-    return render_template(
-        "change_business_profile.html",
-        profile_image_form=profile_image_form,
-        profile_body_form=profile_body_form,
-        profile_image=profile_image,
-        service_form=service_form,
-        profile_services_dict=profile_services_dict,
-        image_gallery_form=image_gallery_form,
-        gallery_images=gallery_images
-        )
+        if service_form.validate_on_submit():
+            try:
+                current_service_provider.relation.append(Dienstleistung.query.filter_by(Dienstleistung=service_form.service.data).first())
+                db.session.commit()
+            except:
+                pass
+            finally:
+                return redirect(url_for('views.change_service_provider_profile'))
+
+        if profile_body_form.validate_on_submit():
+            current_profile.profilbeschreibung = profile_body_form.profilbeschreibung.data
+            db.session.commit()
+            return redirect(url_for('views.change_service_provider_profile'))
+
+        return render_template(
+            "change_business_profile.html",
+            profile_image_form=profile_image_form,
+            profile_body_form=profile_body_form,
+            profile_image=profile_image,
+            service_form=service_form,
+            profile_services_dict=profile_services_dict,
+            image_gallery_form=image_gallery_form,
+            gallery_images=gallery_images
+            )
 
 
 @views.route('/profile/service_provider/<id>',methods=['POST', 'GET'])
@@ -234,7 +240,6 @@ def view_service_provider_profile(id):
 @views.route('/remove_service/<int:service_id>',methods=['POST', 'GET'])
 @login_required
 def remove_service(service_id):
-    print(service_id)
     current_service_provider = Dienstleister.query.filter_by(dienstleister_id=current_user.id).first()
     current_service_provider.relation.remove(Dienstleistung.query.filter_by(dienstleistung_id=service_id).first())
     db.session.commit()
@@ -299,7 +304,7 @@ def view_order():
 
 @views.route('/search/<int:service_id>', methods=['GET', 'POST'])
 @login_required
-def search_service(service_id):
+def search_service_providers(service_id):
 
     
     query_params = request.args.to_dict()
@@ -365,7 +370,7 @@ def search_service(service_id):
 
 @views.route('/search/<category1>', methods=['GET'])
 @login_required
-def select_service(category1):
+def view_services(category1):
     services = Dienstleistung.query.filter_by(kategorieebene1=category1).all()
     services_dict = {}
     for service in services:
@@ -418,44 +423,53 @@ def request_quotation(id):
         )
 
 
-@views.route('/order-details/<id>', methods=['POST', 'GET'])
+@views.route('/order-details/<id>', methods=['GET','POST'])
 @login_required
 def view_order_details(id):
     service_order = ServiceOrder(id)
 
-    quotation_button = ProcessQuotation()
-    if quotation_button.validate_on_submit():
-        return redirect(url_for('views.create_quotation', id=id))
+    #quotation_button = ProcessQuotation()
+    accept_radio = AcceptQuotation()
+    cancel_checkbox = CancelOrder()
+    complete_checkbox = CompleteOrder()
 
-    if request.method == 'POST':
-        if request.form.get('options') == 'accept':
+
+
+    if accept_radio.validate_on_submit():
+        if accept_radio.accept_selection.data == 'accept':
             service_order.order_details.Status = ServiceOrderStatus.quotation_confirmed.value
             db.session.commit()
             flash("Angebot angenommen.")
             return redirect(url_for('views.view_order_details', id=id))
-        if request.form.get('options') == 'reject':
+        elif accept_radio.accept_selection.data == 'reject':
             service_order.order_details.Status = ServiceOrderStatus.rejected_by_customer.value
             db.session.commit()
             flash("Angebot wurde abgelehnt.")
             return redirect(url_for('views.view_order_details', id=id))
-        if request.form.get('back') == 'back_to_overview':
-            return redirect(url_for('views.view_order'))
 
-        if request.form.get('confirm_complete') == 'complete':
-            service_order.order_details.Status = ServiceOrderStatus.completed.value
-            db.session.commit()
-            flash("Auftrag erfolgreich beendet.")
-            return redirect(url_for('views.view_order'))
-        if request.form.get('cancel_order') == 'cancelled':
+    if cancel_checkbox.validate_on_submit():
+        if cancel_checkbox.cancel_order.data == True:
             service_order.order_details.Status = ServiceOrderStatus.cancelled.value
             db.session.commit()
             flash("Auftrag erfolgreich storniert.")
             return redirect(url_for('views.view_order'))
 
-
+    if complete_checkbox.validate_on_submit():
+        if complete_checkbox.complete_order.data == True:
+            service_order.order_details.Status = ServiceOrderStatus.completed.value
+            db.session.commit()
+            flash("Auftrag erfolgreich beendet.")
+            return redirect(url_for('views.view_order'))
 
     
-    return render_template('order-details.html', service_order=service_order, quotation_button=quotation_button, ServiceOrderStatus=ServiceOrderStatus)
+    return render_template('order-details.html', 
+        service_order=service_order,
+        accept_radio=accept_radio,
+        cancel_checkbox=cancel_checkbox,
+        complete_checkbox=complete_checkbox,
+        ServiceOrderStatus=ServiceOrderStatus
+        )
+
 
 @views.route('/confirm_order/<id>', methods=['POST', 'GET'])
 @login_required
@@ -472,9 +486,9 @@ def confirm_order(id):
             d_bewertung = confirm_form.rating.data)
         db.session.add(rating)
         db.session.commit() 
-        confirm_order.order_details.Status = ServiceOrderStatus.completed.value
+        confirm_order.order_details.Status = ServiceOrderStatus.service_confirmed.value
         db.session.commit()
-        flash("Die Dienstleistung wurde abgenommen und der Auftrag abgeschlossen.")
+        flash("Die Dienstleistung wurde abgenommen. Der Dienstleister kann den Auftrag nun abschließen.")
         return redirect(url_for('views.view_order_details', id=id)) 
 
     return render_template(
@@ -483,13 +497,14 @@ def confirm_order(id):
         confirm_form = confirm_form
         )
 
+
 @views.route('/quote/<id>', methods=['POST', 'GET'])
 @login_required
 def create_quotation(id):
     service_order = ServiceOrder(id)
     quotation_form = CreateQuotation()
     if quotation_form.validate_on_submit():
-        quotation_price = round(quotation_form.quote.data, 2)
+        quotation_price = str(round(quotation_form.quote.data, 2))
         service_finish = quotation_form.service_finish.data
         service_order.order_details.Status = ServiceOrderStatus.quotation_available.value
         service_order.order_details.Preis =quotation_price

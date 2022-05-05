@@ -24,7 +24,7 @@
     <div class="gallery">
         <div class="row">
             {% for category in categories %}
-            <a href="{{ url_for('views.select_service', category1=category) }}">
+            <a href="{{ url_for('views.view_services', category1=category) }}">
                 <div class="panel panel-default service-category">
                     {{ category }}
                 </div>
