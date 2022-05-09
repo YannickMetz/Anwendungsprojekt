@@ -107,5 +107,4 @@ class CompleteOrder(FlaskForm):
 class SearchFilterForm(FlaskForm):
     service_date = DateField(label="Dienstleisterverfügbarkeit berücksichtigen", format='%Y-%m-%d')
     rating = SelectField(label="Bewertung mindestens (1 - schlecht bis 5 - Sehr gut):", coerce=int)
-
     submit_filter = SubmitField("Filter setzen")
