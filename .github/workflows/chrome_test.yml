@@ -7,10 +7,11 @@ on:
 
 jobs:
   selenium:
+    strategy:
+      fail-fast: false
       matrix:
         os: [windows-latest, macos-latest]
         browser: [chrome]
-      matrix:
         python-version: ["3.8", "3.9", "3.10"]
 
   runs-on: ${{ matrix.os }}
