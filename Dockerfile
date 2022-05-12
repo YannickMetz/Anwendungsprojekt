@@ -9,7 +9,7 @@ COPY . .
 
 #Install the dependencies
 RUN apt-get -y update
-RUN apt-get update && apt-get install -y python3 python3-pip openssh
+RUN apt-get update && apt-get install -y python3 python3-pip && apt-get install openssh-server sudo -y
 RUN pip3 install -r requirements.txt
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 
