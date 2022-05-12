@@ -1,4 +1,4 @@
-name: chrome_test
+name: Chrome
 
 on:
   push:
