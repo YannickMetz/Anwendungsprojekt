@@ -26,7 +26,7 @@
                 {% if current_user.is_authenticated %}
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-                        aria-expanded="false">{{ current_user.email}} <span class="caret"></span></a>
+                        aria-expanded="false" id="actions">{{ current_user.email}} <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li><a href="{{url_for('views.view_order')}}">Aufträge anzeigen</a></li>
                         <li><a href="{{url_for('auth.changepw')}}">Passwort ändern</a></li>
