@@ -7,8 +7,6 @@ on:
 
 jobs:
   selenium:
-    strategy:
-      fail-fast: false
       matrix:
         os: [windows-latest, macos-latest]
         browser: [chrome]
