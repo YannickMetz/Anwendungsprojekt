@@ -125,7 +125,7 @@ def add_profile_image(service_provider_id, image_id):
 
 
 def create_service_orders(order_count, available_services, provider_lower, provider_upper, customer_lower, customer_upper):
-    for order_id in range(0, order_count):
+    for order_id in range(1, order_count):
         start_date = datetime.now() - timedelta(weeks = random.randrange(1,12))
         end_date = start_date + timedelta(days = random.randrange(1,5))
         service_order = Auftrag(
