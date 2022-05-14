@@ -1,5 +1,5 @@
 import pytest, sys
-sys.path.append('../app')
+sys.path.append('../app/')
 from app import create_app, db
 
 
