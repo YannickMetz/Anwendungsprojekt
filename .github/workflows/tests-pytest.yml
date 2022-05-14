@@ -4,8 +4,8 @@
 name: Python pytest
 
 on:
-  push:
-    branches: [ Developerstory41 ]
+  pull_request:
+    branches: [ master ]
 
 
 permissions:
