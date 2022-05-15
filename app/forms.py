@@ -51,7 +51,7 @@ class RegisterBusinessForm(FlaskForm):
     password_repeated = PasswordField(label="Passwort wiederholen", validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField("Registrierung abschließen")
 
-class ChangePasswordForm(FlaskForm):
+class ChangePasswordFormTest(FlaskForm):
     old_pw = PasswordField(label="Altes Passwort", validators=[DataRequired()])
     new_pw = PasswordField(label="Neues Passwort", validators=[DataRequired()])
     new_pw_repeated = PasswordField(label="Neues Passwort wiederholen", validators=[DataRequired()])
