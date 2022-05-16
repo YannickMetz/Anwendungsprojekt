@@ -69,4 +69,5 @@ jobs:
       - name: execute py script 
         run: |
           pythonw main.py
+          start-sleep -seconds 10
           python tests_selenium/test_01_register.py
