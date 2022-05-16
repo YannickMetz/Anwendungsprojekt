@@ -19,12 +19,12 @@ jobs:
       - uses: actions/checkout@v3
 
       - uses: browser-actions/setup-chrome@latest
-        if: ${{ matrix.os == 'ubuntu' || 'windows'}}
+        if: ${{ matrix.os }} == ('ubuntu' || 'windows')
       - run: chrome --version
         
 
       - uses: browser-actions/setup-chrome@latest
-        if: ${{ matrix.os == 'macos' }}
+        if: ${{ matrix.os }}  == 'macos' 
       - run: chromium --version
       
 
@@ -43,5 +43,5 @@ jobs:
 
       - name: execute py script 
         run: |
-          nohup python main.py &
+          python main.py &
           python tests_selenium/test_01_register.py

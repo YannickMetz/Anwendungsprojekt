@@ -1,5 +1,4 @@
-from msilib.schema import Environment
-import os
+
 from app import create_app
 
 app = create_app()
