@@ -5,6 +5,7 @@ import time
 
 def reset_db():
     os.system("flask mockdata reset-db")
+    time.sleep(10)
 
 def register_customer(driver):
     driver.get('http://127.0.0.1:5000/')
