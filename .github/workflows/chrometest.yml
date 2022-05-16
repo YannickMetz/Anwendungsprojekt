@@ -33,4 +33,4 @@ jobs:
 
       - name: execute py script 
         run: |
-          python test_01_register.py
+          python .\test_01_register.py
