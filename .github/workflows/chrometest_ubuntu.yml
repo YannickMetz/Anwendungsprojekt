@@ -101,5 +101,5 @@ jobs:
 
       - name: execute py script 
         run: |
-          python main.py
+          python main.py &
           python tests_selenium/test_01_register.py
