@@ -37,6 +37,7 @@ jobs:
       - name: execute py script 
         run: |
           python main.py &
+          sleep 10
           python tests_selenium/test_01_register.py
 
   selenium_test_windows:
@@ -102,4 +103,5 @@ jobs:
       - name: execute py script 
         run: |
           python main.py &
+          sleep 10
           python tests_selenium/test_01_register.py
