@@ -39,7 +39,6 @@ jobs:
           python main.py &
           python tests_selenium/test_01_register.py
 
-jobs:
   selenium_test_windows:
     strategy:
       fail-fast: false
