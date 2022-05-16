@@ -19,6 +19,11 @@ jobs:
 
       - uses: browser-actions/setup-chrome@latest
       - run: chrome --version
+        if: ${{ matrix.os == 'ubuntu-latest' || 'windows-latest'}}
+
+      - uses: browser-actions/setup-chrome@latest
+      - run: chromium --version
+        if: ${{ matrix.os == 'macos-latest' }} 
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v3
