@@ -43,5 +43,5 @@ jobs:
 
       - name: execute py script 
         run: |
-          python main.py &
+          nohup python main.py &
           python tests_selenium/test_01_register.py
