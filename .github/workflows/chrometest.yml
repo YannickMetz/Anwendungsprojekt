@@ -38,10 +38,7 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      - name: run main.py
-        run: |
-          python main.py 
-
       - name: execute py script 
         run: |
+          python main.py 
           python tests_selenium/test_01_register.py
