@@ -1,7 +1,6 @@
-from importlib_metadata import metadata
+
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.by import By
-from sqlalchemy import create_engine, MetaData, table
 import os
 import time
 
