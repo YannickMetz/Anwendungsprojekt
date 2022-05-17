@@ -76,9 +76,8 @@ jobs:
 
       - name: start flask application
         run: |
-          Start-Job -ScriptBlock{python .\main.py}
+          Start-process -FilePath  python .\main.py
           
-
       - name: reset db   
         run: |
           flask mockdata reset-db 
