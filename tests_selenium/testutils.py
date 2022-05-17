@@ -1,11 +1,14 @@
+from importlib_metadata import metadata
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.by import By
+from sqlalchemy import create_engine, MetaData, table
 import os
 import time
 
-def reset_db():
-    os.system("flask mockdata reset-db")
-    time.sleep(10)
+#def reset_db():
+#    engine = create_engine('sqlite:///app/main_db.db')
+#    conn = engine.connect()
+#    conn.execute("""drop table User""")
 
 def register_customer(driver):
     driver.get('http://127.0.0.1:5000/')
