@@ -76,7 +76,8 @@ jobs:
 
       - name: start flask application
         run: |
-          python .\main.py &
+          start-job -scriptblock{python .\main.py}
+          start-sleep -Seconds 10
           
       - name: reset db   
         run: |
