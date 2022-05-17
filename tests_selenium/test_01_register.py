@@ -21,7 +21,7 @@ class register_test(unittest.TestCase, unittest.TextTestResult):
 
     def setUp(self):
         #driver für nachfolgende funktionen definieren
-        self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+        self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
 
     def test_register_customer(self):
         driver = self.driver

@@ -25,6 +25,7 @@ def register_customer(driver):
     driver.find_element(By.ID, "password").send_keys("test1234")
     driver.find_element(By.ID, "password_repeated").send_keys("test1234")
     driver.find_element(By.ID, "submit").click()
+    time.sleep(10)
 
 def register_service_provider(driver):
     driver.get('http://127.0.0.1:5000/')

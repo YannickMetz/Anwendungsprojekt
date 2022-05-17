@@ -76,7 +76,7 @@ jobs:
 
       - name: start flask application
         run: |
-          python main.py
+          pythonw main.py &
           start-sleep -seconds 10
 
       - name: reset db   
