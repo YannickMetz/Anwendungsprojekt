@@ -85,7 +85,7 @@ jobs:
 
       - name: execute test script 
         run: |
-          python tests_selenium/test_01_register.py
+          Test-NetConnection -ComputerName 127.0.0.1 -Port 5000
 
   selenium_test_macos:
     strategy:
