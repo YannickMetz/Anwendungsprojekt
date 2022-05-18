@@ -15,9 +15,6 @@ chrome_options = Options()
 chrome_options.add_argument("--headless")
 
 class register_test(unittest.TestCase, unittest.TextTestResult):
-    @classmethod
-    def setUpClass(cls):
-        testutils.reset_db()
 
     def setUp(self):
         #driver für nachfolgende funktionen definieren
