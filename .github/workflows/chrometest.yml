@@ -3,8 +3,7 @@ name: Chrome
 
 on:
   pull_request:
-    branches:
-      - Master
+    branches: [ master ]
 
 jobs:
   selenium_test_ubuntu:
