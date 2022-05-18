@@ -77,6 +77,7 @@ jobs:
       - name: start flask application
         run: |
           pwd
+          dir
           start-sleep -Seconds 10
           
 
