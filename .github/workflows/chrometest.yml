@@ -2,8 +2,8 @@
 name: Selenium
 
 on:
-  pull_request:
-    branches: [ master ]
+  push:
+    branches: [ Developerstory39 ]
 
 jobs:
   selenium_test_ubuntu:
@@ -45,6 +45,7 @@ jobs:
       - name: execute test script 
         run: |
           python tests_selenium/test_01_register.py
+          python tests_selenium/test_02_login.py
           
 
   selenium_test_windows:
@@ -80,7 +81,8 @@ jobs:
           start-sleep -Seconds 2
           flask mockdata reset-db 
           start-sleep -Seconds 2
-          python tests_selenium/test_01_register.py  
+          python tests_selenium/test_01_register.py 
+          python tests_selenium/test_02_login.py 
 
   selenium_test_macos:
     strategy:
@@ -121,3 +123,4 @@ jobs:
       - name: execute test script 
         run: |
           python tests_selenium/test_01_register.py
+          python tests_selenium/test_02_login.py
