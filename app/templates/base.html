@@ -31,8 +31,8 @@
                         <li><a href="{{url_for('views.view_order')}}">Aufträge anzeigen</a></li>
                         <li><a href="{{url_for('auth.changepw')}}">Passwort ändern</a></li>
                         {% if current_user.role == 'Dienstleister' %}
-                        <li><a href="{{url_for('views.view_service_provider_profile',id=current_user.id)}}">Profil anzeigen</a></li>
-                        <li><a href="{{url_for('views.change_service_provider_profile')}}">Profil bearbeiten</a></li>
+                        <li><a href="{{url_for('views.view_service_provider_profile',id=current_user.id)}}" id="show_profile">Profil anzeigen</a></li>
+                        <li><a href="{{url_for('views.change_service_provider_profile')}}" id="change_profile">Profil bearbeiten</a></li>
                         {% endif %}
                         <li role="separator" class="divider"></li>
                         <li><a href="{{url_for('auth.logout')}}" id="logout">Ausloggen</a></li>

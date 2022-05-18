@@ -38,9 +38,9 @@ jobs:
           python main.py &
           sleep 2s
 
-      - name: reset db   
+      - name: init db  
         run: |
-          flask mockdata reset-db 
+          flask mockdata init-mockdata
 
       - name: execute test scripts 
         run: |
@@ -77,11 +77,11 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      - name: start flask application, reset db and start testing
+      - name: start flask application, init db and start testing
         run: |
           start-job -scriptblock{python.exe "D:\a\Anwendungsprojekt\Anwendungsprojekt\main.py"}
           start-sleep -Seconds 2
-          flask mockdata reset-db 
+          flask mockdata init-mockdata
           start-sleep -Seconds 2
           write-host("testing registration")
           python tests_selenium/test_01_register.py
@@ -120,9 +120,9 @@ jobs:
           python main.py &
           sleep 10s
 
-      - name: reset db
+      - name: init db
         run: |
-          flask mockdata reset-db
+          flask mockdata init-mockdata
 
       - name: execute test scripts
         run: |

@@ -1,4 +1,5 @@
 
+from numpy import source
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.by import By
 import os
@@ -57,3 +58,9 @@ def login_service_provider(driver):
     driver.find_element(By.ID, "password").send_keys("test1234")
     driver.find_element(By.ID, "submit").click()
     
+def create_profile(driver):
+    driver.get('http://127.0.0.1:5000/')
+    driver.find_element(By.ID, "actions").click()
+    driver.find_element(By.ID, "change_profile").click()
+    
+
