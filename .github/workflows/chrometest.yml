@@ -76,16 +76,9 @@ jobs:
 
       - name: start flask application
         run: |
-          start-job -scriptblock{python .\main.py}
+          pwd
           start-sleep -Seconds 10
           
-      - name: reset db   
-        run: |
-          flask mockdata reset-db 
-
-      - name: execute test script 
-        run: |
-          python tests_selenium/test_01_register.py
 
   selenium_test_macos:
     strategy:
