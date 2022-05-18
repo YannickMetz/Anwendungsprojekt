@@ -78,8 +78,6 @@ jobs:
         run: |
           start-job -scriptblock{python.exe "D:\a\Anwendungsprojekt\Anwendungsprojekt\main.py"}
           start-sleep -Seconds 2
-          get-job
-          start-sleep -Seconds 2
           flask mockdata reset-db 
           start-sleep -Seconds 2
           python tests_selenium/test_01_register.py  
