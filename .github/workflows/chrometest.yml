@@ -81,7 +81,9 @@ jobs:
           start-sleep -Seconds 2
           flask mockdata reset-db 
           start-sleep -Seconds 2
-          python tests_selenium/test_01_register.py 
+          write-host("testing registration")
+          python tests_selenium/test_01_register.py
+          write-host("testing login")
           python tests_selenium/test_02_login.py 
 
   selenium_test_macos:
@@ -116,11 +118,10 @@ jobs:
           python main.py &
           sleep 2s
 
-      - name: reset db   
+      - name: reset db
         run: |
           flask mockdata reset-db 
 
       - name: execute test script 
         run: |
           python tests_selenium/test_01_register.py
-          python tests_selenium/test_02_login.py
