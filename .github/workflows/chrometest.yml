@@ -44,7 +44,9 @@ jobs:
 
       - name: execute test scripts 
         run: |
+          echo testing registration
           python tests_selenium/test_01_register.py
+          echo testing login
           python tests_selenium/test_02_login.py
           
 
@@ -124,5 +126,7 @@ jobs:
 
       - name: execute test scripts
         run: |
+          echo testing registration
           python tests_selenium/test_01_register.py
+          echo testing login
           python tests_selenium/test_02_login.py
