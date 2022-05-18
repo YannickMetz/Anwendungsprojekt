@@ -42,7 +42,7 @@ jobs:
         run: |
           flask mockdata reset-db 
 
-      - name: execute test script 
+      - name: execute test scripts 
         run: |
           python tests_selenium/test_01_register.py
           python tests_selenium/test_02_login.py
@@ -79,8 +79,10 @@ jobs:
         run: |
           start-job -scriptblock{python.exe "D:\a\Anwendungsprojekt\Anwendungsprojekt\main.py"}
           start-sleep -Seconds 2
+      - name: reset db 
           flask mockdata reset-db 
           start-sleep -Seconds 2
+      - name: execute test scripts
           write-host("testing registration")
           python tests_selenium/test_01_register.py
           write-host("testing login")
@@ -122,7 +124,7 @@ jobs:
         run: |
           flask mockdata reset-db
 
-      - name: execute test script 
+      - name: execute test scripts
         run: |
           python tests_selenium/test_01_register.py
           python tests_selenium/test_02_login.py
