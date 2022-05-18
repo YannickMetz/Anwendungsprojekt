@@ -4,11 +4,6 @@ from selenium.webdriver.common.by import By
 import os
 import time
 
-#def reset_db():
-#    engine = create_engine('sqlite:///app/main_db.db')
-#    conn = engine.connect()
-#    conn.execute("""drop table User""")
-
 def register_customer(driver):
     driver.get('http://127.0.0.1:5000/')
     time.sleep(10)

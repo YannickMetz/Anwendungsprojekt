@@ -1,0 +1,58 @@
+
+name: Selenium
+
+on:
+  push:
+    branches: [ Developerstory39 ]
+
+jobs:
+  selenium_test_register:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.9"]
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: install chrome browser
+        if: ${{ matrix.os == 'ubuntu-latest' && 'windows-latest' }}
+        uses: browser-actions/setup-chrome@latest
+        run: chrome --version
+        if: ${{ matrix.os == 'macos-latest' }}
+        run: chromium --version
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+
+      - name: Install requirements.txt
+        run: |
+          pip install -r requirements.txt
+
+      - name: start flask application
+        if: ${{ matrix.os == 'ubuntu-latest' && 'macos-latest' }}
+        run: |
+          python main.py &
+          sleep 2s
+          flask mockdata reset-db 
+          sleep 2s
+          python tests_selenium/test_01_register.py
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: |
+          start-job -scriptblock{python.exe "D:\a\Anwendungsprojekt\Anwendungsprojekt\main.py"}
+          start-sleep -Seconds 2
+          flask mockdata reset-db 
+          start-sleep -Seconds 2
+          python tests_selenium/test_01_register.py  
+
+          
+
+  

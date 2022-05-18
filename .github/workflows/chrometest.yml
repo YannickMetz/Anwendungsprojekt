@@ -1,5 +1,5 @@
 
-name: Chrome
+name: Selenium
 
 on:
   pull_request:
@@ -36,7 +36,7 @@ jobs:
       - name: start flask application
         run: |
           python main.py &
-          sleep 10s
+          sleep 2s
 
       - name: reset db   
         run: |
@@ -45,6 +45,7 @@ jobs:
       - name: execute test script 
         run: |
           python tests_selenium/test_01_register.py
+          
 
   selenium_test_windows:
     strategy:
@@ -111,7 +112,7 @@ jobs:
       - name: start flask application
         run: |
           python main.py &
-          sleep 10s
+          sleep 2s
 
       - name: reset db   
         run: |
