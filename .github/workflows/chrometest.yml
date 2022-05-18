@@ -116,11 +116,12 @@ jobs:
       - name: start flask application
         run: |
           python main.py &
-          sleep 2s
+          sleep 10s
 
       - name: reset db
         run: |
-          flask mockdata reset-db 
+          flask mockdata reset-db
+          sleep 10s
 
       - name: execute test script 
         run: |
