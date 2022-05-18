@@ -87,6 +87,8 @@ jobs:
 
       - name: execute test script 
         run: |
+          get-job
+          start-sleep -Seconds 10
           python tests_selenium/test_01_register.py    
           
       
