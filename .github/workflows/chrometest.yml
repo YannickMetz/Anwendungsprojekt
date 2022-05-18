@@ -2,9 +2,9 @@
 name: Chrome
 
 on:
-  push:
+  pull_request:
     branches:
-      - Developerstory39
+      - Master
 
 jobs:
   selenium_test_ubuntu:
