@@ -16,7 +16,7 @@ class register_login_test(unittest.TestCase):
 
     def setUp(self):
         #driver für nachfolgende funktionen definieren
-        self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+        self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
 
     def test_request_quotation(self):
         driver = self.driver
