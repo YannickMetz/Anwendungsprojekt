@@ -66,6 +66,21 @@ def add_service(driver):
     driver.find_element(By.ID, "submit_service").click()
     Select(driver.find_element(By.ID, "service")).select_by_visible_text("Möbelaufbau")
     driver.find_element(By.ID, "submit_service").click()
-    time.sleep(5)
+
+def request_quotation(driver):
+    driver.get('http://127.0.0.1:5000/')
+    driver.find_element(By.ID, "Außen").click()
+    driver.find_element(By.ID, "Winterdienst").click()
+    driver.find_element(By.XPATH, "/html/body/div/div[2]/div[1]/div/div/div[1]/a").click()
+    driver.find_element(By.ID, "request_quotation").click()
+    Select(driver.find_element(By.ID, "service")).select_by_visible_text("Winterdienst")
+    driver.switch_to.frame(driver.find_element_by_tag_name("iframe"))
+    driver.find_element(By.XPATH, "/html/body/p").send_keys("Wir möchten gerne Winterdienst für unseren Hof buchen.")
+    driver.switch_to.default_content()
+    driver.find_element(By.ID, "service_start").send_keys("12152023")
+    driver.find_element(By.ID, "submit").click()
+    
+
+
     
 

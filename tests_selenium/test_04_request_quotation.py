@@ -18,14 +18,12 @@ class register_login_test(unittest.TestCase):
         #driver für nachfolgende funktionen definieren
         self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
 
-    def test_add_service(self):
+    def test_request_quotation(self):
         driver = self.driver
-        testutils.login_service_provider(driver)
-        assert "testdienstleister1@test.com" in driver.page_source
-        testutils.add_service(driver)
-        self.assertTrue(driver.find_element(By.ID, "Garten"))
-        self.assertTrue(driver.find_element(By.ID, "Fassade"))
-        self.assertTrue(driver.find_element(By.ID, "Möbelaufbau"))
+        testutils.login_customer(driver)
+        assert "testkunde1@test.com" in driver.page_source
+        testutils.request_quotation(driver)
+        assert "Angebotsanfrage erfolgreich übermittelt." in driver.page_source
 
     def tearDown(self):
         self.driver.close()
