@@ -52,7 +52,8 @@ jobs:
           python tests_selenium/test_03_add_service.py 
           echo requesting quotation
           python tests_selenium/test_04_request_quotation.py
-          
+          echo creating quotation
+          python tests_selenium/test_05_create_quotation.py
 
   selenium_test_windows:
     strategy:
@@ -95,6 +96,8 @@ jobs:
           python tests_selenium/test_03_add_service.py 
           write-host("requesting quotation")
           python tests_selenium/test_04_request_quotation.py
+          write-host("creating quotation")
+          python tests_selenium/test_05_create_quotation.py
 
   selenium_test_macos:
     strategy:
@@ -142,3 +145,5 @@ jobs:
           python tests_selenium/test_03_add_service.py 
           echo requesting quotation
           python tests_selenium/test_04_request_quotation.py
+          echo creating quotation
+          python tests_selenium/test_05_create_quotation.py
