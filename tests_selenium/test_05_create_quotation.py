@@ -20,10 +20,11 @@ class register_login_test(unittest.TestCase):
 
     def test_request_quotation(self):
         driver = self.driver
-        testutils.login_customer(driver)
-        assert "testkunde1@test.com" in driver.page_source
-        testutils.request_quotation(driver)
-        assert "Angebotsanfrage erfolgreich übermittelt." in driver.page_source
+        testutils.login_service_provider(driver)
+        assert "testdienstleister1@test.com" in driver.page_source
+        testutils.create_quotation(driver)
+        assert "Angebotspreis:" in driver.page_source
+        assert "300.00 €" in driver.page_source
 
     def tearDown(self):
         self.driver.close()

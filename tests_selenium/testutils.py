@@ -70,18 +70,32 @@ def add_service(driver):
 def request_quotation(driver):
     driver.get('http://127.0.0.1:5000/')
     driver.find_element(By.ID, "Außen").click()
-    driver.find_element(By.ID, "Winterdienst").click()
-    driver.find_element(By.XPATH, "/html/body/div/div[2]/div[1]/div/div/div[1]/a").click()
+    driver.find_element(By.ID, "Garten").click()
+    #Aufruf über XPATH da keine ID vergeben werden kann
+    driver.find_element(By.XPATH, "/html/body/div/div[2]/div[5]/div/div/div[1]/a").click()
     driver.find_element(By.ID, "request_quotation").click()
-    Select(driver.find_element(By.ID, "service")).select_by_visible_text("Winterdienst")
+    Select(driver.find_element(By.ID, "service")).select_by_visible_text("Garten")
     time.sleep(2)
     driver.switch_to.frame(driver.find_element_by_tag_name("iframe"))
-    driver.find_element(By.XPATH, "/html/body/p").send_keys("Wir möchten gerne Winterdienst für unseren Hof buchen.")
+    #Aufruf über XPATH da keine ID vergeben werden kann, Eingabe in Textfeld
+    driver.find_element(By.XPATH, "/html/body/p").send_keys("Wir möchten gerne einen Gärtner buchen.")
     driver.switch_to.default_content()
-    driver.find_element(By.ID, "service_start").send_keys("12152023")
+    #Datum im Datumsfeld eintragen 15.12.2023
+    driver.find_element(By.ID, "service_start").send_keys("15122023")
+    time.sleep(5)
     driver.find_element(By.ID, "submit").click()
     
-
-
+def create_quotation(driver):
+    driver.get('http://127.0.0.1:5000/')
+    driver.find_element(By.ID, "actions").click()
+    driver.find_element(By.ID, "show_orders").click()
+    time.sleep(5)
+    driver.find_element(By.ID, "Garten").click()
+    driver.find_element(By.ID, "create_quotation").click()
+    #Preis für den Auftrag festlegen, 300€
+    driver.find_element(By.ID, "quote").send_keys("300")
+    #Datum im Datumsfeld eintragen 01.02.2024
+    driver.find_element(By.ID, "service_finish").send_keys("02012024")
+    driver.find_element(By.ID, "submit").click()
     
 
