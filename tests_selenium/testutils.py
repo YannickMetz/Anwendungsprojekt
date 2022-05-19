@@ -75,6 +75,7 @@ def request_quotation(driver):
     driver.find_element(By.ID, "request_quotation").click()
     Select(driver.find_element(By.ID, "service")).select_by_visible_text("Winterdienst")
     driver.switch_to.frame(driver.find_element_by_tag_name("iframe"))
+    time.sleep(2)
     driver.find_element(By.XPATH, "/html/body/p").send_keys("Wir möchten gerne Winterdienst für unseren Hof buchen.")
     driver.switch_to.default_content()
     driver.find_element(By.ID, "service_start").send_keys("12152023")
