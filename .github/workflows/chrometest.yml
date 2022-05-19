@@ -48,6 +48,8 @@ jobs:
           python tests_selenium/test_01_register.py
           echo testing login
           python tests_selenium/test_02_login.py
+          echo adding a service
+          python tests_selenium/test_03_add_service.py 
           
 
   selenium_test_windows:
@@ -87,6 +89,8 @@ jobs:
           python tests_selenium/test_01_register.py
           write-host("testing login")
           python tests_selenium/test_02_login.py 
+          write-host("adding a service")
+          python tests_selenium/test_03_add_service.py 
 
   selenium_test_macos:
     strategy:
@@ -130,3 +134,5 @@ jobs:
           python tests_selenium/test_01_register.py
           echo testing login
           python tests_selenium/test_02_login.py
+          echo adding a service
+          python tests_selenium/test_03_add_service.py 

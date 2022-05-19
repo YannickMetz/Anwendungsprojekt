@@ -1,5 +1,3 @@
-
-from numpy import source
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.by import By
 import os
@@ -58,9 +56,16 @@ def login_service_provider(driver):
     driver.find_element(By.ID, "password").send_keys("test1234")
     driver.find_element(By.ID, "submit").click()
     
-def create_profile(driver):
+def add_service(driver):
     driver.get('http://127.0.0.1:5000/')
     driver.find_element(By.ID, "actions").click()
     driver.find_element(By.ID, "change_profile").click()
+    Select(driver.find_element(By.ID, "service")).select_by_visible_text("Garten")
+    driver.find_element(By.ID, "submit_service").click()
+    Select(driver.find_element(By.ID, "service")).select_by_visible_text("Fassade")
+    driver.find_element(By.ID, "submit_service").click()
+    Select(driver.find_element(By.ID, "service")).select_by_visible_text("Möbelaufbau")
+    driver.find_element(By.ID, "submit_service").click()
+    time.sleep(5)
     
 
