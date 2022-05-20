@@ -67,7 +67,7 @@ def add_service(driver):
     Select(driver.find_element(By.ID, "service")).select_by_visible_text("Möbelaufbau")
     driver.find_element(By.ID, "submit_service").click()
 
-def request_quotation(driver):
+def request_quotation_accept(driver):
     driver.get('http://127.0.0.1:5000/')
     driver.find_element(By.ID, "Außen").click()
     driver.find_element(By.ID, "Garten").click()
@@ -75,6 +75,7 @@ def request_quotation(driver):
     driver.find_element(By.XPATH, "/html/body/div/div[2]/div[5]/div/div/div[1]/a").click()
     driver.find_element(By.ID, "request_quotation").click()
     Select(driver.find_element(By.ID, "service")).select_by_visible_text("Garten")
+    #sleep um zu warten bis sich der iframe aufgebaut hat
     time.sleep(2)
     driver.switch_to.frame(driver.find_element_by_tag_name("iframe"))
     #Aufruf über XPATH da keine ID vergeben werden kann, Eingabe in Textfeld
@@ -82,14 +83,30 @@ def request_quotation(driver):
     driver.switch_to.default_content()
     #Datum im Datumsfeld eintragen 15.12.2023
     driver.find_element(By.ID, "service_start").send_keys("15122023")
-    time.sleep(5)
+    driver.find_element(By.ID, "submit").click()
+
+def request_quotation_reject(driver):
+    driver.get('http://127.0.0.1:5000/')
+    driver.find_element(By.ID, "Innen").click()
+    driver.find_element(By.ID, "Möbelaufbau").click()
+    #Aufruf über XPATH da keine ID vergeben werden kann
+    driver.find_element(By.XPATH, "/html/body/div/div[2]/div[3]/div/div/div[1]/a").click()
+    driver.find_element(By.ID, "request_quotation").click()
+    Select(driver.find_element(By.ID, "service")).select_by_visible_text("Möbelaufbau")
+    #sleep um zu warten bis sich der iframe aufgebaut hat
+    time.sleep(2)
+    driver.switch_to.frame(driver.find_element_by_tag_name("iframe"))
+    #Aufruf über XPATH da keine ID vergeben werden kann, Eingabe in Textfeld
+    driver.find_element(By.XPATH, "/html/body/p").send_keys("Wir brauchen hilfe zum Möbelaufbau.")
+    driver.switch_to.default_content()
+    #Datum im Datumsfeld eintragen 15.12.2023
+    driver.find_element(By.ID, "service_start").send_keys("15122023")
     driver.find_element(By.ID, "submit").click()
     
-def create_quotation(driver):
+def create_quotation_accept(driver):
     driver.get('http://127.0.0.1:5000/')
     driver.find_element(By.ID, "actions").click()
     driver.find_element(By.ID, "show_orders").click()
-    time.sleep(5)
     driver.find_element(By.ID, "Garten").click()
     driver.find_element(By.ID, "create_quotation").click()
     #Preis für den Auftrag festlegen, 300€
@@ -97,5 +114,35 @@ def create_quotation(driver):
     #Datum im Datumsfeld eintragen 01.02.2024
     driver.find_element(By.ID, "service_finish").send_keys("02012024")
     driver.find_element(By.ID, "submit").click()
-    
 
+def create_quotation_reject(driver):
+    driver.get('http://127.0.0.1:5000/')
+    driver.find_element(By.ID, "actions").click()
+    driver.find_element(By.ID, "show_orders").click()
+    driver.find_element(By.ID, "Möbelaufbau").click()
+    driver.find_element(By.ID, "create_quotation").click()
+    #Preis für den Auftrag festlegen, 300€
+    driver.find_element(By.ID, "quote").send_keys("75")
+    #Datum im Datumsfeld eintragen 01.02.2024
+    driver.find_element(By.ID, "service_finish").send_keys("02012024")
+    driver.find_element(By.ID, "submit").click()
+    
+def accept_quotation(driver):
+    driver.get('http://127.0.0.1:5000/')
+    driver.find_element(By.ID, "actions").click()
+    driver.find_element(By.ID, "show_orders").click()
+    #Angebotsdetails öffnen
+    driver.find_element(By.ID, "Garten").click()
+    #angebot annehmen
+    driver.find_element(By.ID, "accept_selection-0").click()
+    driver.find_element(By.ID, "submit_accept").click()
+
+def reject_quotation(driver):
+    driver.get('http://127.0.0.1:5000/')
+    driver.find_element(By.ID, "actions").click()
+    driver.find_element(By.ID, "show_orders").click()
+    #Angebotsdetails öffnen
+    driver.find_element(By.ID, "Möbelaufbau").click()
+    #angebot ablehnen
+    driver.find_element(By.ID, "accept_selection-1").click()
+    driver.find_element(By.ID, "submit_accept").click()
