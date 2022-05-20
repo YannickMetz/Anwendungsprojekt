@@ -54,6 +54,10 @@ jobs:
           python tests_selenium/test_04_request_quotation.py
           echo creating quotation
           python tests_selenium/test_05_create_quotation.py
+          echo accepting quotation
+          python tests_selenium/test_06_accept_quotation.py
+          echo rejecting quotation
+          python tests_selenium/test_07_reject_quotation.py
 
   selenium_test_windows:
     strategy:
@@ -98,6 +102,10 @@ jobs:
           python tests_selenium/test_04_request_quotation.py
           write-host("creating quotation")
           python tests_selenium/test_05_create_quotation.py
+          write-host("accepting quotation")
+          python tests_selenium/test_06_accept_quotation.py
+          write-host("rejecting quotation")
+          python tests_selenium/test_07_reject_quotation.py
 
   selenium_test_macos:
     strategy:
@@ -147,3 +155,7 @@ jobs:
           python tests_selenium/test_04_request_quotation.py
           echo creating quotation
           python tests_selenium/test_05_create_quotation.py
+          echo accepting quotation
+          python tests_selenium/test_06_accept_quotation.py
+          echo rejecting quotation
+          python tests_selenium/test_07_reject_quotation.py
