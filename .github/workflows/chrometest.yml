@@ -58,6 +58,12 @@ jobs:
           python tests_selenium/test_06_accept_quotation.py
           echo rejecting quotation
           python tests_selenium/test_07_reject_quotation.py
+          echo canceling order
+          python tests_selenium/test_08_cancel_order.py
+          echo confirming service
+          python tests_selenium/test_09_confirm_service.py
+          echo completing order
+          python tests_selenium/test_10_complete_order.py
 
   selenium_test_windows:
     strategy:
@@ -106,6 +112,12 @@ jobs:
           python tests_selenium/test_06_accept_quotation.py
           write-host("rejecting quotation")
           python tests_selenium/test_07_reject_quotation.py
+          write-host("canceling order")
+          python tests_selenium/test_08_cancel_order.py
+          write-host("confirming service")
+          python tests_selenium/test_09_confirm_service.py
+          write-host("completing order")
+          python tests_selenium/test_10_complete_order.py
 
   selenium_test_macos:
     strategy:
@@ -159,3 +171,9 @@ jobs:
           python tests_selenium/test_06_accept_quotation.py
           echo rejecting quotation
           python tests_selenium/test_07_reject_quotation.py
+          echo canceling order
+          python tests_selenium/test_08_cancel_order.py
+          echo confirming service
+          python tests_selenium/test_09_confirm_service.py
+          echo completing order
+          python tests_selenium/test_10_complete_order.py
