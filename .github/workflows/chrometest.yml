@@ -1,0 +1,179 @@
+
+name: Selenium
+
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  selenium_test_ubuntu:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ["3.9"]
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: browser-actions/setup-chrome@latest
+      - run: chrome --version
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+
+      - name: Install requirements.txt
+        run: |
+          pip install -r requirements.txt
+
+      - name: start flask application
+        run: |
+          python main.py &
+          sleep 2s
+
+      - name: init db  
+        run: |
+          flask mockdata init-mockdata
+
+      - name: execute test scripts 
+        run: |
+          echo testing registration
+          python tests_selenium/test_01_register.py
+          echo testing login
+          python tests_selenium/test_02_login.py
+          echo adding service
+          python tests_selenium/test_03_add_service.py 
+          echo requesting quotation
+          python tests_selenium/test_04_request_quotation.py
+          echo creating quotation
+          python tests_selenium/test_05_create_quotation.py
+          echo accepting quotation
+          python tests_selenium/test_06_accept_quotation.py
+          echo rejecting quotation
+          python tests_selenium/test_07_reject_quotation.py
+          echo canceling order
+          python tests_selenium/test_08_cancel_order.py
+          echo confirming service
+          python tests_selenium/test_09_confirm_service.py
+          echo completing order
+          python tests_selenium/test_10_complete_order.py
+
+  selenium_test_windows:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest]
+        python-version: ["3.9"]
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: browser-actions/setup-chrome@latest
+      - run: chrome --version
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+
+      - name: Install requirements.txt
+        run: |
+          pip install -r requirements.txt
+
+      - name: start flask application, init db and start testing
+        run: |
+          start-job -scriptblock{python.exe "D:\a\Anwendungsprojekt\Anwendungsprojekt\main.py"}
+          start-sleep -Seconds 2
+          flask mockdata init-mockdata
+          start-sleep -Seconds 2
+          write-host("testing registration")
+          python tests_selenium/test_01_register.py
+          write-host("testing login")
+          python tests_selenium/test_02_login.py 
+          write-host("adding service to profile")
+          python tests_selenium/test_03_add_service.py 
+          write-host("requesting quotation")
+          python tests_selenium/test_04_request_quotation.py
+          write-host("creating quotation")
+          python tests_selenium/test_05_create_quotation.py
+          write-host("accepting quotation")
+          python tests_selenium/test_06_accept_quotation.py
+          write-host("rejecting quotation")
+          python tests_selenium/test_07_reject_quotation.py
+          write-host("canceling order")
+          python tests_selenium/test_08_cancel_order.py
+          write-host("confirming service")
+          python tests_selenium/test_09_confirm_service.py
+          write-host("completing order")
+          python tests_selenium/test_10_complete_order.py
+
+  selenium_test_macos:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest]
+        python-version: ["3.9"]
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: browser-actions/setup-chrome@latest
+      - run: chromium --version
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+
+      - name: Install requirements.txt
+        run: |
+          pip install -r requirements.txt
+
+      - name: start flask application
+        run: |
+          python main.py &
+          sleep 10s
+
+      - name: init db
+        run: |
+          flask mockdata init-mockdata
+
+      - name: execute test scripts
+        run: |
+          echo testing registration
+          python tests_selenium/test_01_register.py
+          echo testing login
+          python tests_selenium/test_02_login.py
+          echo adding a service
+          python tests_selenium/test_03_add_service.py 
+          echo requesting quotation
+          python tests_selenium/test_04_request_quotation.py
+          echo creating quotation
+          python tests_selenium/test_05_create_quotation.py
+          echo accepting quotation
+          python tests_selenium/test_06_accept_quotation.py
+          echo rejecting quotation
+          python tests_selenium/test_07_reject_quotation.py
+          echo canceling order
+          python tests_selenium/test_08_cancel_order.py
+          echo confirming service
+          python tests_selenium/test_09_confirm_service.py
+          echo completing order
+          python tests_selenium/test_10_complete_order.py

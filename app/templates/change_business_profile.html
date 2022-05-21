@@ -48,7 +48,7 @@
             <div class="panel panel-default service">
                 <div class="panel-body ">
                     {{profile_services_dict[service]}}
-                    <a href="{{ url_for('views.remove_service', service_id=service) }}">
+                    <a href="{{ url_for('views.remove_service', service_id=service) }} ", id="{{ profile_services_dict[service] }}">
                         <svg xmlns="http://www.w3.org/2000/svg" class="remove-icon" width="24" height="24"
                             viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"
                             stroke-linejoin="round">

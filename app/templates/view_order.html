@@ -21,7 +21,7 @@
 <div class="container container-standard">
   <h1>Ihre offenen Aufträge:</h1>
   {% for service in service_orders_open %}
-      <a class="table-order-text" href="{{ url_for('views.view_order_details',id=service.order_details.id) }}">
+      <a class="table-order-text" href="{{ url_for('views.view_order_details',id=service.order_details.id) }}" id="{{ service.service.Dienstleistung }}">
         <div class="panel-default">
           <table class="table-order-overview">
             <div class="order-overview-section">
