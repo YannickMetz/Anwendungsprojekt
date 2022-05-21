@@ -431,7 +431,7 @@ def view_order_details(id):
     #quotation_button = ProcessQuotation()
     accept_radio = AcceptQuotation()
     cancel_checkbox = CancelOrder()
-    complete_checkbox = CompleteOrder()
+    #complete_checkbox = CompleteOrder()
 
 
 
