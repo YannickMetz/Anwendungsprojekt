@@ -76,7 +76,7 @@ def request_quotation_accept(driver):
     driver.find_element(By.ID, "request_quotation").click()
     Select(driver.find_element(By.ID, "service")).select_by_visible_text("Garten")
     #sleep um zu warten bis sich der iframe aufgebaut hat
-    time.sleep(2)
+    time.sleep(3)
     driver.switch_to.frame(driver.find_element_by_tag_name("iframe"))
     #Aufruf über XPATH da keine ID vergeben werden kann, Eingabe in Textfeld
     driver.find_element(By.XPATH, "/html/body/p").send_keys("Wir möchten gerne einen Gärtner buchen.")
@@ -94,7 +94,7 @@ def request_quotation_reject(driver):
     driver.find_element(By.ID, "request_quotation").click()
     Select(driver.find_element(By.ID, "service")).select_by_visible_text("Möbelaufbau")
     #sleep um zu warten bis sich der iframe aufgebaut hat
-    time.sleep(2)
+    time.sleep(3)
     driver.switch_to.frame(driver.find_element_by_tag_name("iframe"))
     #Aufruf über XPATH da keine ID vergeben werden kann, Eingabe in Textfeld
     driver.find_element(By.XPATH, "/html/body/p").send_keys("Wir brauchen hilfe zum Möbelaufbau.")
@@ -112,7 +112,7 @@ def request_quotation_confirm(driver):
     driver.find_element(By.ID, "request_quotation").click()
     Select(driver.find_element(By.ID, "service")).select_by_visible_text("Fassade")
     #sleep um zu warten bis sich der iframe aufgebaut hat
-    time.sleep(2)
+    time.sleep(3)
     driver.switch_to.frame(driver.find_element_by_tag_name("iframe"))
     #Aufruf über XPATH da keine ID vergeben werden kann, Eingabe in Textfeld
     driver.find_element(By.XPATH, "/html/body/p").send_keys("Wir brauchen hilfe bei unserere Fassade.")
