@@ -38,7 +38,6 @@ class register_test(unittest.TestCase, unittest.TextTestResult):
 
     def tearDown(self):
         self.driver.close()
-    
         
 if __name__ == "__main__":
     #warnings=ignore um unclosed socket warnung zu unterbinden
