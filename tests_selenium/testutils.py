@@ -1,6 +1,5 @@
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.by import By
-import os
 import time
 
 def register_customer(driver):
@@ -16,7 +15,7 @@ def register_customer(driver):
     driver.find_element(By.ID, "k_straße").send_keys("Musterstraße 13")
     driver.find_element(By.ID, "k_plz").send_keys("12345")
     driver.find_element(By.ID, "k_ort").send_keys("Musterstadt")
-    driver.find_element(By.ID, "email").send_keys("testkunde1@test.com")
+    driver.find_element(By.ID, "email").send_keys("testkunde1x@test.com")
     driver.find_element(By.ID, "password").send_keys("test1234")
     driver.find_element(By.ID, "password_repeated").send_keys("test1234")
     driver.find_element(By.ID, "submit").click()

@@ -4,13 +4,12 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 import unittest
 import testutils
-import time
 
 #deprecated befehle für hausarbeit beachten. umsetzung und quellen 
 #find_element_by.... ist jetzt find_element(By....)
 #chromedriver.exe nicht mehr notwendig. ChromeDriverManager läd automatisch den Chromedriver herunter.
 
-#headless mode für chromedriver 
+#headless mode for chromedriver 
 chrome_options = Options()
 chrome_options.add_argument("--headless")
 
