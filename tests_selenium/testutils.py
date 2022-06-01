@@ -4,7 +4,6 @@ import time
 
 def register_customer(driver):
     driver.get('http://127.0.0.1:5000/')
-    time.sleep(10)
     driver.find_element(By.ID, "register").click()
     #select funktion für dropdown menü
     Select(driver.find_element(By.ID, "role")).select_by_visible_text("Kunde")
@@ -19,11 +18,9 @@ def register_customer(driver):
     driver.find_element(By.ID, "password").send_keys("test1234")
     driver.find_element(By.ID, "password_repeated").send_keys("test1234")
     driver.find_element(By.ID, "submit").click()
-    time.sleep(10)
 
 def register_service_provider(driver):
     driver.get('http://127.0.0.1:5000/')
-    time.sleep(10)
     driver.find_element(By.ID, "register").click()
     #select funktion für dropdown menü
     Select(driver.find_element(By.ID, "role")).select_by_visible_text("Dienstleister")
