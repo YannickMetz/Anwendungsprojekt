@@ -11,7 +11,7 @@ import testutils
 chrome_options = Options()
 chrome_options.add_argument("--headless")
 
-class register_login_test(unittest.TestCase):
+class login_test(unittest.TestCase):
 
     def setUp(self):
         #driver für nachfolgende funktionen definieren
