@@ -13,7 +13,7 @@ import testutils
 chrome_options = Options()
 chrome_options.add_argument("--headless")
 
-class register_test(unittest.TestCase, unittest.TextTestResult):
+class register_test(unittest.TestCase):
 
     def setUp(self):
         #driver für nachfolgende funktionen definieren
