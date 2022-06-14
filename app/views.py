@@ -473,7 +473,7 @@ def confirm_order(id):
         receiver = confirm_order.service_provider_contact
         send_mail(receiver, ServiceOrderStatus.service_confirmed, confirm_order)
 
-        flash("Die Dienstleistung wurde abgenommen und der Auftrag abgeschlossen.")
+        flash("Die Dienstleistung wurde abgenommen. Der Dienstleister kann den Auftrag nun abschließen..")
         return redirect(url_for('views.view_order_details', id=id)) 
 
     return render_template(
