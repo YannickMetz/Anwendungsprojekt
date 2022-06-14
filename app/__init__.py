@@ -7,6 +7,7 @@ from os import path
 import os
 
 
+
 db = SQLAlchemy()
 DB_NAME = 'main_db.db'
 
@@ -18,17 +19,17 @@ def create_app():
     # second argument fallback, if DB specified in environment variable is not available, for example on local machine.
     # when using heroku, cannot use the standard database variable. Create second variable in the heroku config with URL beginning updated from "postgres://" to "postgresql://"
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    #app.config['WTF_CSRF_ENABLED'] = False
+    #app.config['WTF_CSRF_CHECK_DEFAULT'] = False
     db.init_app(app)
     from .auth import auth
     from .views import views
-    from .test_db_data import testdata
     from .mock_data import mockdata
     
     ckeditor = CKEditor(app)
     Bootstrap(app)
     app.register_blueprint(auth)
     app.register_blueprint(views)
-    app.register_blueprint(testdata)
     app.register_blueprint(mockdata)
 
 
