@@ -11,7 +11,7 @@ import requests, os, sys
 from datetime import date, datetime
 
 from .mail import send_mail
-from . forms import AddProfileImageForm, ChangeProfileBodyForm, AddImageForm, SelectServiceForm, RequestQuotationForm, CreateQuotation, ProcessQuotation, SearchFilterForm, RateServiceForm, AcceptQuotation, CompleteOrder, CancelOrder
+from . forms import AddProfileImageForm, ChangeProfileBodyForm, AddImageForm, SelectServiceForm, RequestQuotationForm, CreateQuotation, SearchFilterForm, RateServiceForm, AcceptQuotation, CompleteOrder, CancelOrder
 from . import db
 from .models import Dienstleisterbewertung, User, Dienstleisterprofil, Auftrag, DienstleisterProfilGalerie, Dienstleistung, Dienstleister, Kunde, Dienstleistung_Profil_association
 from base64 import b64encode
