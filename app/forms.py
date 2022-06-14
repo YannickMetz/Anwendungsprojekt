@@ -14,8 +14,6 @@ class FlexibleDecimalField(DecimalField):
            valuelist[0] = valuelist[0].replace(",", ".")
        return super(FlexibleDecimalField, self).process_formdata(valuelist) 
 
-
-
 class LoginForm(FlaskForm):
     email = StringField(label="Email", validators=[DataRequired()])
     password = PasswordField(label="Password", validators=[DataRequired()])

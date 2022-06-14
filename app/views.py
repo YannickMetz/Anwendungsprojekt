@@ -1,7 +1,7 @@
-import enum
 from itertools import groupby
 from posixpath import join
 from re import sub
+import re
 from flask import Flask, render_template, redirect, url_for, request, Blueprint, flash
 from sqlalchemy import dialects, or_
 from sqlalchemy.sql.expression import null, func
@@ -9,51 +9,17 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
 import requests, os, sys
 from datetime import date, datetime
-from . forms import AddProfileImageForm, ChangeProfileBodyForm, AddImageForm, SelectServiceForm, RequestQuotationForm, CreateQuotation, SearchFilterForm, RateServiceForm, AcceptQuotation, CancelOrder, CompleteOrder
+
+from .mail import send_mail
+from . forms import AddProfileImageForm, ChangeProfileBodyForm, AddImageForm, SelectServiceForm, RequestQuotationForm, CreateQuotation, SearchFilterForm, RateServiceForm, AcceptQuotation, CompleteOrder, CancelOrder
 from . import db
 from .models import Dienstleisterbewertung, User, Dienstleisterprofil, Auftrag, DienstleisterProfilGalerie, Dienstleistung, Dienstleister, Kunde, Dienstleistung_Profil_association
 from base64 import b64encode
 from enum import Enum
-
-
+from .classes import *
 
 views = Blueprint('views', __name__,template_folder='templates', static_folder='static')
 
-
-###### Classes ######
-
-class ServiceOrderStatus(Enum):
-    requested = "Übermittelt" # Kunde hat Angebot angefragt
-    rejected_by_service_provider = "Abgelehnt durch Dienstleister" # Kunde hat Angebot abgeleht
-    quotation_available = "Angebot verfügbar"
-    rejected_by_customer = "Abgelehnt durch Kunde" # Kunde hat Angebot abgeleht
-    quotation_confirmed = "Angebot bestätigt" # Kunde hat dem Angebot zugestimmt
-    cancelled = "Storniert" # Durch Dienstleister. Nach verbindlicher Annahme kann der Auftrag nicht fortgeführt werden. 
-    service_confirmed = "Abgenommen" # Kunde bestätigt, dass die geleistete Dienstleistung den Anforderungen entspricht
-    completed = "Abgeschlossen" # Dienstleister hat Auftrag abgeschlossen
-
-class ServiceOrder:
-    def __init__(self, order_id):
-        self.order_details = Auftrag.query.where(Auftrag.id == order_id).first()
-        self.customer = Kunde.query.where(Kunde.kunden_id == self.order_details.Kunde_ID).first()
-        self.service_provider = Dienstleister.query.where(Dienstleister.dienstleister_id == self.order_details.Dienstleister_ID).first()
-        self.service = Dienstleistung.query.where(Dienstleistung.dienstleistung_id == self.order_details.Dienstleistung_ID).first()
-        self.customer_contact = User.query.where(User.id == self.customer.kunden_id).first().email
-        self.service_provider_contact = User.query.where(User.id == self.service_provider.dienstleister_id).first().email
-
-        if Dienstleisterbewertung.query.where(Dienstleisterbewertung.auftrags_ID == order_id).first() != None:
-            self.customer_rating = Dienstleisterbewertung.query.where(Dienstleisterbewertung.auftrags_ID == order_id).first().d_bewertung
-        else:
-            self.customer_rating = " "
-
-        if self.order_details.Preis != None:
-            self.quoted_price = str("{:.2f}".format(float(self.order_details.Preis)) + " €")
-        else:
-            self.quoted_price = "wird bearbeitet"
-        if self.order_details.anfrage_bild != None:
-            self.customer_image = b64encode(self.order_details.anfrage_bild).decode('utf-8')
-        else:
-            self.customer_image = None
 
 ###### Functions ######
 
@@ -411,6 +377,11 @@ def request_quotation(id):
         db.session.add(new_service_order)
         db.session.commit()
 
+        #Empfänger Email herausfinden + email senden
+        open_order = ServiceOrder(new_service_order.id)
+        receiver = open_order.service_provider_contact
+        send_mail(receiver, ServiceOrderStatus.requested, open_order)
+
         flash("Angebotsanfrage erfolgreich übermittelt.")
         return redirect(url_for('views.home'))
 
@@ -440,10 +411,16 @@ def view_order_details(id):
             service_order.order_details.Status = ServiceOrderStatus.quotation_confirmed.value
             db.session.commit()
             flash("Angebot angenommen.")
+            #Empfänger Email herausfinden + email senden
+            receiver = service_order.service_provider_contact
+            send_mail(receiver, ServiceOrderStatus.quotation_confirmed, service_order)
             return redirect(url_for('views.view_order_details', id=id))
         elif accept_radio.accept_selection.data == 'reject':
             service_order.order_details.Status = ServiceOrderStatus.rejected_by_customer.value
             db.session.commit()
+            #Empfänger Email herausfinden + email senden
+            receiver = service_order.service_provider_contact
+            send_mail(receiver, ServiceOrderStatus.rejected_by_customer, service_order)
             flash("Angebot wurde abgelehnt.")
             return redirect(url_for('views.view_order_details', id=id))
 
@@ -451,6 +428,9 @@ def view_order_details(id):
         if cancel_checkbox.cancel_order.data == True:
             service_order.order_details.Status = ServiceOrderStatus.cancelled.value
             db.session.commit()
+            #Empfänger Email herausfinden + email senden
+            receiver = service_order.customer_contact
+            send_mail(receiver, ServiceOrderStatus.cancelled, service_order)
             flash("Auftrag erfolgreich storniert.")
             return redirect(url_for('views.view_order'))
 
@@ -488,7 +468,12 @@ def confirm_order(id):
         db.session.commit() 
         confirm_order.order_details.Status = ServiceOrderStatus.service_confirmed.value
         db.session.commit()
-        flash("Die Dienstleistung wurde abgenommen. Der Dienstleister kann den Auftrag nun abschließen.")
+
+        #Empfänger Email herausfinden + email senden
+        receiver = confirm_order.service_provider_contact
+        send_mail(receiver, ServiceOrderStatus.service_confirmed, confirm_order)
+
+        flash("Die Dienstleistung wurde abgenommen. Der Dienstleister kann den Auftrag nun abschließen..")
         return redirect(url_for('views.view_order_details', id=id)) 
 
     return render_template(
@@ -507,9 +492,14 @@ def create_quotation(id):
         quotation_price = str(round(quotation_form.quote.data, 2))
         service_finish = quotation_form.service_finish.data
         service_order.order_details.Status = ServiceOrderStatus.quotation_available.value
-        service_order.order_details.Preis =quotation_price
+        service_order.order_details.Preis = quotation_price
         service_order.order_details.Endzeitpunkt = service_finish
         db.session.commit()
+
+        #Empfänger Email herausfinden + email senden
+        receiver = service_order.customer_contact
+        send_mail(receiver, ServiceOrderStatus.quotation_available, service_order)
+
         return redirect(url_for('views.view_order_details', id=id))
 
 
