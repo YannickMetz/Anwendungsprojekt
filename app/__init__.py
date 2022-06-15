@@ -24,14 +24,12 @@ def create_app():
     db.init_app(app)
     from .auth import auth
     from .views import views
-    from .test_db_data import testdata
     from .mock_data import mockdata
     
     ckeditor = CKEditor(app)
     Bootstrap(app)
     app.register_blueprint(auth)
     app.register_blueprint(views)
-    app.register_blueprint(testdata)
     app.register_blueprint(mockdata)
 
 

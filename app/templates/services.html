@@ -6,7 +6,7 @@
     <div class="gallery">
         <div class="row">
             {% for service in services_dict %}
-            <a href="{{ url_for('views.search_service_providers', service_id=service) }}">
+            <a href="{{ url_for('views.search_service_providers', service_id=service) }}", id="{{ services_dict[service] }}">
                 <div class="panel panel-default service-category">
                     {{ services_dict[service] }}
                 </div>
