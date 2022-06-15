@@ -94,7 +94,6 @@ class Kundenprofil(db.Model):
     kunden_id = db.Column(db.Integer, db.ForeignKey("Kunde.kunden_id"), primary_key=True)
     profilbild = db.Column(db.LargeBinary)
 
-
 class Dienstleisterprofil(db.Model):
     __tablename__ = ("Dienstleisterprofil")
     dienstleister_rel = relationship("Dienstleister")
