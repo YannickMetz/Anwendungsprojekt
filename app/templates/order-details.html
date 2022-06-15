@@ -22,9 +22,13 @@
 {% if current_user.id == service_order.customer.kunden_id or current_user.id == service_order.service_provider.dienstleister_id%}
 <div class="container container-standard">
     <h1>Auftragsdetails</h1>
-    <form method="post">
-        <button type="submit" class="btn btn-custom-right" name="back" id="accept" value="back_to_overview">zurück zur Auftragsübersicht</button>
-    </form>
+    
+    <div class="order-back-btn">
+        <a href="{{ url_for('views.view_order') }}"> 
+            <button type="submit" class="btn btn-custom-right" name="back" id="overview" value="back_to_overview">zurück zur Auftragsübersicht</button>
+        </a>
+    </div>
+
     <table class="table-order-details">
         <tr>
             <td class="table-order-details-column-left">Auftragsnummer</td>
@@ -75,6 +79,10 @@
             <td class="table-order-details-column-left">Kontakt</td>
             <td class="table-order-details-column-right">{{ service_order.customer_contact }}</td>
         </tr>
+        <tr>
+            <td class="table-order-details-column-left">Auftragsbewertung durch Kunde</td>
+            <td class="table-order-details-column-right">{{ service_order.customer_rating }}</td>
+        </tr>
     </table>
     <br>
     <h1>Beschreibung der Anforderungen</h1>
@@ -121,62 +129,28 @@
         <br>
         {% if current_user.id == service_order.service_provider.dienstleister_id and service_order.order_details.Status == ServiceOrderStatus.requested.value %}
             <div>
-                {{ wtf.quick_form(quotation_button, novalidate=True, button_map={"submit": "custom"}) }}
+                <a href="{{ url_for('views.create_quotation',id=service_order.order_details.id) }}"> 
+                    <button type="submit" class="btn btn-custom" name="options_confirm" id="create_quotation" value="confirm">Angebot erstellen</button>
+                </a>   
             </div>
         {% endif %}
         
         {% if current_user.id == service_order.customer.kunden_id and service_order.order_details.Status == ServiceOrderStatus.quotation_available.value %}
-        <form method="post">
-            Angebot des Dienstleisters akzeptieren und Auftrag verbindlich annehmen?
-            <br>
-            <div class="quote textbox">
-                Annehmen:
-                <input type="radio" name="options" id="accept" value="accept" >
-                Ablehnen:
-                <input type="radio" name="options" id="reject" value="reject" >
-                <button type="submit" class="btn btn-custom">Bestätigen</button>
-            </div>
-        </form>
+            {{ wtf.quick_form(accept_radio, novalidate=True, button_map={"submit_accept": "custom"}) }}
         {% endif %}
 
         {% if current_user.id == service_order.customer.kunden_id and service_order.order_details.Status == ServiceOrderStatus.quotation_confirmed.value %}
             <a href="{{ url_for('views.confirm_order',id=service_order.order_details.id) }}"> 
-            <button type="submit" class="btn btn-custom" name="options_confirm" id="accept" value="confirm">Dienstleistung abnehmen</button>
+            <button type="submit" class="btn btn-custom" name="options_confirm" id="accept_quotation" value="confirm">Dienstleistung abnehmen</button>
             </a>   
         {% endif %}     
 
         {% if current_user.id == service_order.service_provider.dienstleister_id and service_order.order_details.Status == ServiceOrderStatus.service_confirmed.value %}
-        <form method="post">
-            
-            <div class="quote textbox">
-                <div class="checkbox-padded">
-                    Kunde hat Erfüllung der Dienstleistung bestätigt. Auftrag abschließen?
-                </div>
-                <div class="checkbox-padded">
-                    <input type="checkbox" id="confirm_complete" name="confirm_complete" value="complete">
-                </div>
-                <div class="checkbox-padded checkbox-button-right">
-                    <button type="submit" class="btn btn-custom">Bestätigen</button>
-                </div>
-            </div>
-        </form>
+            {{ wtf.quick_form(complete_checkbox, novalidate=True, button_map={"submit_complete_order": "custom"}) }}
         {% endif %}
       
         {% if current_user.id == service_order.service_provider.dienstleister_id and service_order.order_details.Status == ServiceOrderStatus.quotation_confirmed.value %}
-        <form method="post">
-            
-            <div class="quote textbox">
-                <div class="checkbox-padded">
-                    Möchten sie den Auftrag stornieren?
-                </div>
-                <div class="checkbox-padded">
-                    <input type="checkbox" id="cancel_order" name="cancel_order" value="cancelled">
-                </div>
-                <div class="checkbox-padded checkbox-button-right">
-                    <button type="submit" class="btn btn-custom">Stornierung Bestätigen</button>
-                </div>
-            </div>
-        </form>
+            {{ wtf.quick_form(cancel_checkbox, novalidate=True, button_map={"submit_cancel_order": "custom"}) }}
         {% endif %}
       
     </div>

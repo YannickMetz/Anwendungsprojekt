@@ -20,22 +20,22 @@
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav navbar-right">
                 {% if not current_user.is_authenticated %}
-                <li><a href="{{ url_for('auth.login') }}">Login</a></li>
-                <li><a href="{{ url_for('auth.register') }}">Register</a></li>
+                <li><a href="{{ url_for('auth.login') }}" id="login">Login</a></li>
+                <li><a href="{{ url_for('auth.register') }}" id="register">Register</a></li>
                 {% endif %}
                 {% if current_user.is_authenticated %}
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-                        aria-expanded="false">{{ current_user.email}} <span class="caret"></span></a>
+                        aria-expanded="false" id="actions">{{ current_user.email}} <span class="caret"></span></a>
                     <ul class="dropdown-menu">
-                        <li><a href="{{url_for('views.view_order')}}">Aufträge anzeigen</a></li>
-                        <li><a href="{{url_for('auth.changepw')}}">Passwort ändern</a></li>
+                        <li><a href="{{url_for('views.view_order')}}" id="show_orders">Aufträge anzeigen</a></li>
+                        <li><a href="{{url_for('auth.changepw')}}" id="change_pw">Passwort ändern</a></li>
                         {% if current_user.role == 'Dienstleister' %}
-                        <li><a href="{{url_for('views.view_service_provider_profile',id=current_user.id)}}">Profil anzeigen</a></li>
-                        <li><a href="{{url_for('views.change_service_provider_profile')}}">Profil bearbeiten</a></li>
+                        <li><a href="{{url_for('views.view_service_provider_profile',id=current_user.id)}}" id="show_profile">Profil anzeigen</a></li>
+                        <li><a href="{{url_for('views.change_service_provider_profile')}}" id="change_profile">Profil bearbeiten</a></li>
                         {% endif %}
                         <li role="separator" class="divider"></li>
-                        <li><a href="{{url_for('auth.logout')}}">Ausloggen</a></li>
+                        <li><a href="{{url_for('auth.logout')}}" id="logout">Ausloggen</a></li>
                     </ul>
                 </li>
                 {% endif %}

@@ -7,6 +7,7 @@ from os import path
 import os
 
 
+
 db = SQLAlchemy()
 DB_NAME = 'main_db.db'
 
@@ -14,24 +15,28 @@ DB_NAME = 'main_db.db'
 def create_app():
     app = Flask(__name__)
     app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY", "\xa5\x1d>\x8d9\x18@\xa1\xe9:\x07^\r\x81tP")
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("NEW_DB_URL", f"sqlite:///{DB_NAME}") # second argument fallback, if DB specified in environment variable is not available, for example on local machine.
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL_POSTGRESQL", f"sqlite:///{DB_NAME}") 
+    # second argument fallback, if DB specified in environment variable is not available, for example on local machine.
+    # when using heroku, cannot use the standard database variable. Create second variable in the heroku config with URL beginning updated from "postgres://" to "postgresql://"
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    #app.config['WTF_CSRF_ENABLED'] = False
+    #app.config['WTF_CSRF_CHECK_DEFAULT'] = False
     db.init_app(app)
     from .auth import auth
     from .views import views
-    from .test_db_data import testdata
+    from .mock_data import mockdata
     
     ckeditor = CKEditor(app)
     Bootstrap(app)
     app.register_blueprint(auth)
     app.register_blueprint(views)
-    app.register_blueprint(testdata)
+    app.register_blueprint(mockdata)
 
 
     from .models import User, Kunde, Dienstleister, Dienstleisterbewertung, Kundenbewertung, Auftrag, Dienstleistung, Kundenprofil, Dienstleisterprofil, DienstleisterProfilGalerie
 
     create_database(app)
-    #db.create_all(app=app)
+    
 
     login_manager = LoginManager()
     login_manager.login_view = 'auth.login'
@@ -48,3 +53,4 @@ def create_database(app):
         if not path.exists(f'app/{DB_NAME}'):
             db.create_all(app=app)
             print('created database!')
+    db.create_all(app=app)

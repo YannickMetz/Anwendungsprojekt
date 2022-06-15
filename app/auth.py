@@ -38,6 +38,7 @@ def register():
     register_form = RegisterForm()
     if register_form.validate_on_submit():
         if register_form.role.data == "Kunde":
+            print("hello")
             return redirect(url_for('auth.register_customer'))
         elif register_form.role.data == "Dienstleister":
             return redirect(url_for('auth.register_business'))
@@ -75,7 +76,6 @@ def register_customer():
             kunden_id=new_user.id,
             k_vorname = register_customer_form.k_vorname.data,
             k_nachname = register_customer_form.k_nachname.data,
-            k_geburtstatum = register_customer_form.k_geburtstatum.data,
             k_straße = register_customer_form.k_straße.data,
             k_plz = register_customer_form.k_plz.data,
             k_ort = register_customer_form.k_ort.data
@@ -124,7 +124,7 @@ def register_business():
             d_vorname = register_business_form.d_vorname.data,
             d_nachname = register_business_form.d_nachname.data,
             firmenname = register_business_form.firmenname.data,
-            d_geburtstatum = register_business_form.d_geburtstatum.data,
+            #d_geburtstatum = register_business_form.d_geburtstatum.data,
             d_straße = register_business_form.d_straße.data,
             d_plz = register_business_form.d_plz.data,
             d_ort = register_business_form.d_ort.data,
