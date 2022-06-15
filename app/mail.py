@@ -25,6 +25,7 @@ def send_mail(receiver, status, order):
     # Port Für starttls
     port = 587
     sender_email = "dienstleistungondemand@gmail.com"
+    #App-PW für gmail. Nicht zum login nutzbar
     password = "zlybwbomapicvnrk"
 
     # Secure SSL context erstellen
