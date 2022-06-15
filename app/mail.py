@@ -14,6 +14,7 @@ OrderActivies = {ServiceOrderStatus.requested: "Sie haben eien neuen Auftrag erh
 
 # definition der email funktion
 def send_mail(receiver, status, order):
+    #text für email
     message = text(OrderActivies[status] + "\nWeitere Informationen erhalten Sie in Ihrer Auftragsübersicht.")
 
     # [To] und ['Subject] mussten eingefügt werden da sonst nicht übernommen. Empfänger war in BCC und Betreff wurde nicht übernommen
