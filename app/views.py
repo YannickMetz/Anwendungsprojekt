@@ -1,25 +1,17 @@
-from itertools import groupby
-from posixpath import join
-from re import sub
-import re
-from flask import Flask, render_template, redirect, url_for, request, Blueprint, flash
-from sqlalchemy import dialects, or_
-from sqlalchemy.sql.expression import null, func
-from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import login_user, login_required, logout_user, current_user
-import requests, os, sys
+from flask import render_template, redirect, url_for, request, Blueprint, flash
+from sqlalchemy import or_
+from sqlalchemy.sql.expression import func
+from flask_login import login_required, current_user
+import os
 from datetime import date, datetime
-
 from .mail import send_mail
 from . forms import AddProfileImageForm, ChangeProfileBodyForm, AddImageForm, SelectServiceForm, RequestQuotationForm, CreateQuotation, SearchFilterForm, RateServiceForm, AcceptQuotation, CompleteOrder, CancelOrder
 from . import db
-from .models import Dienstleisterbewertung, User, Dienstleisterprofil, Auftrag, DienstleisterProfilGalerie, Dienstleistung, Dienstleister, Kunde, Dienstleistung_Profil_association
+from .models import Dienstleisterbewertung, User, Dienstleisterprofil, Auftrag, DienstleisterProfilGalerie, Dienstleistung, Dienstleister, Dienstleistung_Profil_association
 from base64 import b64encode
-from enum import Enum
 from .classes import *
 
 views = Blueprint('views', __name__,template_folder='templates', static_folder='static')
-
 
 ###### Functions ######
 

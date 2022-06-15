@@ -1,11 +1,10 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, PasswordField, TextAreaField, SelectField, FileField, DecimalField, RadioField, BooleanField
-from wtforms import DateField, IntegerField, widgets, SelectMultipleField
-from wtforms.validators import DataRequired, EqualTo, URL, Optional
+from wtforms import StringField, SubmitField, PasswordField, SelectField, FileField, DecimalField, RadioField, BooleanField
+from wtforms import DateField, IntegerField
+from wtforms.validators import DataRequired, EqualTo
 from flask_wtf.file import FileAllowed
 from wtforms import DateField
 from flask_ckeditor import CKEditorField
-from wtforms.widgets.core import CheckboxInput
 
 # Klasse mit modifiziertem DecimalField, welches sowohl Komma als auch Punkt als Dezimaltrennzeichen erlaubt
 class FlexibleDecimalField(DecimalField):
