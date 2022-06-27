@@ -1,3 +1,4 @@
+from bz2 import compress
 from flask import render_template, redirect, url_for, request, Blueprint, flash
 from sqlalchemy import or_
 from sqlalchemy.sql.expression import func
@@ -5,11 +6,13 @@ from flask_login import login_required, current_user
 import os
 from datetime import date, datetime
 from .mail import send_mail
-from . forms import AddProfileImageForm, ChangeProfileBodyForm, AddImageForm, SelectServiceForm, RequestQuotationForm, CreateQuotation, SearchFilterForm, RateServiceForm, AcceptQuotation, CompleteOrder, CancelOrder
+from . forms import AddProfileImageForm, ChangeProfileBodyForm, AddImageForm, SelectServiceForm, RequestQuotationForm, CreateQuotation, SearchFilterForm, RateServiceForm, AcceptQuotation, CompleteOrder, CancelOrder, LoadTestData
 from . import db
 from .models import Dienstleisterbewertung, User, Dienstleisterprofil, Auftrag, DienstleisterProfilGalerie, Dienstleistung, Dienstleister, Dienstleistung_Profil_association
 from base64 import b64encode
 from .classes import *
+from io import BytesIO
+from PIL import Image
 
 views = Blueprint('views', __name__,template_folder='templates', static_folder='static')
 
@@ -28,7 +31,11 @@ def get_services_for_provider(id):
     services_dict=dict(sorted(services_dict.items(), key=lambda item: item[1],reverse=False))
     return services_dict
 
-
+def image_compressor(image):
+    jpeg = Image.open(BytesIO(image))
+    todb = BytesIO()
+    jpeg.save(todb, format="JPEG" , quality=20)
+    return todb.getvalue()
 
 ###### Routes ######
 
@@ -71,11 +78,12 @@ def change_service_provider_profile():
         # Existiert das Bild nicht, wird ein Platzhalter aus dem static Verzeichnis geladen
         if current_profile.profilbild != None:
             profile_image = b64encode(current_profile.profilbild).decode('utf-8')
+            #print("hallo100")
         else:
             here = os.path.dirname(os.path.abspath(__file__))
             filename = os.path.join(here, 'static/img/placeholder_flat.jpg')
             with open(filename, 'rb') as imagefile:
-                profile_image = b64encode(imagefile.read()).decode('utf-8')
+                profile_image = b64encode(imagefile.read())
 
         # initialisierung der FlaskForms
         profile_image_form = AddProfileImageForm()
@@ -86,15 +94,27 @@ def change_service_provider_profile():
 
         if profile_image_form.validate_on_submit():
             current_profile.profilbild = profile_image_form.profile_img.data.read()
+            #funktion wird doppelt ausgeführt?? print doppelt in shell
+            #print("hallo bild hochgeladen")
+            #try catch block für bild komprimierung von hochgeladenen bildern
+            #try:
+            current_profile.profilbild = image_compressor(current_profile.profilbild)
+            #except Exception as e:
+                #print("fehler!: " + str(e))
+            
             db.session.commit()
             return redirect(url_for('views.change_service_provider_profile'))
 
         if image_gallery_form.validate_on_submit():
             new_gallery_image = image_gallery_form.img.data.read()
+            #try catch block für bild komprimierung von hochgeladenen bildern
+            ##try:
             new_gallery_item= DienstleisterProfilGalerie(
                 dienstleister_id = current_user.id,
-                galerie_bild = new_gallery_image
-            )
+                galerie_bild = image_compressor(new_gallery_image))
+            #except Exception as e:  
+                #print("fehler!: " + str(e))
+
             db.session.add(new_gallery_item)
             db.session.commit()
             return redirect(url_for('views.change_service_provider_profile'))
@@ -209,7 +229,6 @@ def remove_service(service_id):
 def remove_gallery_image(image_id):
     db.session.delete(DienstleisterProfilGalerie.query.filter_by(id=image_id).first())
     db.session.commit()
-
     return redirect(url_for('views.change_service_provider_profile'))
 
 
@@ -264,7 +283,6 @@ def view_order():
 @login_required
 def search_service_providers(service_id):
 
-    
     query_params = request.args.to_dict()
     if len(query_params) == 0:
         filter_date = datetime(1970,1,1)
@@ -322,7 +340,6 @@ def search_service_providers(service_id):
         filter_rating = search_filter_form.rating.data
         return redirect(url_for('views.search_service', service_id=service_id, date=[filter_date], rating=[filter_rating]))
 
-
     return render_template('search.html', service_providers = service_providers_dict, search_filter_form=search_filter_form)
 
 
@@ -363,7 +380,7 @@ def request_quotation(id):
             Dienstleister_ID = id,
             anfrage_freitext = quotation_form.request.data,
             Startzeitpunkt = quotation_form.service_start.data,
-            anfrage_bild = quotation_image,
+            anfrage_bild = image_compressor(quotation_image),
             Status = ServiceOrderStatus.requested.value
         )
         db.session.add(new_service_order)
@@ -376,7 +393,6 @@ def request_quotation(id):
 
         flash("Angebotsanfrage erfolgreich übermittelt.")
         return redirect(url_for('views.home'))
-
 
     return render_template(
         'request-quotation.html',
@@ -395,8 +411,6 @@ def view_order_details(id):
     accept_radio = AcceptQuotation()
     cancel_checkbox = CancelOrder()
     complete_checkbox = CompleteOrder()
-
-
 
     if accept_radio.validate_on_submit():
         if accept_radio.accept_selection.data == 'accept':
@@ -482,17 +496,34 @@ def create_quotation(id):
     quotation_form = CreateQuotation()
     if quotation_form.validate_on_submit():
         quotation_price = str(round(quotation_form.quote.data, 2))
+        #start und endzeitpunkt für die erbringung der dienstleistung
+        service_start = quotation_form.service_start.data
         service_finish = quotation_form.service_finish.data
         service_order.order_details.Status = ServiceOrderStatus.quotation_available.value
         service_order.order_details.Preis = quotation_price
+        service_order.order_details.Startzeitpunkt = service_start
         service_order.order_details.Endzeitpunkt = service_finish
-        db.session.commit()
+        #überprüfung ob endzeitpunkt nach startzeitpunk und ob startzeitpunkt nich älter als aktuelles datum ist
+        if service_finish < service_start:
+            flash('Der Endzeitpunkt kann nicht vor dem Startzeitpunkt liegen!')
+            return redirect(url_for('views.create_quotation', id=id))
+        elif service_start < date.today():
+            flash('Der Startzeitpunkt kann nicht in der Vergangenheit liegen!')
+            return redirect(url_for('views.create_quotation', id=id))
+        else:
+            db.session.commit()
+            #Empfänger Email herausfinden + email senden
+            receiver = service_order.customer_contact
+            send_mail(receiver, ServiceOrderStatus.quotation_available, service_order)
 
-        #Empfänger Email herausfinden + email senden
-        receiver = service_order.customer_contact
-        send_mail(receiver, ServiceOrderStatus.quotation_available, service_order)
-
-        return redirect(url_for('views.view_order_details', id=id))
+            return redirect(url_for('views.view_order_details', id=id))
 
 
     return render_template('quote.html', service_order=service_order, quotation_form=quotation_form)
+
+
+@views.route('/jpeg', methods =['POST','GET'])
+def get_jpeg_files():
+    form = LoadTestData()
+
+    return render_template('load_testdata.html', form=form)

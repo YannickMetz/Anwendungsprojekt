@@ -1,5 +1,5 @@
 from enum import Enum
-from .models import Dienstleisterbewertung, User, Dienstleisterprofil, Auftrag, DienstleisterProfilGalerie, Dienstleistung, Dienstleister, Kunde, Dienstleistung_Profil_association
+from .models import Dienstleisterbewertung, User, Dienstleisterprofil, Kundenprofil, Auftrag, DienstleisterProfilGalerie, Dienstleistung, Dienstleister, Kunde, Dienstleistung_Profil_association, User
 from base64 import b64encode
 
 class ServiceOrderStatus(Enum):
@@ -34,3 +34,4 @@ class ServiceOrder:
             self.customer_image = b64encode(self.order_details.anfrage_bild).decode('utf-8')
         else:
             self.customer_image = None
+
