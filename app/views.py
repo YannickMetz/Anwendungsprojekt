@@ -515,7 +515,6 @@ def create_quotation(id):
             #Empfänger Email herausfinden + email senden
             receiver = service_order.customer_contact
             send_mail(receiver, ServiceOrderStatus.quotation_available, service_order)
-            #test
             return redirect(url_for('views.view_order_details', id=id))
 
 
