@@ -83,7 +83,7 @@ def register_customer():
         db.session.add(new_kunde)
         db.session.commit()
 
-        login_user(new_user)
+        #login_user(new_user)
         return redirect(url_for('views.home'))
 
     return render_template("register.html", form=register_customer_form)
