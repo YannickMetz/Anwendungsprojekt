@@ -48,7 +48,10 @@
         </tr>
         <tr>
             <td class="table-order-details-column-left">Möglicher Startzeitpunkt</td>
-            <td class="table-order-details-column-right">{{ service_order.order_details.Startzeitpunkt_Dienstleister.date() }}</td>
+            <td class="table-order-details-column-right">
+                {% if service_order.order_details.Endzeitpunkt != None %}
+                {{ service_order.order_details.Startzeitpunkt_Dienstleister.date() }}</td>
+                {% endif %}
         </tr>
         <tr>
             <td class="table-order-details-column-left">Endzeitpunkt</td>
