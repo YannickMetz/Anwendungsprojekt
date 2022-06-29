@@ -507,7 +507,7 @@ def create_quotation(id):
         if service_finish < service_start:
             flash('Der Endzeitpunkt kann nicht vor dem Startzeitpunkt liegen!')
             return redirect(url_for('views.create_quotation', id=id))
-        elif service_start < date.today():
+        #elif service_start < date.today():
             flash('Der Startzeitpunkt kann nicht in der Vergangenheit liegen!')
             return redirect(url_for('views.create_quotation', id=id))
         else:
