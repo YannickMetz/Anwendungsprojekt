@@ -372,7 +372,7 @@ def request_quotation(id):
         # stellt sicher, dass der Eintrag in der Datenbank auf 'NULL' gesetzt wird, falls kein Bild ausgewählt wurde 
         quotation_image = None 
         if quotation_form.img.data.headers['Content-Type'] != 'application/octet-stream':
-            quotation_image = quotation_form.img.data.read()
+            quotation_image = image_compressor(quotation_form.img.data.read())
         
         new_service_order = Auftrag(
             Dienstleistung_ID = list(services_dict.keys())[list(services_dict.values()).index(quotation_form.service.data)],
@@ -380,7 +380,7 @@ def request_quotation(id):
             Dienstleister_ID = id,
             anfrage_freitext = quotation_form.request.data,
             Startzeitpunkt_Kunde = quotation_form.service_start.data,
-            anfrage_bild = image_compressor(quotation_image),
+            anfrage_bild = quotation_image,
             Status = ServiceOrderStatus.requested.value
         )
         db.session.add(new_service_order)
