@@ -290,6 +290,7 @@ def test_request_quotation(test_client):
         service='Testservice',
         request='Request Body',
         service_start='9999-01-01',
+        service_finish='9999-01-02',
         img=read_image(4)
         ),buffered=True, content_type='multipart/form-data', follow_redirects=True)
     assert response.request.path == "/"
