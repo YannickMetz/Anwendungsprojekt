@@ -116,7 +116,7 @@ def request_quotation_confirm(driver):
     #Datum im Datumsfeld eintragen 15.12.2023
     driver.find_element(By.ID, "service_start").send_keys("15122023")
     driver.find_element(By.ID, "submit").click()
-    
+
 def create_quotation_accept(driver):
     driver.get('http://127.0.0.1:5000/')
     driver.find_element(By.ID, "actions").click()
@@ -126,8 +126,11 @@ def create_quotation_accept(driver):
     #Preis für den Auftrag festlegen, 300€
     driver.find_element(By.ID, "quote").send_keys("300")
     #Datum im Datumsfeld eintragen 01.02.2024
+    driver.find_element(By.ID, "service_start").send_keys("02012023")
     driver.find_element(By.ID, "service_finish").send_keys("02012024")
+    time.sleep(10)
     driver.find_element(By.ID, "submit").click()
+    time.sleep(10)
 
 def create_quotation_reject(driver):
     driver.get('http://127.0.0.1:5000/')
@@ -138,6 +141,7 @@ def create_quotation_reject(driver):
     #Preis für den Auftrag festlegen, 300€
     driver.find_element(By.ID, "quote").send_keys("75")
     #Datum im Datumsfeld eintragen 01.02.2024
+    driver.find_element(By.ID, "service_start").send_keys("02012023")
     driver.find_element(By.ID, "service_finish").send_keys("02012024")
     driver.find_element(By.ID, "submit").click()
 
@@ -150,6 +154,7 @@ def create_quotation_confirm(driver):
     #Preis für den Auftrag festlegen, 300€
     driver.find_element(By.ID, "quote").send_keys("1")
     #Datum im Datumsfeld eintragen 01.02.2024
+    driver.find_element(By.ID, "service_start").send_keys("02012023")
     driver.find_element(By.ID, "service_finish").send_keys("02012024")
     driver.find_element(By.ID, "submit").click()
     
