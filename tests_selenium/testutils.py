@@ -128,9 +128,7 @@ def create_quotation_accept(driver):
     #Datum im Datumsfeld eintragen 01.02.2024
     driver.find_element(By.ID, "service_start").send_keys("02012023")
     driver.find_element(By.ID, "service_finish").send_keys("02012024")
-    time.sleep(10)
     driver.find_element(By.ID, "submit").click()
-    time.sleep(10)
 
 def create_quotation_reject(driver):
     driver.get('http://127.0.0.1:5000/')
