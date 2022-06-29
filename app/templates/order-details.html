@@ -43,8 +43,12 @@
             <td class="table-order-details-column-right">{{ service_order.order_details.Status }}</td>
         </tr>
         <tr>
-            <td class="table-order-details-column-left">Startzeitpunkt</td>
-            <td class="table-order-details-column-right">{{ service_order.order_details.Startzeitpunkt.date() }}</td>
+            <td class="table-order-details-column-left">Gewünschter Startzeitpunkt</td>
+            <td class="table-order-details-column-right">{{ service_order.order_details.Startzeitpunkt_Kunde.date() }}</td>
+        </tr>
+        <tr>
+            <td class="table-order-details-column-left">Möglicher Startzeitpunkt</td>
+            <td class="table-order-details-column-right">{{ service_order.order_details.Startzeitpunkt_Dienstleister.date() }}</td>
         </tr>
         <tr>
             <td class="table-order-details-column-left">Endzeitpunkt</td>

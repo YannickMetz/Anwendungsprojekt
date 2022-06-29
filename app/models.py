@@ -67,7 +67,8 @@ class Auftrag(db.Model):
     Dienstleister_rel = relationship("Dienstleister")
     Dienstleister_ID = db.Column(db.Integer, db.ForeignKey("Dienstleister.dienstleister_id")) #FK aus dienstleister
     Status = db.Column(db.String(100)) #Liste möglicher status festlegen
-    Startzeitpunkt = db.Column(db.DateTime)
+    Startzeitpunkt_Kunde = db.Column(db.DateTime)
+    Startzeitpunkt_Dienstleister = db.Column(db.DateTime)
     Endzeitpunkt = db.Column(db.DateTime)
     anfrage_freitext = db.Column(db.String(5000))
     anfrage_bild = db.Column(db.LargeBinary)

@@ -133,7 +133,7 @@ def create_service_orders(order_count, available_services, provider_lower, provi
             Kunde_ID = random.randrange(customer_lower, customer_upper+1),
             Dienstleister_ID = random.randrange(provider_lower, provider_upper+1),
             anfrage_freitext = lorem.paragraph(),
-            Startzeitpunkt = start_date,
+            Startzeitpunkt_Kunde = start_date,
             Endzeitpunkt = end_date, 
             Preis = random.randrange(100,1099),
             Status = ServiceOrderStatus.completed.value

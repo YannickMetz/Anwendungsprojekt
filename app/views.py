@@ -292,7 +292,7 @@ def search_service_providers(service_id):
         filter_rating = int(query_params['rating'])
     
     subquery_date = db.session.query(Auftrag.Dienstleister_ID).filter(
-            (filter_date >= Auftrag.Startzeitpunkt) &
+            (filter_date >= Auftrag.Startzeitpunkt_Kunde) &
             (filter_date <= Auftrag.Endzeitpunkt)
         ).subquery()
     
@@ -379,7 +379,7 @@ def request_quotation(id):
             Kunde_ID = current_user.id,
             Dienstleister_ID = id,
             anfrage_freitext = quotation_form.request.data,
-            Startzeitpunkt = quotation_form.service_start.data,
+            Startzeitpunkt_Kunde = quotation_form.service_start.data,
             anfrage_bild = image_compressor(quotation_image),
             Status = ServiceOrderStatus.requested.value
         )
@@ -501,7 +501,7 @@ def create_quotation(id):
         service_finish = quotation_form.service_finish.data
         service_order.order_details.Status = ServiceOrderStatus.quotation_available.value
         service_order.order_details.Preis = quotation_price
-        service_order.order_details.Startzeitpunkt = service_start
+        service_order.order_details.Startzeitpunkt_Dienstleister = service_start
         service_order.order_details.Endzeitpunkt = service_finish
         #überprüfung ob endzeitpunkt nach startzeitpunk und ob startzeitpunkt nich älter als aktuelles datum ist
         if service_finish < service_start:
