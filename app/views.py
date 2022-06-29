@@ -45,7 +45,6 @@ def home():
     unique_categories = [i[0] for i in sorted(set(categories_query))]
     return render_template("index.html", categories=unique_categories)
 
-
 @views.route('/change_service_provider_profile',methods=['POST', 'GET'])
 @login_required
 def change_service_provider_profile():
@@ -144,7 +143,6 @@ def change_service_provider_profile():
             gallery_images=gallery_images
             )
 
-
 @views.route('/profile/service_provider/<id>',methods=['POST', 'GET'])
 @login_required
 def view_service_provider_profile(id):
@@ -214,7 +212,6 @@ def view_service_provider_profile(id):
         rating_average = rating_average
         )
 
-
 @views.route('/remove_service/<int:service_id>',methods=['POST', 'GET'])
 @login_required
 def remove_service(service_id):
@@ -223,14 +220,12 @@ def remove_service(service_id):
     db.session.commit()
     return redirect(url_for('views.change_service_provider_profile'))
 
-
 @views.route('/remove_gallery_image/<int:image_id>',methods=['POST', 'GET'])
 @login_required
 def remove_gallery_image(image_id):
     db.session.delete(DienstleisterProfilGalerie.query.filter_by(id=image_id).first())
     db.session.commit()
     return redirect(url_for('views.change_service_provider_profile'))
-
 
 @views.route('/orders/', methods=['POST', 'GET'])
 @login_required
@@ -277,7 +272,6 @@ def view_order():
             service_orders_open = service_orders_open,
             service_orders_closed = service_orders_closed
             )
-
 
 @views.route('/search/<int:service_id>', methods=['GET', 'POST'])
 @login_required
@@ -342,7 +336,6 @@ def search_service_providers(service_id):
 
     return render_template('search.html', service_providers = service_providers_dict, search_filter_form=search_filter_form)
 
-
 @views.route('/search/<category1>', methods=['GET'])
 @login_required
 def view_services(category1):
@@ -351,7 +344,6 @@ def view_services(category1):
     for service in services:
         services_dict.update({service.dienstleistung_id: service.Dienstleistung})
     return render_template('services.html', services_dict=services_dict)
-
 
 @views.route('/request-quotation/<int:id>', methods= ['GET', 'POST'])
 @login_required
@@ -401,7 +393,6 @@ def request_quotation(id):
         services_list=services_list
         )
 
-
 @views.route('/order-details/<id>', methods=['GET','POST'])
 @login_required
 def view_order_details(id):
@@ -447,7 +438,6 @@ def view_order_details(id):
             flash("Auftrag erfolgreich beendet.")
             return redirect(url_for('views.view_order'))
 
-    
     return render_template('order-details.html', 
         service_order=service_order,
         accept_radio=accept_radio,
@@ -455,7 +445,6 @@ def view_order_details(id):
         complete_checkbox=complete_checkbox,
         ServiceOrderStatus=ServiceOrderStatus
         )
-
 
 @views.route('/confirm_order/<id>', methods=['POST', 'GET'])
 @login_required
@@ -488,7 +477,6 @@ def confirm_order(id):
         confirm_form = confirm_form
         )
 
-
 @views.route('/quote/<id>', methods=['POST', 'GET'])
 @login_required
 def create_quotation(id):
@@ -516,7 +504,6 @@ def create_quotation(id):
             receiver = service_order.customer_contact
             send_mail(receiver, ServiceOrderStatus.quotation_available, service_order)
             return redirect(url_for('views.view_order_details', id=id))
-
 
     return render_template('quote.html', service_order=service_order, quotation_form=quotation_form)
 
