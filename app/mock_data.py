@@ -144,7 +144,10 @@ def create_service_orders(order_count, available_services, provider_lower, provi
         rating_value = int(random.randrange(1,6))
         rating = Dienstleisterbewertung(
             auftrags_ID = int(order_id),
-            d_bewertung = rating_value
+            d_bewertung = rating_value,
+            #erweiterung um neue tabellen für freitext bewertung und bild
+            d_bewertung_bild = None,
+            d_bewertung_beschreibung = None
         )
         db.session.add(rating)
         db.session.commit()

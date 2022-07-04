@@ -455,10 +455,17 @@ def confirm_order(id):
     confirm_form.rating.choices = rating_choices
 
     if confirm_form.validate_on_submit():
+
+        rating_image = None 
+        if confirm_form.img.data.headers['Content-Type'] != 'application/octet-stream':
+            rating_image = image_compressor(confirm_form.img.data.read())
+
         print(confirm_form.rating.data)
         rating = Dienstleisterbewertung(
             auftrags_ID = confirm_order.order_details.id,
-            d_bewertung = confirm_form.rating.data)
+            d_bewertung = confirm_form.rating.data,
+            d_bewertung_beschreibung = confirm_form.comment.data,
+            d_bewertung_bild = rating_image)
         db.session.add(rating)
         db.session.commit() 
         confirm_order.order_details.Status = ServiceOrderStatus.service_confirmed.value
