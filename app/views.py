@@ -459,8 +459,7 @@ def confirm_order(id):
         rating_image = None 
         if confirm_form.img.data.headers['Content-Type'] != 'application/octet-stream':
             rating_image = image_compressor(confirm_form.img.data.read())
-
-        print(confirm_form.rating.data)
+            
         rating = Dienstleisterbewertung(
             auftrags_ID = confirm_order.order_details.id,
             d_bewertung = confirm_form.rating.data,

@@ -3,7 +3,7 @@ from wtforms import StringField, SubmitField, PasswordField, SelectField, FileFi
 from wtforms import DateField, IntegerField
 from wtforms.validators import DataRequired, EqualTo
 from flask_wtf.file import FileAllowed
-from wtforms import DateField
+from wtforms import DateField, TextAreaField
 from flask_ckeditor import CKEditorField
 
 # Klasse mit modifiziertem DecimalField, welches sowohl Komma als auch Punkt als Dezimaltrennzeichen erlaubt
@@ -75,7 +75,7 @@ class SelectServiceForm(FlaskForm):
 
 class RequestQuotationForm(FlaskForm):
     service = SelectField(label="Dienstleistung auswählen", coerce=str, validators=[DataRequired()])
-    request = CKEditorField("Beschreiben sie ihre Anforderungen an den Dienstleister",validators=[DataRequired()])
+    request = TextAreaField("Beschreiben sie ihre Anforderungen an den Dienstleister",validators=[DataRequired()])
     service_start = DateField(label="Wann soll die Dienstleistung beginnen?", format='%Y-%m-%d')
     img = FileField("Bild auswählen (Optional)", validators=[FileAllowed(['jpg', 'jpeg'],'Only "jpg" and "jpeg" files are supported!')])
     submit = SubmitField("Angebotsanfrage versenden")
@@ -83,7 +83,7 @@ class RequestQuotationForm(FlaskForm):
 class RateServiceForm(FlaskForm):
     rating = SelectField(label="Bitte bewerten Sie den Dienstleister mit einer Note (1 - Sehr schlecht bis 5 - Sehr gut)", coerce=int, validators=[DataRequired()])
     #erweiterung für userstory15
-    comment = CKEditorField("Beschreiben Sie ihre Zufriedenheit (Optional)")
+    comment = TextAreaField("Beschreiben Sie ihre Zufriedenheit (Optional)")
     img = FileField("Bild auswählen (Optional)", validators=[FileAllowed(['jpg', 'jpeg'],'Only "jpg" and "jpeg" files are supported!')])
     submit = SubmitField("Abnahme und Bewertung bestätigen")
 
