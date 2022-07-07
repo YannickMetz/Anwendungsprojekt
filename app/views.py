@@ -93,26 +93,16 @@ def change_service_provider_profile():
 
         if profile_image_form.validate_on_submit():
             current_profile.profilbild = profile_image_form.profile_img.data.read()
-            #funktion wird doppelt ausgeführt?? print doppelt in shell
-            #print("hallo bild hochgeladen")
-            #try catch block für bild komprimierung von hochgeladenen bildern
-            #try:
             current_profile.profilbild = image_compressor(current_profile.profilbild)
-            #except Exception as e:
-                #print("fehler!: " + str(e))
             
             db.session.commit()
             return redirect(url_for('views.change_service_provider_profile'))
 
         if image_gallery_form.validate_on_submit():
             new_gallery_image = image_gallery_form.img.data.read()
-            #try catch block für bild komprimierung von hochgeladenen bildern
-            ##try:
             new_gallery_item= DienstleisterProfilGalerie(
                 dienstleister_id = current_user.id,
                 galerie_bild = image_compressor(new_gallery_image))
-            #except Exception as e:  
-                #print("fehler!: " + str(e))
 
             db.session.add(new_gallery_item)
             db.session.commit()
@@ -456,6 +446,7 @@ def confirm_order(id):
 
     if confirm_form.validate_on_submit():
 
+        #stellt sicher, dass der Eintrag in der Datenbank auf 'NULL' gesetzt wird, falls kein Bild ausgewählt wurde
         rating_image = None 
         if confirm_form.img.data.headers['Content-Type'] != 'application/octet-stream':
             rating_image = image_compressor(confirm_form.img.data.read())
@@ -497,7 +488,7 @@ def create_quotation(id):
         service_order.order_details.Preis = quotation_price
         service_order.order_details.Startzeitpunkt_Dienstleister = service_start
         service_order.order_details.Endzeitpunkt = service_finish
-        #überprüfung ob endzeitpunkt nach startzeitpunk und ob startzeitpunkt nich älter als aktuelles datum ist
+        #überprüfung ob endzeitpunkt nach startzeitpunk und ob startzeitpunkt nicht älter als aktuelles datum ist
         if service_finish < service_start:
             flash('Der Endzeitpunkt kann nicht vor dem Startzeitpunkt liegen!')
             return redirect(url_for('views.create_quotation', id=id))
@@ -512,10 +503,3 @@ def create_quotation(id):
             return redirect(url_for('views.view_order_details', id=id))
 
     return render_template('quote.html', service_order=service_order, quotation_form=quotation_form)
-
-
-@views.route('/jpeg', methods =['POST','GET'])
-def get_jpeg_files():
-    form = LoadTestData()
-
-    return render_template('load_testdata.html', form=form)

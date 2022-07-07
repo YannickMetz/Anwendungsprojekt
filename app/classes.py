@@ -23,6 +23,7 @@ class ServiceOrder:
 
         if Dienstleisterbewertung.query.where(Dienstleisterbewertung.auftrags_ID == order_id).first() != None:
             self.customer_rating = Dienstleisterbewertung.query.where(Dienstleisterbewertung.auftrags_ID == order_id).first().d_bewertung
+            #selects aus der Datenbank für das nachher-bild und die beschreibung für anzeige auf der Webseite
             self.customer_rating_img = Dienstleisterbewertung.query.where(Dienstleisterbewertung.auftrags_ID == order_id).first().d_bewertung_bild
             self.customer_rating_comment = Dienstleisterbewertung.query.where(Dienstleisterbewertung.auftrags_ID == order_id).first().d_bewertung_beschreibung
         else:

@@ -90,7 +90,7 @@ class RateServiceForm(FlaskForm):
 class CreateQuotation(FlaskForm):
     quote = FlexibleDecimalField(label="Bitte geben sie den Preis(€) für das Angebot ein:")
     service_start = DateField(label="Ab wann kann die Dienstleistung erbracht werden?", format='%Y-%m-%d')
-    service_finish = DateField(label="Bis wann kann die Dienstleistung erbacht werden?", format='%Y-%m-%d')
+    service_finish = DateField(label="Bis wann kann die Dienstleistung erbracht werden?", format='%Y-%m-%d')
     submit = SubmitField("Angebot versenden")
 
 class CancelOrder(FlaskForm):
