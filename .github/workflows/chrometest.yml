@@ -15,7 +15,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     env: 
-      gmailenv: ${{secrets.GMAILPW}}
+      GMAILPW: ${{secrets.GMAILPW}}
     steps:
       - uses: actions/checkout@v3
 
@@ -76,7 +76,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     env: 
-      gmailenv: ${{secrets.GMAILPW}}
+      GMAILPW: ${{secrets.GMAILPW}}
     steps:       
       - uses: actions/checkout@v3
         
@@ -132,7 +132,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     env: 
-      gmailenv: ${{secrets.GMAILPW}}
+      GMAILPW: ${{secrets.GMAILPW}}
     steps:
       - uses: actions/checkout@v3
 
