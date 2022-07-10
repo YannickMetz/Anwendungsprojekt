@@ -73,9 +73,9 @@ def request_quotation_accept(driver):
     Select(driver.find_element(By.ID, "service")).select_by_visible_text("Garten")
     #sleep um zu warten bis sich der iframe aufgebaut hat
     time.sleep(3)
-    driver.switch_to.frame(driver.find_element_by_tag_name("iframe"))
+    #driver.switch_to.frame(driver.find_element_by_tag_name("iframe"))
     #Aufruf über XPATH da keine ID vergeben werden kann, Eingabe in Textfeld
-    driver.find_element(By.XPATH, "/html/body/p").send_keys("Wir möchten gerne einen Gärtner buchen.")
+    driver.find_element(By.ID, "request").send_keys("Wir möchten gerne einen Gärtner buchen.")
     driver.switch_to.default_content()
     #Datum im Datumsfeld eintragen 15.12.2023
     driver.find_element(By.ID, "service_start").send_keys("15122023")
@@ -91,10 +91,10 @@ def request_quotation_reject(driver):
     Select(driver.find_element(By.ID, "service")).select_by_visible_text("Möbelaufbau")
     #sleep um zu warten bis sich der iframe aufgebaut hat
     time.sleep(3)
-    driver.switch_to.frame(driver.find_element_by_tag_name("iframe"))
+    #driver.switch_to.frame(driver.find_element_by_tag_name("iframe"))
     #Aufruf über XPATH da keine ID vergeben werden kann, Eingabe in Textfeld
-    driver.find_element(By.XPATH, "/html/body/p").send_keys("Wir brauchen hilfe zum Möbelaufbau.")
-    driver.switch_to.default_content()
+    driver.find_element(By.ID, "request").send_keys("Wir brauchen hilfe zum Möbelaufbau.")
+    #driver.switch_to.default_content()
     #Datum im Datumsfeld eintragen 15.12.2023
     driver.find_element(By.ID, "service_start").send_keys("15122023")
     driver.find_element(By.ID, "submit").click()
@@ -109,10 +109,10 @@ def request_quotation_confirm(driver):
     Select(driver.find_element(By.ID, "service")).select_by_visible_text("Fassade")
     #sleep um zu warten bis sich der iframe aufgebaut hat
     time.sleep(3)
-    driver.switch_to.frame(driver.find_element_by_tag_name("iframe"))
+    #driver.switch_to.frame(driver.find_element_by_tag_name("iframe"))
     #Aufruf über XPATH da keine ID vergeben werden kann, Eingabe in Textfeld
-    driver.find_element(By.XPATH, "/html/body/p").send_keys("Wir brauchen hilfe bei unserere Fassade.")
-    driver.switch_to.default_content()
+    driver.find_element(By.ID, "request").send_keys("Wir brauchen hilfe bei unserere Fassade.")
+    #driver.switch_to.default_content()
     #Datum im Datumsfeld eintragen 15.12.2023
     driver.find_element(By.ID, "service_start").send_keys("15122023")
     driver.find_element(By.ID, "submit").click()
