@@ -1,6 +1,7 @@
 import smtplib, ssl
 from .classes import *
 from email.mime.text import MIMEText as text
+import os
 
 # dictionary zum mappen von änderung des Auftraggsstatus und text der in der Email gesendet wird.
 OrderActivies = {ServiceOrderStatus.requested: "Sie haben eien neuen Auftrag erhalten!\n",
@@ -26,8 +27,9 @@ def send_mail(receiver, status, order):
     port = 587
     sender_email = "dienstleistungondemand@gmail.com"
     #App-PW für gmail. Nicht zum login nutzbar
-    password = "zlybwbomapicvnrk"
-
+    #password = "zlybwbomapicvnrk"
+    #in umgebungsvariable von heroku container, unter linux: export TEST="Hallo", pw muss in irgend einer config stehen?
+    password = os.environ["GMailPW"]
     # Secure SSL context erstellen
     context = ssl.create_default_context()
 
