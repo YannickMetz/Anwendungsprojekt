@@ -14,6 +14,8 @@ jobs:
         python-version: ["3.9"]
 
     runs-on: ${{ matrix.os }}
+    env: 
+      gmailenv: ${{secrets.GMailPW}}
     steps:
       - uses: actions/checkout@v3
 
@@ -43,8 +45,6 @@ jobs:
           flask mockdata init-mockdata
 
       - name: execute test scripts 
-        env: 
-          gmailenv: ${{ secrets.GMailPW }}
         run: |
           echo testing registration
           python tests_selenium/test_01_register.py
@@ -75,6 +75,8 @@ jobs:
         python-version: ["3.9"]
 
     runs-on: ${{ matrix.os }}
+    env: 
+      gmailenv: ${{secrets.GMailPW}}
     steps:       
       - uses: actions/checkout@v3
         
@@ -131,6 +133,8 @@ jobs:
         python-version: ["3.9"]
 
     runs-on: ${{ matrix.os }}
+    env: 
+      gmailenv: ${{secrets.GMailPW}}
     steps:
       - uses: actions/checkout@v3
 
