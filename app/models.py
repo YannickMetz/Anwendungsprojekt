@@ -67,6 +67,7 @@ class Auftrag(db.Model):
     Dienstleister_rel = relationship("Dienstleister")
     Dienstleister_ID = db.Column(db.Integer, db.ForeignKey("Dienstleister.dienstleister_id")) #FK aus dienstleister
     Status = db.Column(db.String(100)) #Liste möglicher status festlegen
+    #veränderung der Tabellen für Start und Endzeitpunkt des Auftrags
     Startzeitpunkt_Kunde = db.Column(db.DateTime)
     Startzeitpunkt_Dienstleister = db.Column(db.DateTime)
     Endzeitpunkt = db.Column(db.DateTime)
@@ -88,6 +89,9 @@ class Dienstleisterbewertung(db.Model):
     auftrag_rel = relationship("Auftrag")
     auftrags_ID = db.Column(db.Integer, db.ForeignKey("Auftrag.id")) #FK von Auftrag
     d_bewertung = db.Column(db.Integer)
+    #neue tabellen für userstory15 
+    d_bewertung_bild = db.Column(db.LargeBinary)
+    d_bewertung_beschreibung = db.Column(db.String(5000))
 
 class Kundenprofil(db.Model):
     __tablename__ = "Kundenprofil"

@@ -25,7 +25,7 @@ def create_app():
     from .auth import auth
     from .views import views
     from .mock_data import mockdata
-    
+
     ckeditor = CKEditor(app)
     Bootstrap(app)
     app.register_blueprint(auth)

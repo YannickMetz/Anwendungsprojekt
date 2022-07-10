@@ -61,6 +61,14 @@
                 {% endif %}
             </td>
         </tr>
+        <tr>
+            <td class="table-order-details-column-left">Bewertung durch Kunde</td>
+            <td class="table-order-details-column-right">{{ service_order.customer_rating }}</td>
+        </tr>
+        <tr>
+            <td class="table-order-details-column-left">Beschreibung</td>
+            <td class="table-order-details-column-right">{{ service_order.customer_rating_comment|safe }}</td>
+        </tr>
     </table>
     <br>
     <h1>Kundendendaten</h1>
@@ -85,10 +93,6 @@
         <tr>
             <td class="table-order-details-column-left">Kontakt</td>
             <td class="table-order-details-column-right">{{ service_order.customer_contact }}</td>
-        </tr>
-        <tr>
-            <td class="table-order-details-column-left">Auftragsbewertung durch Kunde</td>
-            <td class="table-order-details-column-right">{{ service_order.customer_rating }}</td>
         </tr>
     </table>
     <br>
