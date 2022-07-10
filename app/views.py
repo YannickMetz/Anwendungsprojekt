@@ -1,25 +1,20 @@
-from itertools import groupby
-from posixpath import join
-from re import sub
-import re
-from flask import Flask, render_template, redirect, url_for, request, Blueprint, flash
-from sqlalchemy import dialects, or_
-from sqlalchemy.sql.expression import null, func
-from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import login_user, login_required, logout_user, current_user
-import requests, os, sys
+from bz2 import compress
+from flask import render_template, redirect, url_for, request, Blueprint, flash
+from sqlalchemy import or_
+from sqlalchemy.sql.expression import func
+from flask_login import login_required, current_user
+import os
 from datetime import date, datetime
-
 from .mail import send_mail
-from . forms import AddProfileImageForm, ChangeProfileBodyForm, AddImageForm, SelectServiceForm, RequestQuotationForm, CreateQuotation, SearchFilterForm, RateServiceForm, AcceptQuotation, CompleteOrder, CancelOrder
+from . forms import AddProfileImageForm, ChangeProfileBodyForm, AddImageForm, SelectServiceForm, RequestQuotationForm, CreateQuotation, SearchFilterForm, RateServiceForm, AcceptQuotation, CompleteOrder, CancelOrder, LoadTestData
 from . import db
-from .models import Dienstleisterbewertung, User, Dienstleisterprofil, Auftrag, DienstleisterProfilGalerie, Dienstleistung, Dienstleister, Kunde, Dienstleistung_Profil_association
+from .models import Dienstleisterbewertung, User, Dienstleisterprofil, Auftrag, DienstleisterProfilGalerie, Dienstleistung, Dienstleister, Dienstleistung_Profil_association
 from base64 import b64encode
-from enum import Enum
 from .classes import *
+from io import BytesIO
+from PIL import Image
 
 views = Blueprint('views', __name__,template_folder='templates', static_folder='static')
-
 
 ###### Functions ######
 
@@ -36,7 +31,11 @@ def get_services_for_provider(id):
     services_dict=dict(sorted(services_dict.items(), key=lambda item: item[1],reverse=False))
     return services_dict
 
-
+def image_compressor(image):
+    jpeg = Image.open(BytesIO(image))
+    todb = BytesIO()
+    jpeg.save(todb, format="JPEG" , quality=20)
+    return todb.getvalue()
 
 ###### Routes ######
 
@@ -45,7 +44,6 @@ def home():
     categories_query = db.session.query(Dienstleistung.kategorieebene1).all()
     unique_categories = [i[0] for i in sorted(set(categories_query))]
     return render_template("index.html", categories=unique_categories)
-
 
 @views.route('/change_service_provider_profile',methods=['POST', 'GET'])
 @login_required
@@ -79,11 +77,12 @@ def change_service_provider_profile():
         # Existiert das Bild nicht, wird ein Platzhalter aus dem static Verzeichnis geladen
         if current_profile.profilbild != None:
             profile_image = b64encode(current_profile.profilbild).decode('utf-8')
+            #print("hallo100")
         else:
             here = os.path.dirname(os.path.abspath(__file__))
             filename = os.path.join(here, 'static/img/placeholder_flat.jpg')
             with open(filename, 'rb') as imagefile:
-                profile_image = b64encode(imagefile.read()).decode('utf-8')
+                profile_image = b64encode(imagefile.read())
 
         # initialisierung der FlaskForms
         profile_image_form = AddProfileImageForm()
@@ -94,6 +93,8 @@ def change_service_provider_profile():
 
         if profile_image_form.validate_on_submit():
             current_profile.profilbild = profile_image_form.profile_img.data.read()
+            current_profile.profilbild = image_compressor(current_profile.profilbild)
+            
             db.session.commit()
             return redirect(url_for('views.change_service_provider_profile'))
 
@@ -101,8 +102,8 @@ def change_service_provider_profile():
             new_gallery_image = image_gallery_form.img.data.read()
             new_gallery_item= DienstleisterProfilGalerie(
                 dienstleister_id = current_user.id,
-                galerie_bild = new_gallery_image
-            )
+                galerie_bild = image_compressor(new_gallery_image))
+
             db.session.add(new_gallery_item)
             db.session.commit()
             return redirect(url_for('views.change_service_provider_profile'))
@@ -131,7 +132,6 @@ def change_service_provider_profile():
             image_gallery_form=image_gallery_form,
             gallery_images=gallery_images
             )
-
 
 @views.route('/profile/service_provider/<id>',methods=['POST', 'GET'])
 @login_required
@@ -202,7 +202,6 @@ def view_service_provider_profile(id):
         rating_average = rating_average
         )
 
-
 @views.route('/remove_service/<int:service_id>',methods=['POST', 'GET'])
 @login_required
 def remove_service(service_id):
@@ -211,15 +210,12 @@ def remove_service(service_id):
     db.session.commit()
     return redirect(url_for('views.change_service_provider_profile'))
 
-
 @views.route('/remove_gallery_image/<int:image_id>',methods=['POST', 'GET'])
 @login_required
 def remove_gallery_image(image_id):
     db.session.delete(DienstleisterProfilGalerie.query.filter_by(id=image_id).first())
     db.session.commit()
-
     return redirect(url_for('views.change_service_provider_profile'))
-
 
 @views.route('/orders/', methods=['POST', 'GET'])
 @login_required
@@ -267,12 +263,10 @@ def view_order():
             service_orders_closed = service_orders_closed
             )
 
-
 @views.route('/search/<int:service_id>', methods=['GET', 'POST'])
 @login_required
 def search_service_providers(service_id):
 
-    
     query_params = request.args.to_dict()
     if len(query_params) == 0:
         filter_date = datetime(1970,1,1)
@@ -282,7 +276,7 @@ def search_service_providers(service_id):
         filter_rating = int(query_params['rating'])
     
     subquery_date = db.session.query(Auftrag.Dienstleister_ID).filter(
-            (filter_date >= Auftrag.Startzeitpunkt) &
+            (filter_date >= Auftrag.Startzeitpunkt_Kunde) &
             (filter_date <= Auftrag.Endzeitpunkt)
         ).subquery()
     
@@ -330,9 +324,7 @@ def search_service_providers(service_id):
         filter_rating = search_filter_form.rating.data
         return redirect(url_for('views.search_service', service_id=service_id, date=[filter_date], rating=[filter_rating]))
 
-
     return render_template('search.html', service_providers = service_providers_dict, search_filter_form=search_filter_form)
-
 
 @views.route('/search/<category1>', methods=['GET'])
 @login_required
@@ -342,7 +334,6 @@ def view_services(category1):
     for service in services:
         services_dict.update({service.dienstleistung_id: service.Dienstleistung})
     return render_template('services.html', services_dict=services_dict)
-
 
 @views.route('/request-quotation/<int:id>', methods= ['GET', 'POST'])
 @login_required
@@ -363,14 +354,14 @@ def request_quotation(id):
         # stellt sicher, dass der Eintrag in der Datenbank auf 'NULL' gesetzt wird, falls kein Bild ausgewählt wurde 
         quotation_image = None 
         if quotation_form.img.data.headers['Content-Type'] != 'application/octet-stream':
-            quotation_image = quotation_form.img.data.read()
+            quotation_image = image_compressor(quotation_form.img.data.read())
         
         new_service_order = Auftrag(
             Dienstleistung_ID = list(services_dict.keys())[list(services_dict.values()).index(quotation_form.service.data)],
             Kunde_ID = current_user.id,
             Dienstleister_ID = id,
             anfrage_freitext = quotation_form.request.data,
-            Startzeitpunkt = quotation_form.service_start.data,
+            Startzeitpunkt_Kunde = quotation_form.service_start.data,
             anfrage_bild = quotation_image,
             Status = ServiceOrderStatus.requested.value
         )
@@ -385,14 +376,12 @@ def request_quotation(id):
         flash("Angebotsanfrage erfolgreich übermittelt.")
         return redirect(url_for('views.home'))
 
-
     return render_template(
         'request-quotation.html',
         quotation_form=quotation_form,
         service_provider_id = id,
         services_list=services_list
         )
-
 
 @views.route('/order-details/<id>', methods=['GET','POST'])
 @login_required
@@ -403,8 +392,6 @@ def view_order_details(id):
     accept_radio = AcceptQuotation()
     cancel_checkbox = CancelOrder()
     complete_checkbox = CompleteOrder()
-
-
 
     if accept_radio.validate_on_submit():
         if accept_radio.accept_selection.data == 'accept':
@@ -441,7 +428,6 @@ def view_order_details(id):
             flash("Auftrag erfolgreich beendet.")
             return redirect(url_for('views.view_order'))
 
-    
     return render_template('order-details.html', 
         service_order=service_order,
         accept_radio=accept_radio,
@@ -449,7 +435,6 @@ def view_order_details(id):
         complete_checkbox=complete_checkbox,
         ServiceOrderStatus=ServiceOrderStatus
         )
-
 
 @views.route('/confirm_order/<id>', methods=['POST', 'GET'])
 @login_required
@@ -460,10 +445,17 @@ def confirm_order(id):
     confirm_form.rating.choices = rating_choices
 
     if confirm_form.validate_on_submit():
-        print(confirm_form.rating.data)
+
+        #stellt sicher, dass der Eintrag in der Datenbank auf 'NULL' gesetzt wird, falls kein Bild ausgewählt wurde
+        rating_image = None 
+        if confirm_form.img.data.headers['Content-Type'] != 'application/octet-stream':
+            rating_image = image_compressor(confirm_form.img.data.read())
+            
         rating = Dienstleisterbewertung(
             auftrags_ID = confirm_order.order_details.id,
-            d_bewertung = confirm_form.rating.data)
+            d_bewertung = confirm_form.rating.data,
+            d_bewertung_beschreibung = confirm_form.comment.data,
+            d_bewertung_bild = rating_image)
         db.session.add(rating)
         db.session.commit() 
         confirm_order.order_details.Status = ServiceOrderStatus.service_confirmed.value
@@ -482,7 +474,6 @@ def confirm_order(id):
         confirm_form = confirm_form
         )
 
-
 @views.route('/quote/<id>', methods=['POST', 'GET'])
 @login_required
 def create_quotation(id):
@@ -490,17 +481,25 @@ def create_quotation(id):
     quotation_form = CreateQuotation()
     if quotation_form.validate_on_submit():
         quotation_price = str(round(quotation_form.quote.data, 2))
+        #start und endzeitpunkt für die erbringung der dienstleistung
+        service_start = quotation_form.service_start.data
         service_finish = quotation_form.service_finish.data
         service_order.order_details.Status = ServiceOrderStatus.quotation_available.value
         service_order.order_details.Preis = quotation_price
+        service_order.order_details.Startzeitpunkt_Dienstleister = service_start
         service_order.order_details.Endzeitpunkt = service_finish
-        db.session.commit()
-
-        #Empfänger Email herausfinden + email senden
-        receiver = service_order.customer_contact
-        send_mail(receiver, ServiceOrderStatus.quotation_available, service_order)
-
-        return redirect(url_for('views.view_order_details', id=id))
-
+        #überprüfung ob endzeitpunkt nach startzeitpunk und ob startzeitpunkt nicht älter als aktuelles datum ist
+        if service_finish < service_start:
+            flash('Der Endzeitpunkt kann nicht vor dem Startzeitpunkt liegen!')
+            return redirect(url_for('views.create_quotation', id=id))
+        elif service_start < date.today():
+            flash('Der Startzeitpunkt kann nicht in der Vergangenheit liegen!')
+            return redirect(url_for('views.create_quotation', id=id))
+        else:
+            db.session.commit()
+            #Empfänger Email herausfinden + email senden
+            receiver = service_order.customer_contact
+            send_mail(receiver, ServiceOrderStatus.quotation_available, service_order)
+            return redirect(url_for('views.view_order_details', id=id))
 
     return render_template('quote.html', service_order=service_order, quotation_form=quotation_form)

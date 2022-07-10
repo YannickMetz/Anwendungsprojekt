@@ -43,8 +43,15 @@
             <td class="table-order-details-column-right">{{ service_order.order_details.Status }}</td>
         </tr>
         <tr>
-            <td class="table-order-details-column-left">Startzeitpunkt</td>
-            <td class="table-order-details-column-right">{{ service_order.order_details.Startzeitpunkt.date() }}</td>
+            <td class="table-order-details-column-left">Gewünschter Startzeitpunkt</td>
+            <td class="table-order-details-column-right">{{ service_order.order_details.Startzeitpunkt_Kunde.date() }}</td>
+        </tr>
+        <tr>
+            <td class="table-order-details-column-left">Möglicher Startzeitpunkt</td>
+            <td class="table-order-details-column-right">
+                {% if service_order.order_details.Endzeitpunkt != None %}
+                {{ service_order.order_details.Startzeitpunkt_Dienstleister.date() }}</td>
+                {% endif %}
         </tr>
         <tr>
             <td class="table-order-details-column-left">Endzeitpunkt</td>
@@ -53,6 +60,14 @@
                 {{ service_order.order_details.Endzeitpunkt.date() }}
                 {% endif %}
             </td>
+        </tr>
+        <tr>
+            <td class="table-order-details-column-left">Bewertung durch Kunde</td>
+            <td class="table-order-details-column-right">{{ service_order.customer_rating }}</td>
+        </tr>
+        <tr>
+            <td class="table-order-details-column-left">Beschreibung</td>
+            <td class="table-order-details-column-right">{{ service_order.customer_rating_comment|safe }}</td>
         </tr>
     </table>
     <br>
@@ -78,10 +93,6 @@
         <tr>
             <td class="table-order-details-column-left">Kontakt</td>
             <td class="table-order-details-column-right">{{ service_order.customer_contact }}</td>
-        </tr>
-        <tr>
-            <td class="table-order-details-column-left">Auftragsbewertung durch Kunde</td>
-            <td class="table-order-details-column-right">{{ service_order.customer_rating }}</td>
         </tr>
     </table>
     <br>

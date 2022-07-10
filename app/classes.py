@@ -1,5 +1,5 @@
 from enum import Enum
-from .models import Dienstleisterbewertung, User, Dienstleisterprofil, Auftrag, DienstleisterProfilGalerie, Dienstleistung, Dienstleister, Kunde, Dienstleistung_Profil_association
+from .models import Dienstleisterbewertung, User, Dienstleisterprofil, Kundenprofil, Auftrag, DienstleisterProfilGalerie, Dienstleistung, Dienstleister, Kunde, Dienstleistung_Profil_association, User
 from base64 import b64encode
 
 class ServiceOrderStatus(Enum):
@@ -23,6 +23,9 @@ class ServiceOrder:
 
         if Dienstleisterbewertung.query.where(Dienstleisterbewertung.auftrags_ID == order_id).first() != None:
             self.customer_rating = Dienstleisterbewertung.query.where(Dienstleisterbewertung.auftrags_ID == order_id).first().d_bewertung
+            #selects aus der Datenbank für das nachher-bild und die beschreibung für anzeige auf der Webseite
+            self.customer_rating_img = Dienstleisterbewertung.query.where(Dienstleisterbewertung.auftrags_ID == order_id).first().d_bewertung_bild
+            self.customer_rating_comment = Dienstleisterbewertung.query.where(Dienstleisterbewertung.auftrags_ID == order_id).first().d_bewertung_beschreibung
         else:
             self.customer_rating = " "
 
@@ -34,3 +37,4 @@ class ServiceOrder:
             self.customer_image = b64encode(self.order_details.anfrage_bild).decode('utf-8')
         else:
             self.customer_image = None
+

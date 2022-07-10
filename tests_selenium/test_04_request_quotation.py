@@ -1,8 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import Select
 from webdriver_manager.chrome import ChromeDriverManager
 import unittest
 import testutils
@@ -11,7 +9,7 @@ import testutils
 chrome_options = Options()
 chrome_options.add_argument("--headless")
 
-class register_login_test(unittest.TestCase):
+class request_quotation_test(unittest.TestCase):
 
     def setUp(self):
         #driver für nachfolgende funktionen definieren

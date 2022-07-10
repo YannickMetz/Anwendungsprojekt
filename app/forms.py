@@ -1,11 +1,10 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, PasswordField, TextAreaField, SelectField, FileField, DecimalField, RadioField, BooleanField
-from wtforms import DateField, IntegerField, widgets, SelectMultipleField
-from wtforms.validators import DataRequired, EqualTo, URL, Optional
+from wtforms import StringField, SubmitField, PasswordField, SelectField, FileField, DecimalField, RadioField, BooleanField
+from wtforms import DateField, IntegerField
+from wtforms.validators import DataRequired, EqualTo
 from flask_wtf.file import FileAllowed
-from wtforms import DateField
+from wtforms import DateField, TextAreaField
 from flask_ckeditor import CKEditorField
-from wtforms.widgets.core import CheckboxInput
 
 # Klasse mit modifiziertem DecimalField, welches sowohl Komma als auch Punkt als Dezimaltrennzeichen erlaubt
 class FlexibleDecimalField(DecimalField):
@@ -76,18 +75,22 @@ class SelectServiceForm(FlaskForm):
 
 class RequestQuotationForm(FlaskForm):
     service = SelectField(label="Dienstleistung auswählen", coerce=str, validators=[DataRequired()])
-    request = CKEditorField("Beschreiben sie ihre Anforderungen an den Dienstleister",validators=[DataRequired()])
+    request = TextAreaField("Beschreiben sie ihre Anforderungen an den Dienstleister",validators=[DataRequired()])
     service_start = DateField(label="Wann soll die Dienstleistung beginnen?", format='%Y-%m-%d')
     img = FileField("Bild auswählen (Optional)", validators=[FileAllowed(['jpg', 'jpeg'],'Only "jpg" and "jpeg" files are supported!')])
     submit = SubmitField("Angebotsanfrage versenden")
 
 class RateServiceForm(FlaskForm):
     rating = SelectField(label="Bitte bewerten Sie den Dienstleister mit einer Note (1 - Sehr schlecht bis 5 - Sehr gut)", coerce=int, validators=[DataRequired()])
+    #erweiterung für userstory15
+    comment = TextAreaField("Beschreiben Sie ihre Zufriedenheit (Optional)")
+    img = FileField("Bild auswählen (Optional)", validators=[FileAllowed(['jpg', 'jpeg'],'Only "jpg" and "jpeg" files are supported!')])
     submit = SubmitField("Abnahme und Bewertung bestätigen")
 
 class CreateQuotation(FlaskForm):
     quote = FlexibleDecimalField(label="Bitte geben sie den Preis(€) für das Angebot ein:")
-    service_finish = DateField(label="Bis wann kann die Dienstleistung erbacht werden?", format='%Y-%m-%d')
+    service_start = DateField(label="Ab wann kann die Dienstleistung erbracht werden?", format='%Y-%m-%d')
+    service_finish = DateField(label="Bis wann kann die Dienstleistung erbracht werden?", format='%Y-%m-%d')
     submit = SubmitField("Angebot versenden")
 
 class CancelOrder(FlaskForm):

@@ -1,6 +1,7 @@
 import smtplib, ssl
 from .classes import *
 from email.mime.text import MIMEText as text
+import os
 
 # dictionary zum mappen von änderung des Auftraggsstatus und text der in der Email gesendet wird.
 OrderActivies = {ServiceOrderStatus.requested: "Sie haben eien neuen Auftrag erhalten!\n",
@@ -10,11 +11,12 @@ OrderActivies = {ServiceOrderStatus.requested: "Sie haben eien neuen Auftrag erh
                 ServiceOrderStatus.quotation_confirmed: "Der Kunde hat das Angebot bestätigt!\n",
                 ServiceOrderStatus.service_confirmed: "Der Kunde hat bestätigt, dass die gewünschte Dienstleistung erbracht wurde!\n",
                 ServiceOrderStatus.cancelled: "Ihr Auftrag wurde durch den Dienstleister storniert!\n",
-                ServiceOrderStatus.completed: "Der Dienstleister hat den Auftrag abgeschlossen!\n" }
+                ServiceOrderStatus.completed: "Der Dienstleister hat den Auftrag abgeschlossen!\n"}
 
 # definition der email funktion
 def send_mail(receiver, status, order):
-    message = text(OrderActivies[status])
+    #text für email
+    message = text(OrderActivies[status] + "\nWeitere Informationen erhalten Sie in Ihrer Auftragsübersicht.")
 
     # [To] und ['Subject] mussten eingefügt werden da sonst nicht übernommen. Empfänger war in BCC und Betreff wurde nicht übernommen
     message['To'] = receiver
@@ -24,8 +26,10 @@ def send_mail(receiver, status, order):
     # Port Für starttls
     port = 587
     sender_email = "dienstleistungondemand@gmail.com"
-    password = "zlybwbomapicvnrk"
-
+    #App-PW für gmail. Nicht zum login nutzbar
+    #password = "zlybwbomapicvnrk"
+    #in umgebungsvariable von heroku container, unter linux: export TEST="Hallo", pw muss in irgend einer config stehen?
+    password = os.environ["GMAILPW"]
     # Secure SSL context erstellen
     context = ssl.create_default_context()
 
