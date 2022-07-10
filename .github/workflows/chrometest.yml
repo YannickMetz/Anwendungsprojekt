@@ -15,7 +15,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     env: 
-      gmailenv: ${{secrets.GMailPW}}
+      gmailenv: ${{secrets.GMAILPW}}
     steps:
       - uses: actions/checkout@v3
 
@@ -76,7 +76,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     env: 
-      gmailenv: ${{secrets.GMailPW}}
+      gmailenv: ${{secrets.GMAILPW}}
     steps:       
       - uses: actions/checkout@v3
         
@@ -97,8 +97,6 @@ jobs:
           pip install -r requirements.txt
 
       - name: start flask application, init db and start testing
-        env: 
-          gmailenv: ${{ secrets.GMailPW }}
         run: |
           start-job -scriptblock{python.exe "D:\a\Anwendungsprojekt\Anwendungsprojekt\main.py"}
           start-sleep -Seconds 2
@@ -134,7 +132,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     env: 
-      gmailenv: ${{secrets.GMailPW}}
+      gmailenv: ${{secrets.GMAILPW}}
     steps:
       - uses: actions/checkout@v3
 
@@ -164,8 +162,6 @@ jobs:
           flask mockdata init-mockdata
 
       - name: execute test scripts
-        env: 
-          gmailenv: ${{ secrets.GMailPW }}
         run: |
           echo testing registration
           python tests_selenium/test_01_register.py
