@@ -29,7 +29,7 @@ def send_mail(receiver, status, order):
     #App-PW für gmail. Nicht zum login nutzbar
     #password = "zlybwbomapicvnrk"
     #in umgebungsvariable von heroku container, unter linux: export TEST="Hallo", pw muss in irgend einer config stehen?
-    password = os.environ["GMailPW"]
+    password = os.environ["GMAILPW"]
     # Secure SSL context erstellen
     context = ssl.create_default_context()
 
