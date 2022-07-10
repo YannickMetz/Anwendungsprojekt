@@ -432,7 +432,7 @@ def test_confirm_order(test_client):
     assert "_user_id" not in session
     login(test_client, email="max@testmail.com", password="123456")
     assert session["_user_id"] == "1"
-    response = test_client.post('/confirm_order/1', data=dict(rating=3), follow_redirects=True)
+    response = test_client.post('/confirm_order/1', data=dict(rating=3, comment="testcomment", img=read_image(4)), follow_redirects=True)
     assert b'Abgenommen' in response.data
     assert b'<input id="complete_order" name="complete_order" type="checkbox" value="y">' not in response.data
     login(test_client, email="erika@testmail.com", password="123456")
