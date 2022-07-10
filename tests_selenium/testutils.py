@@ -1,6 +1,7 @@
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.by import By
 import time
+import os
 
 def register_customer(driver):
     driver.get('http://127.0.0.1:5000/')
@@ -131,6 +132,7 @@ def create_quotation_accept(driver):
     driver.find_element(By.ID, "submit").click()
 
 def create_quotation_reject(driver):
+    print(os.environ["GMAILPW"])
     driver.get('http://127.0.0.1:5000/')
     driver.find_element(By.ID, "actions").click()
     driver.find_element(By.ID, "show_orders").click()
