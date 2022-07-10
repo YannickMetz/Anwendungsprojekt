@@ -372,7 +372,7 @@ def test_create_quotation(test_client):
     assert "_user_id" not in session
     login(test_client, email="erika@testmail.com", password="123456")
     assert session["_user_id"] == "2"
-    response = test_client.post('/quote/1', data=dict(quote=999.95123, service_start='9999-01-31', service_finish='9999-02-31'), follow_redirects=True)
+    response = test_client.post('/quote/1', data=dict(quote=999.95123, service_start='9999-01-31', service_finish='9999-02-25'), follow_redirects=True)
     assert response.status_code == 200
     assert response.request.path == '/order-details/1'
     assert b'999.95' in response.data
