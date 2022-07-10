@@ -15,8 +15,9 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     steps:
-      with: 
-        gmailenv: ${{ secrets.GMailPW }}
+      - name: gmailenv
+        with: 
+          gmailenv: ${{ secrets.GMailPW }}
 
       - uses: actions/checkout@v3
 
@@ -77,8 +78,9 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     steps:
-      with: 
-        gmailenv: ${{ secrets.GMailPW }}
+      - name: gmailenv
+        with: 
+          gmailenv: ${{ secrets.GMailPW }}
       - uses: actions/checkout@v3
 
       - uses: browser-actions/setup-chrome@latest
@@ -133,8 +135,9 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     steps:
-      with: 
-        gmailenv: ${{ secrets.GMailPW }}
+      - name: gmailenv
+        with: 
+          gmailenv: ${{ secrets.GMailPW }}
       - uses: actions/checkout@v3
 
       - uses: browser-actions/setup-chrome@latest
