@@ -26,9 +26,7 @@ def send_mail(receiver, status, order):
     # Port Für starttls
     port = 587
     sender_email = "dienstleistungondemand@gmail.com"
-    #App-PW für gmail. Nicht zum login nutzbar
-    #password = "zlybwbomapicvnrk"
-    #in umgebungsvariable von heroku container, unter linux: export TEST="Hallo", pw muss in irgend einer config stehen?
+    #App-PW für gmail. Nicht zum login nutzbar. Aufgerufen über Umgebungsvariable
     password = os.environ["GMAILPW"]
     # Secure SSL context erstellen
     context = ssl.create_default_context()
