@@ -110,7 +110,7 @@ def request_quotation_confirm(driver):
     Select(driver.find_element(By.ID, "service")).select_by_visible_text("Fassade")
     #sleep um zu warten bis sich der iframe aufgebaut hat
     time.sleep(3)
-    #driver.switch_to.frame(driver.find_element_by_tag_name("iframe"))
+    
     #Aufruf über XPATH da keine ID vergeben werden kann, Eingabe in Textfeld
     driver.find_element(By.ID, "request").send_keys("Wir brauchen hilfe bei unserere Fassade.")
     #driver.switch_to.default_content()
